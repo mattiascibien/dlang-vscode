@@ -1,0 +1,122 @@
+{
+	"cla": {
+		"prefix": "cla",
+		"body": "class ${1:${TM_FILENAME/(.*?)(\\..+)/$1/}}\n{\n\tthis($2)\n\t{\n\t\t$0\n\t}\n}\n",
+		"description": "class … { … }",
+		"scope": "source.d"
+	},
+	"debug": {
+		"prefix": "debug",
+		"body": "debug\n{\n\t$0\n}",
+		"description": "debug { … }",
+		"scope": "source.d"
+	},
+	"debugm": {
+		"prefix": "debugm",
+		"body": "debug (${1:${TM_FILENAME/(.*?)(\\..+)/$1/}})\n{\n\t$0\n}",
+		"description": "debug (module) { … }",
+		"scope": "source.d"
+	},
+	"en": {
+		"prefix": "en",
+		"body": "enum ${1:name}\n{\n    $0\n}",
+		"description": "enum … { … }",
+		"scope": "source.d"
+	},
+	"fer": {
+		"prefix": "fer",
+		"body": "foreach_reverse (${1:e} ; $0)\n{\n\t\n}",
+		"description": "foreach_reverse (e ; …) { … }",
+		"scope": "source.d"
+	},
+	"fe": {
+		"prefix": "fe",
+		"body": "foreach (${1:e} ; $0)\n{\n\t\n}",
+		"description": "foreach (e ; …) { … }",
+		"scope": "source.d"
+	},
+	"ife": {
+		"prefix": "ife",
+		"body": "if (${1:condition})\n{\n\t$2\n}\nelse\n{\n\t$0\n}",
+		"description": "if … else",
+		"scope": "source.d"
+	},
+	"if": {
+		"prefix": "if",
+		"body": "if (${1:condition})\n{\n\t$0\n}",
+		"description": "if …",
+		"scope": "source.d"
+	},
+	"im": {
+		"prefix": "im",
+		"body": "import ${1:${TM_FILEPATH/.+\\/([^\\/]+)\\/[^\\/]+\\.d$/\\l$1/}.};",
+		"description": "import …",
+		"scope": "source.d"
+	},
+	"maina": {
+		"prefix": "maina",
+		"body": "int main(string[] args)\n{\n\t$1\n\treturn 0;\n}",
+		"description": "int main(string[] args) { … }",
+		"scope": "source.d"
+	},
+	"main": {
+		"prefix": "main",
+		"body": "void main()\n{\n\t${1}\n}",
+		"description": "void main() { … }",
+		"scope": "source.d"
+	},
+	"me": {
+		"prefix": "me",
+		"body": "/**\n * $2\n */\n${1:void} ${2:method}(${3:args})\n{\n\t${0}\n}",
+		"description": "method … { … }",
+		"scope": "source.d"
+	},
+	"r": {
+		"prefix": "r",
+		"body": "return $0;",
+		"description": "return …",
+		"scope": "source.d"
+	},
+	"st": {
+		"prefix": "st",
+		"body": "/**\n * $2\n */\nstruct ${1:name}\n{\n\t$3\n}",
+		"description": "struct … { … }",
+		"scope": "source.d"
+	},
+	"tcf": {
+		"prefix": "tcf",
+		"body": "try\n{\n\t$2\n}\ncatch (${1:Exception} e)\n{\n\t$3\n}\nfinally\n{\n\t$0\n}",
+		"description": "try … catch … finally",
+		"scope": "source.d"
+	},
+	"tc": {
+		"prefix": "tc",
+		"body": "try\n{\n\t$2\n}\ncatch (${1:Exception} e)\n{\n\t$0\n}",
+		"description": "try … catch",
+		"scope": "source.d"
+	},
+	"tf": {
+		"prefix": "tf",
+		"body": "try\n{\n\t$1\n}\nfinally\n{\n\t$0\n}",
+		"description": "try … finally",
+		"scope": "source.d"
+	},
+	"unit": {
+		"prefix": "unit",
+		"body": "unittest\n{\n\t$0\n}",
+		"description": "unittest { … }",
+		"scope": "source.d"
+	},
+	"ver": {
+		"prefix": "ver",
+		"body": "version(${1:Posix})\n{\n\t$0\n}",
+		"description": "version (ident) { … }",
+		"scope": "source.d"
+	},
+	"while": {
+		"prefix": "while",
+		"body": "while (${1:condition})\n{\n\t$0\n}",
+		"description": "while (…) { … }",
+		"scope": "source.d"
+	}
+}
