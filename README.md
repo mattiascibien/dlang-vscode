@@ -6,11 +6,12 @@ D Language Page: https://dlang.org/
 
  * Syntax Colorization
  * Snippets
+ * Basic autocompletion (uses [Dub](https://github.com/D-Programming-Language/dub))
 
 ## TODO
 
  * Debugging
- * Intellisense
+ * Better Intellisense
 
 ## Original code
 
