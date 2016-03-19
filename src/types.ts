@@ -1,6 +1,4 @@
-// export default function type(dcdType: string) {
-//     // TODO
-// }
+'use strict';
 
 import * as vsc from 'vscode';
 
