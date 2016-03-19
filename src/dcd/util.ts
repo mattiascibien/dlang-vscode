@@ -1,6 +1,4 @@
-// export default function type(dcdType: string) {
-//     // TODO
-// }
+'use strict';
 
 import * as vsc from 'vscode';
 
@@ -24,4 +22,10 @@ types.set('I', vsc.CompletionItemKind.Reference);
 types.set('t', vsc.CompletionItemKind.Class);
 types.set('T', vsc.CompletionItemKind.Class);
 
-export default types;
+export {types};
+
+export enum Operation {
+    Completion,
+    Definition,
+    Documentation
+};

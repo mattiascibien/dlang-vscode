@@ -2,7 +2,8 @@
 
 import * as ev from 'events';
 import * as vsc from 'vscode';
-import Client from './client';
+import Client from './dcd/client';
+import * as util from './dcd/util';
 
 export default class Provider extends ev.EventEmitter implements vsc.CompletionItemProvider {
     public provideCompletionItems(
@@ -11,7 +12,7 @@ export default class Provider extends ev.EventEmitter implements vsc.CompletionI
         token: vsc.CancellationToken
     ) {
         let bufferPos = document.offsetAt(position);
-        let client = new Client(bufferPos, token);
+        let client = new Client(bufferPos, util.Operation.Completion, token);
 
         client.on('error', () => {
             this.emit('restart');

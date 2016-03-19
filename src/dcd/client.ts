@@ -5,13 +5,13 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
 import Server from './server';
-import types from './types';
+import * as util from './util';
 
 export default class Client extends ev.EventEmitter {
     public static path: string;
     private _client: cp.ChildProcess;
 
-    public constructor(position: number, private _token: vsc.CancellationToken) {
+    public constructor(position: number, op: util.Operation, private _token: vsc.CancellationToken) {
         super();
 
         this._client = cp.spawn(Client.path + 'dcd-client', ['-c', String(position)]);
@@ -39,7 +39,7 @@ export default class Client extends ev.EventEmitter {
                 case 'identifiers':
                     let item = new vsc.CompletionItem(parts[0]);
 
-                    item.kind = types.get(parts[1]);
+                    item.kind = util.types.get(parts[1]);
                     completions.push(item);
 
                     break;

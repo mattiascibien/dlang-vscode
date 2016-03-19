@@ -2,9 +2,9 @@
 
 import * as vsc from 'vscode';
 import Dub from './dub';
-import Server from './server';
-import Client from './client';
 import Provider from './provider';
+import Server from './dcd/server';
+import Client from './dcd/client';
 
 const selector = { languages: 'd', scheme: 'file' };
 
