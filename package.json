@@ -4,6 +4,11 @@
     "description": "Support for the D Programming Language (https://dlang.org/)",
     "version": "0.5.0",
     "publisher": "mattiascibien",
+    "icon": "images/dlogo.png",
+    "galleryBanner": {
+        "color": "#B03931",
+        "theme": "dark"
+    },
     "engines": {
         "vscode": "^0.10.1"
     },
