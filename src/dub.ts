@@ -27,19 +27,24 @@ export default class Dub extends vsc.Disposable {
 
     public constructor() {
         super(null);
-        this.refresh();
     }
 
     public dispose() {
         this._packages = null;
     }
 
-    public fetch(mod: string) {
-        let fetch = cp.spawn('dub', ['fetch', mod]);
+    public fetch(packageName: string, build?: boolean) {
+        let fetch = cp.spawn('dub', ['fetch', packageName]);
 
         return new Promise((resolve) => {
             fetch.on('exit', resolve);
-        });
+        }).then(() => {
+            return this.refresh();
+        }).then(() => {
+            if (build) {
+                return this.build(packageName);
+            }
+        })
     }
 
     public build(packageName: string, config?: string) {
@@ -78,6 +83,10 @@ export default class Dub extends vsc.Disposable {
                 }
             }
         });
+
+        return new Promise((resolve) => {
+            reader.on('close', resolve);
+        })
     }
 }
 

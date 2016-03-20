@@ -4,9 +4,12 @@ import * as ev from 'events';
 import * as vsc from 'vscode';
 import Client from './dcd/client';
 import * as util from './dcd/util';
+import Dfmt from './dfmt';
 
-export default class Provider extends ev.EventEmitter
-    implements vsc.CompletionItemProvider, vsc.DefinitionProvider {
+export default class Provider extends ev.EventEmitter implements
+    vsc.CompletionItemProvider,
+    vsc.DefinitionProvider,
+    vsc.DocumentFormattingEditProvider {
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
@@ -23,6 +26,18 @@ export default class Provider extends ev.EventEmitter
         return this.provide(document, position, token, util.Operation.Definition);
     }
 
+    public provideDocumentFormattingEdits(
+        document: vsc.TextDocument,
+        options: vsc.FormattingOptions,
+        token: vsc.CancellationToken
+    ) {
+        let dfmt = new Dfmt(document, options, token);
+
+        return new Promise((resolve, reject) => {
+            dfmt.execute(resolve, reject);
+        });
+    }
+
     private provide(
         document: vsc.TextDocument,
         position: vsc.Position,
@@ -36,8 +51,8 @@ export default class Provider extends ev.EventEmitter
             this.emit('restart');
         })
 
-        return new Promise((resolve) => {
-            client.execute(resolve);
+        return new Promise((resolve, reject) => {
+            client.execute(resolve, reject);
         });
     }
 }

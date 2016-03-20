@@ -38,7 +38,7 @@ export default class Client extends ev.EventEmitter {
         });
     }
 
-    public execute(resolve: Function) {
+    public execute(resolve: Function, reject: Function) {
         let reader = rl.createInterface({ input: this._client.stdout, output: null });
         let completions: vsc.CompletionItem[] = [];
         let completionType: string;
@@ -58,7 +58,7 @@ export default class Client extends ev.EventEmitter {
         }
 
         this._token.onCancellationRequested((e) => {
-            resolve();
+            reject();
         });
 
         reader.on('line', (line: string) => {
@@ -79,14 +79,12 @@ export default class Client extends ev.EventEmitter {
 
                 case 'definition':
                     if (parts.length < 2) {
-                        resolve();
+                        reject();
                         return;
                     }
 
                     let filename = parts[0];
                     let position = this._document.positionAt(Number(parts[1]));
-
-                    console.log(parts[1]);
 
                     if (filename === 'stdin') {
                         resolve(new vsc.Location(vsc.Uri.file(this._document.fileName), position));
