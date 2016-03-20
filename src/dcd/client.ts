@@ -3,6 +3,8 @@
 import * as ev from 'events';
 import * as cp from 'child_process';
 import * as rl from 'readline';
+import * as fs from 'fs';
+import * as os from 'os';
 import * as vsc from 'vscode';
 import Server from './server';
 import * as util from './util';
@@ -76,11 +78,23 @@ export default class Client extends ev.EventEmitter {
                     break;
 
                 case 'definition':
-                    let filename = parts[0] === 'stdin' ? this._document.fileName : parts[0];
+                    if (parts.length < 2) {
+                        resolve();
+                        return;
+                    }
 
-                    resolve(parts.length > 1
-                        ? new vsc.Location(vsc.Uri.file(filename), this._document.positionAt(Number(parts[1])))
-                        : null);
+                    let filename = parts[0];
+                    let position = this._document.positionAt(Number(parts[1]));
+
+                    if (filename === 'stdin') {
+                        filename = this._document.fileName;
+                    } else {
+                        let text = fs.readFileSync(filename).toString().slice(0, Number(parts[1]));
+                        position = new vsc.Position(text.match(new RegExp(os.EOL, 'g')).length,
+                            text.slice(text.lastIndexOf(os.EOL)).length - 1);
+                    }
+
+                    resolve(new vsc.Location(vsc.Uri.file(filename), position));
 
                     break;
 
