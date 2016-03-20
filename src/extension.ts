@@ -5,8 +5,7 @@ import Dub from './dub';
 import CompletionProvider from './provider';
 import Server from './dcd/server';
 import Client from './dcd/client';
-
-const selector = { languages: 'd', scheme: 'file' };
+import {D_MODE} from './mode';
 
 export function activate(context: vsc.ExtensionContext) {
     if (Dub.check()) {
@@ -25,8 +24,8 @@ export function activate(context: vsc.ExtensionContext) {
 
         let server = new Server(dub.paths);
         let provider = new CompletionProvider();
-        let completionProvider = vsc.languages.registerCompletionItemProvider(selector, provider, '.');
-        let definitionProvider = vsc.languages.registerDefinitionProvider(selector, provider);
+        let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
+        let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
 
         provider.on('restart', () => {
             server.start(dub.paths);
