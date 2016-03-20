@@ -6,12 +6,18 @@ D Language Page: https://dlang.org/
 
  * Syntax Colorization
  * Snippets
- * Basic autocompletion (uses [Dub](https://github.com/D-Programming-Language/dub))
+ * Basic autocompletion
+ * Formatting
+
+
+ In order to use autocompletion or formatting you must have [Dub](https://github.com/D-Programming-Language/dub) installed on your system
 
 ## TODO
 
  * Debugging
  * Better Intellisense
+ * Documentation display
+ * Dub project support
 
 ## Original code
 
