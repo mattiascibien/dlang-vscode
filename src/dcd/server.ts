@@ -19,29 +19,31 @@ export default class Server extends vsc.Disposable {
 
     public start(paths?: string[]) {
         let additions = new Set<string>();
-        let additionsArray: string[] = [];
+        let additionsImports: string[] = [];
 
         if (paths) {
             for (let i = 0; i < paths.length; i++) {
                 let dirs = this.importDirs(paths[i]);
 
                 dirs.forEach((dir) => {
-                    additions.add('-I' + dir);
+                    additions.add(dir);
                 });
             }
         }
 
         if (vsc.workspace.rootPath) {
             this.importDirs(vsc.workspace.rootPath + path.sep).forEach((dir) => {
-                additions.add('-I' + dir);
+                additions.add(dir);
             });
+
+            additions.add(vsc.workspace.rootPath);
         }
 
         additions.forEach((item) => {
-            additionsArray.push(item);
+            additionsImports.push('-I' + item);
         })
 
-        cp.spawn(Server.path + 'dcd-server', additionsArray, { stdio: 'ignore' });
+        cp.spawn(Server.path + 'dcd-server', additionsImports, { stdio: 'ignore' });
     }
 
     public stop() {
