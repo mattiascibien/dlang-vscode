@@ -2,7 +2,7 @@
 
 import * as vsc from 'vscode';
 import Dub from './dub';
-import Provider from './provider';
+import CompletionProvider from './provider';
 import Server from './dcd/server';
 import Client from './dcd/client';
 
@@ -24,15 +24,17 @@ export function activate(context: vsc.ExtensionContext) {
         Server.path = Client.path = dub.packages.get('dcd').path;
 
         let server = new Server(dub.paths);
-        let provider = new Provider();
-        let itemProvider = vsc.languages.registerCompletionItemProvider(selector, provider, '.');
+        let provider = new CompletionProvider();
+        let completionProvider = vsc.languages.registerCompletionItemProvider(selector, provider, '.');
+        let definitionProvider = vsc.languages.registerDefinitionProvider(selector, provider);
 
         provider.on('restart', () => {
             server.start(dub.paths);
         });
 
         context.subscriptions.push(server);
-        context.subscriptions.push(itemProvider);
+        context.subscriptions.push(completionProvider);
+        context.subscriptions.push(definitionProvider);
     });
 }
 

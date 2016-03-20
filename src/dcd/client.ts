@@ -11,10 +11,23 @@ export default class Client extends ev.EventEmitter {
     public static path: string;
     private _client: cp.ChildProcess;
 
-    public constructor(position: number, op: util.Operation, private _token: vsc.CancellationToken) {
+    public constructor(
+        private _document: vsc.TextDocument,
+        position: number,
+        private _token: vsc.CancellationToken,
+        private _op: util.Operation
+    ) {
         super();
 
-        this._client = cp.spawn(Client.path + 'dcd-client', ['-c', String(position)]);
+        let args = ['-c', String(position)];
+
+        if (this._op === util.Operation.Definition) {
+            args.push('-l');
+        } else if (this._op === util.Operation.Documentation) {
+            args.push('-d');
+        }
+
+        this._client = cp.spawn(Client.path + 'dcd-client', args);
 
         this._client.on('exit', (code: number) => {
             if (code) {
@@ -23,10 +36,24 @@ export default class Client extends ev.EventEmitter {
         });
     }
 
-    public write(text: string, resolve: Function) {
+    public execute(resolve: Function) {
         let reader = rl.createInterface({ input: this._client.stdout, output: null });
         let completions: vsc.CompletionItem[] = [];
-        let completionType: string = null;
+        let completionType: string;
+
+        switch (this._op) {
+            case util.Operation.Definition:
+                completionType = 'definition';
+                break;
+
+            case util.Operation.Documentation:
+                completionType = 'documentation';
+                break;
+
+            default:
+                completionType = null;
+                break;
+        }
 
         this._token.onCancellationRequested((e) => {
             resolve();
@@ -48,6 +75,15 @@ export default class Client extends ev.EventEmitter {
                     // TODO
                     break;
 
+                case 'definition':
+                    let filename = parts[0] === 'stdin' ? this._document.fileName : parts[0];
+
+                    resolve(parts.length > 1
+                        ? new vsc.Location(vsc.Uri.file(filename), this._document.positionAt(Number(parts[1])))
+                        : null);
+
+                    break;
+
                 default:
                     completionType = line;
                     break;
@@ -58,7 +94,7 @@ export default class Client extends ev.EventEmitter {
             resolve(completions);
         });
 
-        this._client.stdin.write(text);
+        this._client.stdin.write(this._document.getText());
         this._client.stdin.end();
     }
 }
