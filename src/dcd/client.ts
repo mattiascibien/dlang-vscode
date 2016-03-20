@@ -86,15 +86,21 @@ export default class Client extends ev.EventEmitter {
                     let filename = parts[0];
                     let position = this._document.positionAt(Number(parts[1]));
 
-                    if (filename === 'stdin') {
-                        filename = this._document.fileName;
-                    } else {
-                        let text = fs.readFileSync(filename).toString().slice(0, Number(parts[1]));
-                        position = new vsc.Position(text.match(new RegExp(os.EOL, 'g')).length,
-                            text.slice(text.lastIndexOf(os.EOL)).length - 1);
-                    }
+                    console.log(parts[1]);
 
-                    resolve(new vsc.Location(vsc.Uri.file(filename), position));
+                    if (filename === 'stdin') {
+                        resolve(new vsc.Location(vsc.Uri.file(this._document.fileName), position));
+                    } else {
+                        fs.readFile(filename, (err, data) => {
+                            if (!err) {
+                                let text = data.toString().slice(0, Number(parts[1])); // FIXME : can go too far
+                                position = new vsc.Position(text.match(new RegExp(os.EOL, 'g')).length,
+                                    text.slice(text.lastIndexOf(os.EOL)).length - 1);
+
+                                resolve(new vsc.Location(vsc.Uri.file(filename), position));
+                            }
+                        });
+                    }
 
                     break;
 
@@ -104,9 +110,11 @@ export default class Client extends ev.EventEmitter {
             }
         });
 
-        reader.on('close', () => {
-            resolve(completions);
-        });
+        if (this._op === util.Operation.Completion) {
+            reader.on('close', () => {
+                resolve(completions);
+            });
+        }
 
         this._client.stdin.write(this._document.getText());
         this._client.stdin.end();
