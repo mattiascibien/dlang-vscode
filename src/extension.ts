@@ -26,6 +26,7 @@ export function activate(context: vsc.ExtensionContext) {
 
         let server = new Server(dub.paths);
         let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
+        let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
         let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
 
         provider.on('restart', () => {
@@ -34,6 +35,7 @@ export function activate(context: vsc.ExtensionContext) {
 
         context.subscriptions.push(server);
         context.subscriptions.push(completionProvider);
+        context.subscriptions.push(signatureProvider);
         context.subscriptions.push(definitionProvider);
     });
 

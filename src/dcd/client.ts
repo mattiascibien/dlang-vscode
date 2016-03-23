@@ -12,20 +12,21 @@ import * as util from './util';
 export default class Client extends ev.EventEmitter {
     public static path: string;
     private _client: cp.ChildProcess;
+    private _commas: number;
 
     public constructor(
         private _document: vsc.TextDocument,
-        position: number,
+        position: vsc.Position,
         private _token: vsc.CancellationToken,
-        private _op: util.Operation
+        private _operation: util.Operation
     ) {
         super();
 
-        let args = ['-c', String(position)];
+        let args = ['-c', String(this._document.offsetAt(position))];
 
-        if (this._op === util.Operation.Definition) {
+        if (this._operation === util.Operation.Definition) {
             args.push('-l');
-        } else if (this._op === util.Operation.Documentation) {
+        } else if (this._operation === util.Operation.Documentation) {
             args.push('-d');
         }
 
@@ -41,9 +42,10 @@ export default class Client extends ev.EventEmitter {
     public execute(resolve: Function, reject: Function) {
         let reader = rl.createInterface({ input: this._client.stdout, output: null });
         let completions: vsc.CompletionItem[] = [];
+        let signatureHelp = new vsc.SignatureHelp();
         let completionType: string;
 
-        switch (this._op) {
+        switch (this._operation) {
             case util.Operation.Definition:
                 completionType = 'definition';
                 break;
@@ -74,7 +76,7 @@ export default class Client extends ev.EventEmitter {
                     break;
 
                 case 'calltips':
-                    // TODO
+                    signatureHelp.signatures.push(new vsc.SignatureInformation(line));
                     break;
 
                 case 'definition':
@@ -91,7 +93,7 @@ export default class Client extends ev.EventEmitter {
                     } else {
                         fs.readFile(filename, (err, data) => {
                             if (!err) {
-                                let text = data.toString().slice(0, Number(parts[1])); // FIXME : can go too far
+                                let text = data.toString().slice(0, Number(parts[1])); // TODO : can go too far
                                 position = new vsc.Position(text.match(new RegExp(os.EOL, 'g')).length,
                                     text.slice(text.lastIndexOf(os.EOL)).length - 1);
 
@@ -108,9 +110,9 @@ export default class Client extends ev.EventEmitter {
             }
         });
 
-        if (this._op === util.Operation.Completion) {
+        if (this._operation === util.Operation.Completion || this._operation === util.Operation.Calltips) {
             reader.on('close', () => {
-                resolve(completions);
+                resolve(completionType === 'identifiers' ? completions : signatureHelp);
             });
         }
 

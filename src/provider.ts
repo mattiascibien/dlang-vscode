@@ -8,6 +8,7 @@ import Dfmt from './dfmt';
 
 export default class Provider extends ev.EventEmitter implements
     vsc.CompletionItemProvider,
+    vsc.SignatureHelpProvider,
     vsc.DefinitionProvider,
     vsc.DocumentFormattingEditProvider {
     public provideCompletionItems(
@@ -16,6 +17,14 @@ export default class Provider extends ev.EventEmitter implements
         token: vsc.CancellationToken
     ) {
         return this.provide(document, position, token, util.Operation.Completion);
+    }
+
+    public provideSignatureHelp(
+        document: vsc.TextDocument,
+        position: vsc.Position,
+        token: vsc.CancellationToken
+    ) {
+        return this.provide(document, position, token, util.Operation.Calltips);
     }
 
     public provideDefinition(
@@ -44,8 +53,7 @@ export default class Provider extends ev.EventEmitter implements
         token: vsc.CancellationToken,
         operation: util.Operation
     ) {
-        let bufferPos = document.offsetAt(position);
-        let client = new Client(document, bufferPos, token, operation);
+        let client = new Client(document, position, token, operation);
 
         client.on('error', () => {
             this.emit('restart');

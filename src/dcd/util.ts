@@ -26,6 +26,7 @@ export {types};
 
 export enum Operation {
     Completion,
+    Calltips,
     Definition,
     Documentation
 };
