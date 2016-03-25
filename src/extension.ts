@@ -6,7 +6,6 @@ import CompletionProvider from './provider';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
-import Dscanner from './dscanner';
 import {D_MODE} from './mode';
 
 export function activate(context: vsc.ExtensionContext) {

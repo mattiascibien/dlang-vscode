@@ -19,6 +19,7 @@ D Language Page: https://dlang.org/
  * Documentation display
  * Dub project support
  * Linting
+ * Dfix
 
 ## Original code
 
