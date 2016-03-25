@@ -30,7 +30,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public dispose() {
-        this._packages = null;
+        this._packages.clear();
     }
 
     public fetch(packageName: string, build?: boolean) {
