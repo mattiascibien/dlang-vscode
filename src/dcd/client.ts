@@ -1,10 +1,11 @@
 'use strict';
 
 import * as ev from 'events';
+import * as os from 'os';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as cp from 'child_process';
 import * as rl from 'readline';
-import * as fs from 'fs';
-import * as os from 'os';
 import * as vsc from 'vscode';
 import Server from './server';
 import * as util from './util';
@@ -30,7 +31,7 @@ export default class Client extends ev.EventEmitter {
             args.push('-d');
         }
 
-        this._client = cp.spawn(Client.path + 'dcd-client', args);
+        this._client = cp.spawn(path.join(Client.path, 'dcd-client'), args);
 
         this._client.on('exit', (code: number) => {
             if (code) {

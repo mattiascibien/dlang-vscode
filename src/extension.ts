@@ -2,7 +2,7 @@
 
 import * as vsc from 'vscode';
 import Dub from './dub';
-import CompletionProvider from './provider';
+import Provider from './provider';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
@@ -15,7 +15,7 @@ export function activate(context: vsc.ExtensionContext) {
     }
 
     let dub = new Dub();
-    let provider = new CompletionProvider();
+    let provider = new Provider();
 
     context.subscriptions.push(dub);
 

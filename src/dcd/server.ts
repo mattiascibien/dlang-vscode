@@ -43,7 +43,7 @@ export default class Server extends vsc.Disposable {
             additionsImports.push('-I' + item);
         })
 
-        cp.spawn(Server.path + 'dcd-server', additionsImports, { stdio: 'ignore' });
+        cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
     }
 
     public stop() {
