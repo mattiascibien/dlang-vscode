@@ -56,7 +56,6 @@ export default class Server extends vsc.Disposable {
                 let result = conf.match(/-I\S+/g);
 
                 result.forEach(match => {
-                    console.log(match);
                     additionsImports.push(match);
                 });
             } catch (e) { }

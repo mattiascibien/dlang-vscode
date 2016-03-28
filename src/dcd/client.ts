@@ -41,7 +41,7 @@ export default class Client extends ev.EventEmitter {
     }
 
     public execute(resolve: Function, reject: Function) {
-        let reader = rl.createInterface({ input: this._client.stdout, output: null });
+        let reader = rl.createInterface(this._client.stdout, null );
         let completions: vsc.CompletionItem[] = [];
         let signatureHelp = new vsc.SignatureHelp();
         let completionType: string;

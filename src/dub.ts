@@ -63,7 +63,7 @@ export default class Dub extends vsc.Disposable {
 
     public refresh() {
         let dub = cp.spawn('dub', ['list']);
-        let reader = rl.createInterface({ input: dub.stdout, output: null });
+        let reader = rl.createInterface(dub.stdout, null);
         let firstLine = true;
 
         reader.on('line', (line: string) => {
