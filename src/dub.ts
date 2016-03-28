@@ -1,8 +1,8 @@
 'use strict';
 
-import * as vsc from 'vscode';
 import * as cp from 'child_process';
 import * as rl from 'readline';
+import * as vsc from 'vscode';
 
 export default class Dub extends vsc.Disposable {
     private _packages = new Map<string, Package>();
