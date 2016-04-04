@@ -1,7 +1,7 @@
 {
-	"cla": {
-		"prefix": "cla",
-		"body": "class ${1:${TM_FILENAME/(.*?)(\\..+)/$1/}}\n{\n\tthis($2)\n\t{\n\t\t$0\n\t}\n}\n",
+	"class": {
+		"prefix": "class",
+		"body": "class ${1:classname}\n{\n\tthis($2)\n\t{\n\t\t$0\n\t}\n}\n",
 		"description": "class … { … }",
 		"scope": "source.d"
 	},
@@ -13,7 +13,7 @@
 	},
 	"debugm": {
 		"prefix": "debugm",
-		"body": "debug (${1:${TM_FILENAME/(.*?)(\\..+)/$1/}})\n{\n\t$0\n}",
+		"body": "debug (${1:module})\n{\n\t$0\n}",
 		"description": "debug (module) { … }",
 		"scope": "source.d"
 	},
@@ -49,7 +49,7 @@
 	},
 	"im": {
 		"prefix": "im",
-		"body": "import ${1:${TM_FILEPATH/.+\\/([^\\/]+)\\/[^\\/]+\\.d$/\\l$1/}.};",
+		"body": "import ${1:module};",
 		"description": "import …",
 		"scope": "source.d"
 	},
