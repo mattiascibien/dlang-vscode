@@ -1,60 +1,82 @@
 {
-    "name": "dlang",
-    "displayName": "D Language",
-    "description": "Support for the D Programming Language (https://dlang.org/)",
-    "version": "0.5.0",
-    "publisher": "mattiascibien",
-    "icon": "images/dlogo.png",
-    "galleryBanner": {
-        "color": "#B03931",
-        "theme": "dark"
-    },
-    "engines": {
-        "vscode": "^0.10.1"
-    },
-    "bugs": {
-        "url": "https://github.com/mattiascibien/dlang-vscode/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/mattiascibien/dlang-vscode.git"
-    },
-    "categories": [
-        "Languages",
-        "Snippets"
+  "name": "dlang",
+  "displayName": "D Language",
+  "description": "Support for the D Programming Language (https://dlang.org/)",
+  "version": "0.5.0",
+  "publisher": "mattiascibien",
+  "icon": "images/dlogo.png",
+  "galleryBanner": {
+    "color": "#B03931",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^0.10.1"
+  },
+  "bugs": {
+    "url": "https://github.com/mattiascibien/dlang-vscode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mattiascibien/dlang-vscode.git"
+  },
+  "categories": [
+    "Languages",
+    "Snippets"
+  ],
+  "activationEvents": [
+    "onLanguage:d",
+    "workspaceContains:dub.json",
+    "workspaceContains:dub.sdl"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "d",
+        "aliases": [
+          "D",
+          "d"
+        ],
+        "extensions": [
+          ".d",
+          ".di"
+        ],
+        "configuration": "./d.configuration.json"
+      }
     ],
-    "activationEvents": [
-        "onLanguage:d",
-        "workspaceContains:dub.json",
-        "workspaceContains:dub.sdl"
+    "commands": [
+      {
+        "command": "extension.dub-install",
+        "title": "Install Package",
+        "category": "Dub"
+      },
+      {
+        "command": "extension.dub-uninstall",
+        "title": "Uninstall Package",
+        "category": "Dub"
+      }
     ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "languages": [{
-            "id": "d",
-            "aliases": ["D", "d"],
-            "extensions": [".d",".di"],
-            "configuration": "./d.configuration.json"
-        }],
-        "grammars": [{
-            "language": "d",
-            "scopeName": "source.d",
-            "path": "./syntaxes/d.tmLanguage"
-        }],
-        "snippets": [
-            {
-                "language": "d",
-                "path": "./snippets/snippets.json"
-            }
-        ]
-    },
-    "scripts": {
-        "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
-        "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "typescript": "^1.8.5",
-        "vscode": "^0.11.0"
-    }
+    "grammars": [
+      {
+        "language": "d",
+        "scopeName": "source.d",
+        "path": "./syntaxes/d.tmLanguage"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "d",
+        "path": "./snippets/snippets.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
+    "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "typescript": "^1.8.5",
+    "vscode": "^0.11.0"
+  }
 }

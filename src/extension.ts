@@ -22,13 +22,23 @@ export function activate(context: vsc.ExtensionContext) {
     Promise.all([dub.fetch('dcd'), dub.fetch('dfmt'), dub.fetch('dscanner')])
         .then(dub.build.bind(dub, 'dcd', 'server'))
         .then(() => {
+            
+            vsc.commands.registerCommand("extension.dub-install", (args) => {
+            });
+            
+            vsc.commands.registerCommand("extension.dub-uninstall", (args) => {
+                let installedPackages = dub.packages
+            });
+            
+        })
+        .then(() => {
             Server.path = Client.path = dub.packages.get('dcd').path;
 
             let server = new Server(dub.paths);
             let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
             let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
             let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
-
+            
             provider.on('restart', () => {
                 server.start(dub.paths);
             });
