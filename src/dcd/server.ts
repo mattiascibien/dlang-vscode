@@ -46,7 +46,7 @@ export default class Server extends vsc.Disposable {
             additionsImports.push('-I' + item);
         })
 
-        if (process.platform === 'windows') {
+        if (process.platform === 'win32') {
             additionsImports.push('-IC:\\D\\dmd2\\src\\phobos');
         } else {
             try {
@@ -93,15 +93,23 @@ export default class Server extends vsc.Disposable {
                 }
 
                 allPackages.forEach((p) => {
-                    [
-                        p.sourcePaths,
-                        p.importPaths,
-                        ['source/', 'src/']
-                    ].forEach((sourceArray) => {
-                        if (sourceArray) {
-                            sourcePaths = sourcePaths.concat(sourceArray);
-                        }
-                    });
+                    if (p instanceof String) {
+                        let impAdded = this.importDirs(path.join(dubPath, p));
+                        impAdded.forEach((newP) => {
+                            imp.add(newP);
+                        });
+                    } else {
+
+                        [
+                            p.sourcePaths,
+                            p.importPaths,
+                            ['source/', 'src/']
+                        ].forEach((sourceArray) => {
+                            if (sourceArray) {
+                                sourcePaths = sourcePaths.concat(sourceArray);
+                            }
+                        });
+                    }
                 });
 
                 sourcePaths.forEach((p: string) => {
