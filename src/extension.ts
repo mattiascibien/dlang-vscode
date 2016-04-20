@@ -47,7 +47,6 @@ export function activate(context: vsc.ExtensionContext) {
                 let quickPickItems = new Array<vsc.QuickPickItem>();
                 
                 installedPackages.forEach(function(pkg, name) {
-                    //TODO: filter for local packages only?
                     quickPickItems.push({
                         label: name,
                         description: pkg.version,
