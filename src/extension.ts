@@ -7,6 +7,7 @@ import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
 import {D_MODE} from './mode';
+import * as request from 'request';
 
 export function activate(context: vsc.ExtensionContext) {
     if (Dub.check()) {
@@ -24,6 +25,20 @@ export function activate(context: vsc.ExtensionContext) {
         .then(() => {
             
             vsc.commands.registerCommand("extension.dub-install", (args) => {
+                request('http://code.dlang.org/packages/index.json', function (error, response, body) {
+                    if (!error && response.statusCode == 200) {
+                        let pkgs = JSON.parse(body);
+                        
+                        vsc.window.showQuickPick(pkgs).then(function (pkg) {   
+                            dub.fetch(pkg, true).then(function(result) {
+                                vsc.window.showInformationMessage("Package '" + pkg + "' installed succesfully.");
+                            }); 
+                        })
+                    }
+                    else {
+                        vsc.window.showErrorMessage("Cannot query dub online API for packages");
+                    }
+                })
             });
             
             vsc.commands.registerCommand("extension.dub-uninstall", (args) => {
@@ -40,7 +55,9 @@ export function activate(context: vsc.ExtensionContext) {
                 });
                 
                 vsc.window.showQuickPick(quickPickItems).then(function (pkg) {
-                    
+                    dub.remove(pkg.label).then(function(result) {
+                        vsc.window.showInformationMessage("Package '" + pkg.label + "' removed succesfully.");
+                    }); 
                 })
             });
             

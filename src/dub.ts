@@ -46,6 +46,16 @@ export default class Dub extends vsc.Disposable {
             }
         })
     }
+    
+    public remove(packageName: string) {
+         let fetch = cp.spawn('dub', ['remove', packageName]);
+
+        return new Promise((resolve) => {
+            fetch.on('exit', resolve);
+        }).then(() => {
+            return this.refresh();
+        });
+    }
 
     public build(packageName: string, config?: string) {
         let options = ['build', '--root=' + this._packages.get(packageName).path];
