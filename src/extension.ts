@@ -27,7 +27,21 @@ export function activate(context: vsc.ExtensionContext) {
             });
             
             vsc.commands.registerCommand("extension.dub-uninstall", (args) => {
-                let installedPackages = dub.packages
+                let installedPackages = dub.packages;
+                
+                let quickPickItems = new Array<vsc.QuickPickItem>();
+                
+                installedPackages.forEach(function(pkg, name) {
+                    //TODO: filter for local packages only?
+                    quickPickItems.push({
+                        label: name,
+                        description: pkg.version,
+                    });
+                });
+                
+                vsc.window.showQuickPick(quickPickItems).then(function (pkg) {
+                    
+                })
             });
             
         })
