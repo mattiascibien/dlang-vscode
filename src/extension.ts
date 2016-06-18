@@ -54,12 +54,14 @@ export function activate(context: vsc.ExtensionContext) {
             Dscanner.path = dub.packages.get('dscanner').path;
 
             let diagnosticCollection = vsc.languages.createDiagnosticCollection();
+            let lintDocument = (document) => {
+                let dscanner = new Dscanner(document);
+            };
 
             Dscanner.collection = diagnosticCollection;
 
-            vsc.workspace.onDidSaveTextDocument((document) => {
-                let dscanner = new Dscanner(document);
-            });
+            vsc.workspace.onDidSaveTextDocument(lintDocument);
+            vsc.workspace.onDidOpenTextDocument(lintDocument);
 
             context.subscriptions.push(diagnosticCollection);
         });
