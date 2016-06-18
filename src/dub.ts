@@ -9,6 +9,7 @@ import * as tmp from 'tmp';
 import * as msg from './messenger';
 
 export default class Dub extends vsc.Disposable {
+    public static executable = vsc.workspace.getConfiguration().get('d.dub', 'dub');
     private _tmp: tmp.SynchrounousResult;
     private _packages = new Map<string, Package>();
 
@@ -27,7 +28,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public static check() {
-        return cp.spawnSync('dub', ['--help']).error;
+        return cp.spawnSync(Dub.executable, ['--help']).error;
     }
 
     public constructor() {
@@ -42,7 +43,7 @@ export default class Dub extends vsc.Disposable {
     public fetch(packageName: string, build?: boolean) {
         msg.add('Fetching', packageName);
 
-        let fetcher = cp.spawn('dub', ['fetch', packageName]);
+        let fetcher = cp.spawn(Dub.executable, ['fetch', packageName]);
         let fetchPromise = new Promise((resolve) => {
             fetcher.on('exit', resolve);
         });
@@ -70,7 +71,7 @@ export default class Dub extends vsc.Disposable {
             options.push('--config=' + config);
         }
 
-        let builder = cp.spawn('dub', options);
+        let builder = cp.spawn(Dub.executable, options);
         let buildPromise = new Promise((resolve) => {
             builder.on('exit', resolve);
         });
@@ -97,7 +98,7 @@ export default class Dub extends vsc.Disposable {
             fs.unlinkSync(dubJson);
         }
 
-        let res = cp.spawnSync('dub', ['convert', '--format=json'], {
+        let res = cp.spawnSync(Dub.executable, ['convert', '--format=json'], {
             cwd: this._tmp.name
         });
 
@@ -105,7 +106,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public refresh() {
-        let dub = cp.spawn('dub', ['list']);
+        let dub = cp.spawn(Dub.executable, ['list']);
         let reader = rl.createInterface(dub.stdout, null);
         let firstLine = true;
 
