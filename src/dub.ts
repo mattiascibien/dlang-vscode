@@ -1,10 +1,14 @@
 'use strict';
 
+import * as fs from 'fs';
+import * as p from 'path';
 import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
+import * as tmp from 'tmp';
 
 export default class Dub extends vsc.Disposable {
+    private _tmp: tmp.SynchrounousResult;
     private _packages = new Map<string, Package>();
 
     get packages() {
@@ -30,15 +34,17 @@ export default class Dub extends vsc.Disposable {
     }
 
     public dispose() {
+        this._tmp.removeCallback();
         this._packages.clear();
     }
 
     public fetch(packageName: string, build?: boolean) {
-        let fetch = cp.spawn('dub', ['fetch', packageName]);
+        let fetcher = cp.spawn('dub', ['fetch', packageName]);
+        let fetchPromise = new Promise((resolve) => {
+            fetcher.on('exit', resolve);
+        });
 
-        return new Promise((resolve) => {
-            fetch.on('exit', resolve);
-        }).then(() => {
+        return fetchPromise.then(() => {
             return this.refresh();
         }).then(() => {
             if (build) {
@@ -48,17 +54,43 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(packageName: string, config?: string) {
-        let options = ['build', '--root=' + this._packages.get(packageName).path];
+        let options = [
+            'build',
+            '--root=' + this._packages.get(packageName).path,
+        ];
 
         if (config) {
             options.push('--config=' + config);
         }
 
-        let build = cp.spawn('dub', options);
-
-        return new Promise((resolve) => {
-            build.on('exit', resolve);
+        let builder = cp.spawn('dub', options);
+        let buildPromise = new Promise((resolve) => {
+            builder.on('exit', resolve);
         });
+
+        return buildPromise;
+    }
+
+    public convert(path: string) {
+        if (!this._tmp) {
+            this._tmp = tmp.dirSync();
+        }
+
+        let sdlData = fs.readFileSync(path);
+        let dubSdl = p.join(this._tmp.name, 'dub.sdl');
+        let dubJson = p.join(this._tmp.name, 'dub.json');
+
+        fs.writeFileSync(dubSdl, sdlData);
+
+        if (fs.existsSync(dubJson)) {
+            fs.unlinkSync(dubJson);
+        }
+
+        let res = cp.spawnSync('dub', ['convert', '--format=json'], {
+            cwd: this._tmp.name
+        });
+
+        return dubJson;
     }
 
     public refresh() {
@@ -103,7 +135,9 @@ export class Package {
 }
 
 function isVersionSuperior(first: string, second: string) {
-    let reg = '^[0-9.]*$';
+    // let reg = '^[0-9.]*$';
 
-    return !second.match(reg) || (first.match(reg) && (first > second));
+    // return !second.match(reg) || (first.match(reg) && (first > second));
+
+    return second == "~master" || first > second;
 }

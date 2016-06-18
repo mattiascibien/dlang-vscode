@@ -7,9 +7,11 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as stream from 'stream';
 import * as vsc from 'vscode';
+import Dub from '../dub';
 
 export default class Server extends vsc.Disposable {
     public static path: string;
+    public static dub: Dub;
 
     public constructor(paths?: string[]) {
         super(null);
@@ -76,20 +78,19 @@ export default class Server extends vsc.Disposable {
 
             try {
                 fs.accessSync(dubFile, fs.R_OK);
-                let dub: any;
+                let dubData;
                 let sourcePaths: string[] = [];
 
                 if (dubExt === 'json') {
-                    dub = require(dubFile);
+                    dubData = require(dubFile);
                 } else {
-                    // TODO : SDLang
-                    dub = new Object();
+                    dubData = require(Server.dub.convert(dubFile));
                 }
 
-                let allPackages = [dub];
+                let allPackages = [dubData];
 
-                if (dub.subPackages) {
-                    allPackages = allPackages.concat(dub.subPackages);
+                if (dubData.subPackages) {
+                    allPackages = allPackages.concat(dubData.subPackages);
                 }
 
                 allPackages.forEach((p) => {
@@ -99,7 +100,6 @@ export default class Server extends vsc.Disposable {
                             imp.add(newP);
                         });
                     } else {
-
                         [
                             p.sourcePaths,
                             p.importPaths,
