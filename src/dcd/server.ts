@@ -67,7 +67,7 @@ export default class Server extends vsc.Disposable {
     }
 
     public stop() {
-        cp.spawn('dcd-client', ['--shutdown']);
+        cp.spawn(path.join(Server.path, 'dcd-client'), ['--shutdown']);
     }
 
     private importDirs(dubPath: string) {
