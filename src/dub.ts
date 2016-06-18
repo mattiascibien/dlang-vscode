@@ -6,6 +6,7 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
 import * as tmp from 'tmp';
+import * as msg from './messenger';
 
 export default class Dub extends vsc.Disposable {
     private _tmp: tmp.SynchrounousResult;
@@ -39,12 +40,15 @@ export default class Dub extends vsc.Disposable {
     }
 
     public fetch(packageName: string, build?: boolean) {
+        msg.add('Fetching', packageName);
+
         let fetcher = cp.spawn('dub', ['fetch', packageName]);
         let fetchPromise = new Promise((resolve) => {
             fetcher.on('exit', resolve);
         });
 
         return fetchPromise.then(() => {
+            msg.remove('Fetching', packageName);
             return this.refresh();
         }).then(() => {
             if (build) {
@@ -54,6 +58,9 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(packageName: string, config?: string) {
+        let packageNamePretty = packageName + (config ? ` (${config})` : '');
+        msg.add('Building', packageNamePretty);
+
         let options = [
             'build',
             '--root=' + this._packages.get(packageName).path,
@@ -66,6 +73,10 @@ export default class Dub extends vsc.Disposable {
         let builder = cp.spawn('dub', options);
         let buildPromise = new Promise((resolve) => {
             builder.on('exit', resolve);
+        });
+
+        buildPromise.then(() => {
+            msg.remove('Building', packageNamePretty);
         });
 
         return buildPromise;
