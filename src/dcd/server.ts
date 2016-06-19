@@ -49,12 +49,17 @@ export default class Server extends vsc.Disposable {
         })
 
         if (process.platform === 'win32') {
-            additionsImports.push('-IC:\\D\\dmd2\\src\\phobos');
+            let importPaths = vsc.workspace.getConfiguration().get<string[]>('d.phobos.windows');
+
+            importPaths.forEach((p) => {
+                additionsImports.push('-I' + p);
+            });
         } else {
             try {
                 fs.accessSync('/etc/dmd.conf');
 
-                let conf = fs.readFileSync('/etc/dmd.conf').toString();
+                let configFile = vsc.workspace.getConfiguration().get<string>('d.dmdConf.posix');
+                let conf = fs.readFileSync(configFile).toString();
                 let result = conf.match(/-I\S+/g);
 
                 result.forEach(match => {
