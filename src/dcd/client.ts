@@ -17,13 +17,13 @@ export default class Client extends ev.EventEmitter {
 
     public constructor(
         private _document: vsc.TextDocument,
-        position: vsc.Position,
+        private _position: vsc.Position,
         private _token: vsc.CancellationToken,
         private _operation: util.Operation
     ) {
         super();
 
-        let args = ['-c', String(this._document.offsetAt(position))];
+        let args = ['-c', String(this._document.offsetAt(_position))];
 
         if (this._operation === util.Operation.Definition) {
             args.push('-l');
@@ -113,7 +113,19 @@ export default class Client extends ev.EventEmitter {
 
         if (this._operation === util.Operation.Completion || this._operation === util.Operation.Calltips) {
             reader.on('close', () => {
-                resolve(completionType === 'identifiers' ? completions : signatureHelp);
+                switch (completionType) {
+                    case null:
+                        reject();
+                        break;
+
+                    case 'identifiers':
+                        resolve(completions);
+                        break;
+
+                    default:
+                        resolve(signatureHelp);
+                        break;
+                }
             });
         }
 
