@@ -3,7 +3,7 @@
     "displayName": "D Language",
     "description": "Support for the D Programming Language (https://dlang.org/)",
     "version": "0.5.0",
-    "publisher": "mattiascibien",
+    "publisher": "dlang-vscode",
     "icon": "images/dlogo.png",
     "galleryBanner": {
         "color": "#B03931",
@@ -13,11 +13,11 @@
         "vscode": "^0.10.1"
     },
     "bugs": {
-        "url": "https://github.com/mattiascibien/dlang-vscode/issues"
+        "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mattiascibien/dlang-vscode.git"
+        "url": "https://github.com/dlang-vscode/dlang-vscode.git"
     },
     "categories": [
         "Languages",
