@@ -5,6 +5,7 @@
     "version": "0.5.0",
     "publisher": "dlang-vscode",
     "icon": "images/dlogo.png",
+    "homepage": "https://dlang-vscode.github.io/",
     "galleryBanner": {
         "color": "#B03931",
         "theme": "dark"
