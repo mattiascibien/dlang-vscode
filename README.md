@@ -11,9 +11,13 @@ D Language Page: https://dlang.org/
  * Snippets
  * Basic autocompletion
  * Formatting
+ * Linting
 
+In order to use autocompletion, formatting and linting you must have [Dub](https://github.com/D-Programming-Language/dub) installed on your system.
 
- In order to use autocompletion or formatting you must have [Dub](https://github.com/D-Programming-Language/dub) installed on your system
+## Extension Settings
+
+* `d.dub`: Path to the `dub` executable
 
 ## TODO
 
@@ -21,7 +25,6 @@ D Language Page: https://dlang.org/
  * Better Intellisense
  * Documentation display
  * Dub project support
- * Linting
  * Dfix
 
 ## Original code

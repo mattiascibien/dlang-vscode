@@ -17,13 +17,13 @@ export default class Client extends ev.EventEmitter {
 
     public constructor(
         private _document: vsc.TextDocument,
-        position: vsc.Position,
+        private _position: vsc.Position,
         private _token: vsc.CancellationToken,
         private _operation: util.Operation
     ) {
         super();
 
-        let args = ['-c', String(this._document.offsetAt(position))];
+        let args = ['-c', String(this._document.offsetAt(_position))];
 
         if (this._operation === util.Operation.Definition) {
             args.push('-l');
@@ -41,7 +41,7 @@ export default class Client extends ev.EventEmitter {
     }
 
     public execute(resolve: Function, reject: Function) {
-        let reader = rl.createInterface(this._client.stdout, null );
+        let reader = rl.createInterface(this._client.stdout, null);
         let completions: vsc.CompletionItem[] = [];
         let signatureHelp = new vsc.SignatureHelp();
         let completionType: string;
@@ -60,7 +60,7 @@ export default class Client extends ev.EventEmitter {
                 break;
         }
 
-        this._token.onCancellationRequested((e) => {
+        this._token.onCancellationRequested(() => {
             reject();
         });
 
@@ -113,7 +113,19 @@ export default class Client extends ev.EventEmitter {
 
         if (this._operation === util.Operation.Completion || this._operation === util.Operation.Calltips) {
             reader.on('close', () => {
-                resolve(completionType === 'identifiers' ? completions : signatureHelp);
+                switch (completionType) {
+                    case null:
+                        reject();
+                        break;
+
+                    case 'identifiers':
+                        resolve(completions);
+                        break;
+
+                    default:
+                        resolve(signatureHelp);
+                        break;
+                }
             });
         }
 

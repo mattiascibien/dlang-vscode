@@ -6,6 +6,7 @@ import Provider from './provider';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
+import Dscanner from './dscanner';
 import {D_MODE} from './mode';
 
 export function activate(context: vsc.ExtensionContext) {
@@ -21,8 +22,10 @@ export function activate(context: vsc.ExtensionContext) {
 
     Promise.all([dub.fetch('dcd'), dub.fetch('dfmt'), dub.fetch('dscanner')])
         .then(dub.build.bind(dub, 'dcd', 'server'))
+        .then(dub.build.bind(dub, 'dcd', 'client'))
         .then(() => {
             Server.path = Client.path = dub.packages.get('dcd').path;
+            Server.dub = dub;
 
             let server = new Server(dub.paths);
             let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
@@ -37,7 +40,7 @@ export function activate(context: vsc.ExtensionContext) {
             context.subscriptions.push(completionProvider);
             context.subscriptions.push(signatureProvider);
             context.subscriptions.push(definitionProvider);
-        }).then(dub.build.bind(dub, 'dcd', 'client'))
+        })
         .then(dub.build.bind(dub, 'dfmt'))
         .then(() => {
             Dfmt.path = dub.packages.get('dfmt').path;
@@ -45,6 +48,22 @@ export function activate(context: vsc.ExtensionContext) {
             let formattingProvider = vsc.languages.registerDocumentFormattingEditProvider(D_MODE, provider);
 
             context.subscriptions.push(formattingProvider);
+        })
+        .then(dub.build.bind(dub, 'dscanner'))
+        .then(() => {
+            Dscanner.path = dub.packages.get('dscanner').path;
+
+            let diagnosticCollection = vsc.languages.createDiagnosticCollection();
+            let lintDocument = (document) => {
+                let dscanner = new Dscanner(document);
+            };
+
+            Dscanner.collection = diagnosticCollection;
+
+            vsc.workspace.onDidSaveTextDocument(lintDocument);
+            vsc.workspace.onDidOpenTextDocument(lintDocument);
+
+            context.subscriptions.push(diagnosticCollection);
         });
 }
 

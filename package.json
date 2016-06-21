@@ -4,6 +4,7 @@
     "description": "Support for the D Programming Language (https://dlang.org/)",
     "version": "0.5.0",
     "publisher": "dlang-vscode",
+    "license": "SEE LICENSE IN LICENSE.md",
     "icon": "images/dlogo.png",
     "homepage": "https://dlang-vscode.github.io/",
     "galleryBanner": {
@@ -31,23 +32,56 @@
     ],
     "main": "./out/src/extension",
     "contributes": {
-        "languages": [{
-            "id": "d",
-            "aliases": ["D", "d"],
-            "extensions": [".d",".di"],
-            "configuration": "./d.configuration.json"
-        }],
-        "grammars": [{
-            "language": "d",
-            "scopeName": "source.d",
-            "path": "./syntaxes/d.tmLanguage"
-        }],
+        "languages": [
+            {
+                "id": "d",
+                "aliases": [
+                    "D",
+                    "d"
+                ],
+                "extensions": [
+                    ".d",
+                    ".di"
+                ],
+                "configuration": "./d.configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "d",
+                "scopeName": "source.d",
+                "path": "./syntaxes/d.tmLanguage"
+            }
+        ],
         "snippets": [
             {
                 "language": "d",
                 "path": "./snippets/snippets.json"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "D configuration",
+            "properties": {
+                "d.dub": {
+                    "type": "string",
+                    "default": "dub",
+                    "description": "Path to the dub executable"
+                },
+                "d.dmdConf.posix": {
+                    "type": "string",
+                    "default": "/etc/dmd.conf",
+                    "description": "Path to the DMD configuration file on POSIX systems"
+                },
+                "d.phobos.windows": {
+                    "type": "array",
+                    "default": [
+                        "C:\\D\\dmd2\\src\\phobos",
+                        "C:\\D\\dmd2\\src\\druntime\\import"
+                    ],
+                    "description": "Path to the Phobos library on Windows"
+                }
+            }
+        }
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
@@ -57,5 +91,8 @@
     "devDependencies": {
         "typescript": "^1.8.5",
         "vscode": "^0.11.0"
+    },
+    "dependencies": {
+        "tmp": "^0.0.28"
     }
 }

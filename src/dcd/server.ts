@@ -7,9 +7,16 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as stream from 'stream';
 import * as vsc from 'vscode';
+import Dub from '../dub';
 
 export default class Server extends vsc.Disposable {
     public static path: string;
+    public static dub: Dub;
+    private static _instanceLaunched: boolean;
+
+    public static get instanceLaunched() {
+        return Server._instanceLaunched;
+    }
 
     public constructor(paths?: string[]) {
         super(null);
@@ -46,13 +53,18 @@ export default class Server extends vsc.Disposable {
             additionsImports.push('-I' + item);
         })
 
-        if (process.platform === 'windows') {
-            additionsImports.push('-IC:\\D\\dmd2\\src\\phobos');
+        if (process.platform === 'win32') {
+            let importPaths = vsc.workspace.getConfiguration().get<string[]>('d.phobos.windows');
+
+            importPaths.forEach((p) => {
+                additionsImports.push('-I' + p);
+            });
         } else {
             try {
                 fs.accessSync('/etc/dmd.conf');
 
-                let conf = fs.readFileSync('/etc/dmd.conf').toString();
+                let configFile = vsc.workspace.getConfiguration().get<string>('d.dmdConf.posix');
+                let conf = fs.readFileSync(configFile).toString();
                 let result = conf.match(/-I\S+/g);
 
                 result.forEach(match => {
@@ -61,11 +73,16 @@ export default class Server extends vsc.Disposable {
             } catch (e) { }
         }
 
-        cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
+        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
+        Server._instanceLaunched = true;
+
+        server.on('exit', () => {
+            Server._instanceLaunched = false;
+        });
     }
 
     public stop() {
-        cp.spawn('dcd-client', ['--shutdown']);
+        cp.spawn(path.join(Server.path, 'dcd-client'), ['--shutdown']);
     }
 
     private importDirs(dubPath: string) {
@@ -76,32 +93,38 @@ export default class Server extends vsc.Disposable {
 
             try {
                 fs.accessSync(dubFile, fs.R_OK);
-                let dub: any;
+                let dubData;
                 let sourcePaths: string[] = [];
 
                 if (dubExt === 'json') {
-                    dub = require(dubFile);
+                    dubData = require(dubFile);
                 } else {
-                    // TODO : SDLang
-                    dub = new Object();
+                    dubData = require(Server.dub.convert(dubFile));
                 }
 
-                let allPackages = [dub];
+                let allPackages = [dubData];
 
-                if (dub.subPackages) {
-                    allPackages = allPackages.concat(dub.subPackages);
+                if (dubData.subPackages) {
+                    allPackages = allPackages.concat(dubData.subPackages);
                 }
 
                 allPackages.forEach((p) => {
-                    [
-                        p.sourcePaths,
-                        p.importPaths,
-                        ['source/', 'src/']
-                    ].forEach((sourceArray) => {
-                        if (sourceArray) {
-                            sourcePaths = sourcePaths.concat(sourceArray);
-                        }
-                    });
+                    if (p instanceof String) {
+                        let impAdded = this.importDirs(path.join(dubPath, p));
+                        impAdded.forEach((newP) => {
+                            imp.add(newP);
+                        });
+                    } else {
+                        [
+                            p.sourcePaths,
+                            p.importPaths,
+                            ['source/', 'src/']
+                        ].forEach((sourceArray) => {
+                            if (sourceArray) {
+                                sourcePaths = sourcePaths.concat(sourceArray);
+                            }
+                        });
+                    }
                 });
 
                 sourcePaths.forEach((p: string) => {
