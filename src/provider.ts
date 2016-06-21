@@ -2,6 +2,7 @@
 
 import * as ev from 'events';
 import * as vsc from 'vscode';
+import Server from './dcd/server';
 import Client from './dcd/client';
 import * as util from './dcd/util';
 import Dfmt from './dfmt';
@@ -56,7 +57,9 @@ export default class Provider extends ev.EventEmitter implements
         let client = new Client(document, position, token, operation);
 
         client.on('error', () => {
-            this.emit('restart');
+            if (!Server.instanceLaunched) {
+                this.emit('restart');
+            }
         })
 
         return new Promise((resolve, reject) => {

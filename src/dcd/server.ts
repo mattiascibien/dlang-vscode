@@ -12,6 +12,11 @@ import Dub from '../dub';
 export default class Server extends vsc.Disposable {
     public static path: string;
     public static dub: Dub;
+    private static _instanceLaunched: boolean;
+
+    public static get instanceLaunched() {
+        return Server._instanceLaunched;
+    }
 
     public constructor(paths?: string[]) {
         super(null);
@@ -68,7 +73,12 @@ export default class Server extends vsc.Disposable {
             } catch (e) { }
         }
 
-        cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
+        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
+        Server._instanceLaunched = true;
+
+        server.on('exit', () => {
+            Server._instanceLaunched = false;
+        });
     }
 
     public stop() {
