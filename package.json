@@ -71,13 +71,10 @@
                     "default": "/etc/dmd.conf",
                     "description": "Path to the DMD configuration file on POSIX systems"
                 },
-                "d.phobos.windows": {
-                    "type": "array",
-                    "default": [
-                        "C:\\D\\dmd2\\src\\phobos",
-                        "C:\\D\\dmd2\\src\\druntime\\import"
-                    ],
-                    "description": "Path to the Phobos library on Windows"
+                "d.dmdConf.windows": {
+                    "type": "string",
+                    "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
+                    "description": "Path to the DMD configuration file on Windows"
                 }
             }
         }

@@ -9,6 +9,8 @@ import Dfmt from './dfmt';
 import Dscanner from './dscanner';
 import {D_MODE} from './mode';
 
+let server: Server;
+
 export function activate(context: vsc.ExtensionContext) {
     if (Dub.check()) {
         vsc.window.showErrorMessage('Dub command not found');
@@ -27,7 +29,7 @@ export function activate(context: vsc.ExtensionContext) {
             Server.path = Client.path = dub.packages.get('dcd').path;
             Server.dub = dub;
 
-            let server = new Server(dub.paths);
+            server = new Server(dub.paths);
             let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
             let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
             let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
@@ -36,7 +38,6 @@ export function activate(context: vsc.ExtensionContext) {
                 server.start(dub.paths);
             });
 
-            context.subscriptions.push(server);
             context.subscriptions.push(completionProvider);
             context.subscriptions.push(signatureProvider);
             context.subscriptions.push(definitionProvider);
@@ -67,4 +68,8 @@ export function activate(context: vsc.ExtensionContext) {
         });
 }
 
-export function deactivate() { }
+export function deactivate() {
+    if (server) {
+        server.stop();
+    }
+}

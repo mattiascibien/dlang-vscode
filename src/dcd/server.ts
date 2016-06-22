@@ -9,7 +9,7 @@ import * as stream from 'stream';
 import * as vsc from 'vscode';
 import Dub from '../dub';
 
-export default class Server extends vsc.Disposable {
+export default class Server {
     public static path: string;
     public static dub: Dub;
     private static _instanceLaunched: boolean;
@@ -19,12 +19,7 @@ export default class Server extends vsc.Disposable {
     }
 
     public constructor(paths?: string[]) {
-        super(null);
         this.start(paths);
-    }
-
-    public dispose() {
-        this.stop();
     }
 
     public start(paths?: string[]) {
@@ -51,27 +46,24 @@ export default class Server extends vsc.Disposable {
 
         additions.forEach((item) => {
             additionsImports.push('-I' + item);
-        })
+        });
 
-        if (process.platform === 'win32') {
-            let importPaths = vsc.workspace.getConfiguration().get<string[]>('d.phobos.windows');
+        try {
+            let section = 'd.dmdConf.' + (process.platform === 'win32' ? 'windows' : 'posix');
+            let configFile = vsc.workspace.getConfiguration().get<string>(section);
+            fs.accessSync(configFile);
 
-            importPaths.forEach((p) => {
-                additionsImports.push('-I' + p);
+            let conf = fs.readFileSync(configFile).toString();
+            let result = conf.match(/-I[^\s"]+/g);
+
+            result.forEach((match) => {
+                if (process.platform === 'win32') {
+                    match = match.replace('%@P%', path.dirname(configFile));
+                }
+
+                additionsImports.push(match);
             });
-        } else {
-            try {
-                fs.accessSync('/etc/dmd.conf');
-
-                let configFile = vsc.workspace.getConfiguration().get<string>('d.dmdConf.posix');
-                let conf = fs.readFileSync(configFile).toString();
-                let result = conf.match(/-I\S+/g);
-
-                result.forEach(match => {
-                    additionsImports.push(match);
-                });
-            } catch (e) { }
-        }
+        } catch (e) { }
 
         let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
         Server._instanceLaunched = true;
