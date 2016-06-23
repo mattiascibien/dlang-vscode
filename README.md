@@ -18,6 +18,8 @@ In order to use autocompletion, formatting and linting you must have [Dub](https
 ## Extension Settings
 
 * `d.dub`: Path to the `dub` executable
+* `d.dmdConf.posix`: Path to the dmd configuration file on POSIX systems
+* `d.dmdConf.windows`: Path to the dmd configuration file on Windows
 
 ## TODO
 
