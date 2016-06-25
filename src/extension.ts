@@ -55,8 +55,10 @@ export function activate(context: vsc.ExtensionContext) {
             Dscanner.path = dub.packages.get('dscanner').path;
 
             let diagnosticCollection = vsc.languages.createDiagnosticCollection();
-            let lintDocument = (document) => {
-                let dscanner = new Dscanner(document);
+            let lintDocument = (document: vsc.TextDocument) => {
+                if (document.languageId === 'd') {
+                    new Dscanner(document);
+                }
             };
 
             Dscanner.collection = diagnosticCollection;
