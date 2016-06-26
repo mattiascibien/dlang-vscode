@@ -12,17 +12,21 @@ export function add(category: string, data: string) {
 
     operations.get(category).add(data);
     updateMessage();
-}
+};
 
 export function remove(category: string, data: string) {
-    operations.get(category).delete(data);
+    let op = operations.get(category);
 
-    if (operations.get(category).size == 0) {
-        operations.delete(category);
+    if (op) {
+        op.delete(data);
+
+        if (operations.get(category).size == 0) {
+            operations.delete(category);
+        }
+
+        updateMessage();
     }
-
-    updateMessage();
-}
+};
 
 function updateMessage() {
     let msg: string;

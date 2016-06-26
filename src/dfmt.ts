@@ -45,7 +45,6 @@ export default class Dfmt {
             resolve([new vsc.TextEdit(range, output)]);
         })
 
-        this._dfmt.stdin.write(this._document.getText());
-        this._dfmt.stdin.end();
+        this._dfmt.stdin.end(this._document.getText());
     }
-}
+};
