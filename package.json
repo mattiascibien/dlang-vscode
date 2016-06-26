@@ -2,8 +2,8 @@
     "name": "dlang",
     "displayName": "D Language",
     "description": "Support for the D Programming Language (https://dlang.org/)",
-    "version": "0.5.0",
-    "publisher": "mattiascibien",
+    "version": "0.6.0",
+    "publisher": "dlang-vscode",
     "license": "SEE LICENSE IN LICENSE.md",
     "icon": "images/dlogo.png",
     "galleryBanner": {
@@ -14,11 +14,11 @@
         "vscode": "^0.10.1"
     },
     "bugs": {
-        "url": "https://github.com/mattiascibien/dlang-vscode/issues"
+        "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/mattiascibien/dlang-vscode.git"
+        "url": "https://github.com/dlang-vscode/dlang-vscode.git"
     },
     "categories": [
         "Languages",
@@ -27,7 +27,13 @@
     "activationEvents": [
         "onLanguage:d",
         "workspaceContains:dub.json",
-        "workspaceContains:dub.sdl"
+        "workspaceContains:dub.sdl",
+        "onCommand:dlang.default-tasks",
+        "onCommand:dlang.dub.init",
+        "onCommand:dlang.dub.fetch",
+        "onCommand:dlang.dub.remove",
+        "onCommand:dlang.dub.upgrade",
+        "onCommand:dlang.dub.convert"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -77,7 +83,39 @@
                     "description": "Path to the DMD configuration file on Windows"
                 }
             }
-        }
+        },
+        "commands": [
+            {
+                "title": "Create Default Tasks",
+                "category": "Dlang",
+                "command": "dlang.default-tasks"
+            },
+            {
+                "title": "Init Package",
+                "category": "Dub",
+                "command": "dlang.dub.init"
+            },
+            {
+                "title": "Fetch Package",
+                "category": "Dub",
+                "command": "dlang.dub.fetch"
+            },
+            {
+                "title": "Remove Package",
+                "category": "Dub",
+                "command": "dlang.dub.remove"
+            },
+            {
+                "title": "Upgrade Package Dependencies",
+                "category": "Dub",
+                "command": "dlang.dub.upgrade"
+            },
+            {
+                "title": "Convert",
+                "category": "Dub",
+                "command": "dlang.dub.convert"
+            }
+        ]
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
@@ -89,6 +127,7 @@
         "vscode": "^0.11.0"
     },
     "dependencies": {
-        "tmp": "^0.0.28"
+        "tmp": "^0.0.28",
+        "js-beautify": "^1.6.3"
     }
 }

@@ -1,11 +1,8 @@
 'use strict';
 
-import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as cp from 'child_process';
-import * as rl from 'readline';
-import * as stream from 'stream';
 import * as vsc from 'vscode';
 import Dub from '../dub';
 
@@ -91,7 +88,7 @@ export default class Server {
                 if (dubExt === 'json') {
                     dubData = require(dubFile);
                 } else {
-                    dubData = require(Server.dub.convert(dubFile));
+                    dubData = require(Server.dub.getJSONFromSDL(dubFile));
                 }
 
                 let allPackages = [dubData];
@@ -130,4 +127,4 @@ export default class Server {
 
         return imp;
     }
-}
+};
