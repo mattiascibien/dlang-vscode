@@ -12,9 +12,6 @@ export default {
     },
     'tasks': [
         {
-            'taskName': 'init'
-        },
-        {
             'taskName': 'build',
             'isBuildCommand': true,
             'args': [

@@ -61,6 +61,7 @@ export default class Client extends ev.EventEmitter {
         }
 
         this._token.onCancellationRequested(() => {
+            this._client.kill();
             reject();
         });
 
