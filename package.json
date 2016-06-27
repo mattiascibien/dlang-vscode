@@ -87,7 +87,7 @@
         "commands": [
             {
                 "title": "Create Default Tasks",
-                "category": "Dlang",
+                "category": "Dub",
                 "command": "dlang.default-tasks"
             },
             {
@@ -111,7 +111,7 @@
                 "command": "dlang.dub.upgrade"
             },
             {
-                "title": "Convert",
+                "title": "Convert Dub File Format",
                 "category": "Dub",
                 "command": "dlang.dub.convert"
             }
