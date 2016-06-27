@@ -53,9 +53,6 @@ export default {
         },
         {
             'taskName': 'clean'
-        },
-        {
-            'taskName': 'upgrade'
         }
     ]
 };
