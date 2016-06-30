@@ -6,6 +6,7 @@ import * as vsc from 'vscode';
 import tasks from './tasks';
 import Dub from './dub';
 import Provider from './provider';
+import Dfix from './dfix';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
@@ -24,9 +25,7 @@ export function activate(context: vsc.ExtensionContext) {
     let provider = new Provider();
 
     context.subscriptions.push(dub);
-    registerCommands(context.subscriptions, dub);
-
-    Promise.all([dub.fetch('dcd'), dub.fetch('dfmt'), dub.fetch('dscanner')])
+    Promise.all([registerCommands(context.subscriptions, dub), dub.fetch('dcd'), dub.fetch('dfmt'), dub.fetch('dscanner')])
         .then(dub.build.bind(dub, 'dcd', 'server'))
         .then(dub.build.bind(dub, 'dcd', 'client'))
         .then(() => {
@@ -69,6 +68,7 @@ export function activate(context: vsc.ExtensionContext) {
 
             vsc.workspace.onDidSaveTextDocument(lintDocument);
             vsc.workspace.onDidOpenTextDocument(lintDocument);
+            vsc.workspace.textDocuments.forEach(lintDocument);
 
             context.subscriptions.push(diagnosticCollection);
         });
@@ -94,7 +94,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
 
         initOptions.forEach((options) => {
             thenable = thenable.then((result) => {
-                initEntries.push(result ? result : '');
+                initEntries.push(result || '');
 
                 return vsc.window.showInputBox(options);
             });
@@ -136,6 +136,30 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () => {
         vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' }).then(dub.convert.bind(dub));
     }));
+
+    return dub.fetch('dfix')
+        .then(dub.build.bind(dub, 'dfix'))
+        .then(() => {
+            Dfix.path = dub.packages.get('dfix').path;
+
+            subscriptions.push(vsc.commands.registerCommand('dlang.dfix', () => {
+                let choices = ['Run on open file(s)', 'Run on workspace'];
+
+                vsc.window.showQuickPick(choices).then((value) => {
+                    if (value === choices[0]) {
+                        vsc.workspace.textDocuments.forEach((document) => {
+                            document.save().then(() => {
+                                new Dfix(document.fileName);
+                            });
+                        })
+                    } else {
+                        vsc.workspace.saveAll(false).then(() => {
+                            new Dfix(vsc.workspace.rootPath);
+                        });
+                    }
+                });
+            }));
+        });
 }
 
 const initOptions = [

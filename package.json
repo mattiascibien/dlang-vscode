@@ -29,6 +29,7 @@
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
         "onCommand:dlang.default-tasks",
+        "onCommand:dlang.dfix",
         "onCommand:dlang.dub.init",
         "onCommand:dlang.dub.fetch",
         "onCommand:dlang.dub.remove",
@@ -87,8 +88,13 @@
         "commands": [
             {
                 "title": "Create Default Tasks",
-                "category": "Dub",
+                "category": "Dlang",
                 "command": "dlang.default-tasks"
+            },
+            {
+                "title": "Run Dfix",
+                "category": "Dlang",
+                "command": "dlang.dfix"
             },
             {
                 "title": "Init Package",
