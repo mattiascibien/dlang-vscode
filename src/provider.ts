@@ -66,4 +66,4 @@ export default class Provider extends ev.EventEmitter implements
             client.execute(resolve, reject);
         });
     }
-}
+};

@@ -23,7 +23,7 @@ export default class Client extends ev.EventEmitter {
     ) {
         super();
 
-        let args = ['-c', String(this._document.offsetAt(_position))];
+        let args = ['-c', String(this.getCompletionPosition())];
 
         if (this._operation === util.Operation.Definition) {
             args.push('-l');
@@ -61,6 +61,7 @@ export default class Client extends ev.EventEmitter {
         }
 
         this._token.onCancellationRequested(() => {
+            this._client.kill();
             reject();
         });
 
@@ -77,7 +78,7 @@ export default class Client extends ev.EventEmitter {
                     break;
 
                 case 'calltips':
-                    signatureHelp.signatures.push(new vsc.SignatureInformation(line));
+                    signatureHelp.signatures.push(this.getSignatureInformation(line));
                     break;
 
                 case 'definition':
@@ -123,13 +124,41 @@ export default class Client extends ev.EventEmitter {
                         break;
 
                     default:
+                        let infoLine = this._document.lineAt(this._position.line).text;
+                        let infoArgs = infoLine.substring(infoLine.lastIndexOf('(', this._position.character), this._position.character);
+                        let infoNumArg = infoArgs.match(/,/g);
+
+                        signatureHelp.activeParameter = infoNumArg ? infoNumArg.length : 0;
                         resolve(signatureHelp);
+
                         break;
                 }
             });
         }
 
-        this._client.stdin.write(this._document.getText());
-        this._client.stdin.end();
+        this._client.stdin.end(this._document.getText());
     }
-}
+
+    private getCompletionPosition() {
+        if (this._operation === util.Operation.Calltips) {
+            let text = this._document.getText(new vsc.Range(new vsc.Position(0, 0), this._position));
+
+            if (text.lastIndexOf(')') < text.lastIndexOf('(')) {
+                return text.lastIndexOf('(') + 1;
+            }
+        }
+
+        return this._document.offsetAt(this._position);
+    }
+
+    private getSignatureInformation(line: string) {
+        let lineArgs = line.substring(line.lastIndexOf('(') + 1, line.lastIndexOf(')')).split(/\s*,\s*/);
+        let information = new vsc.SignatureInformation(line);
+
+        lineArgs.forEach((arg) => {
+            information.parameters.push(new vsc.ParameterInformation(arg));
+        });
+
+        return information;
+    }
+};

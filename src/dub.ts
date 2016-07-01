@@ -1,5 +1,6 @@
 'use strict';
 
+import * as os from 'os';
 import * as fs from 'fs';
 import * as p from 'path';
 import * as cp from 'child_process';
@@ -40,50 +41,72 @@ export default class Dub extends vsc.Disposable {
         this._packages.clear();
     }
 
-    public fetch(packageName: string, build?: boolean) {
-        msg.add('Fetching', packageName);
+    public init(entries: string[]) {
+        return this.launchCommand('init', ['--root=' + vsc.workspace.rootPath], entries.join(os.EOL));
+    }
 
-        let fetcher = cp.spawn(Dub.executable, ['fetch', packageName]);
-        let fetchPromise = new Promise((resolve) => {
-            fetcher.on('exit', resolve);
-        });
-
-        return fetchPromise.then(() => {
-            msg.remove('Fetching', packageName);
+    public fetch(packageName: string) {
+        return this.launchCommand('fetch', [packageName]).then(() => {
             return this.refresh();
-        }).then(() => {
-            if (build) {
-                return this.build(packageName);
+        });
+    }
+
+    public remove(packageName: string) {
+        return this.launchCommand('remove', [packageName]).then(() => {
+            return this.refresh();
+        });
+    }
+
+    public upgrade() {
+        return this.launchCommand('upgrade', ['--root=' + vsc.workspace.rootPath]);
+    }
+
+    public search(packageName: string) {
+        return this.launchCommand('search', [packageName]).then((result: any) => {
+            if (result.code) {
+                return [];
+            } else {
+                let packageNames: vsc.QuickPickItem[] = [];
+                let firstLine = true;
+
+                result.lines.forEach((line) => {
+                    if (firstLine) {
+                        firstLine = false
+                    } else {
+                        let formattedLine: string = line.replace(/\s+/, ' ');
+                        let firstSpace = formattedLine.indexOf(' ');
+                        let secondSpace = formattedLine.indexOf(' ', firstSpace + 1);
+
+                        packageNames.push({
+                            label: formattedLine.substring(0, firstSpace),
+                            description: formattedLine.substring(secondSpace + 1),
+                        });
+                    }
+                })
+
+                return packageNames;
             }
-        })
+        });
     }
 
     public build(packageName: string, config?: string) {
-        let packageNamePretty = packageName + (config ? ` (${config})` : '');
-        msg.add('Building', packageNamePretty);
-
-        let options = [
-            'build',
-            '--root=' + this._packages.get(packageName).path,
-        ];
+        let args = [packageName, '--root=' + this._packages.get(packageName).path];
 
         if (config) {
-            options.push('--config=' + config);
+            args.push('--config=' + config);
         }
 
-        let builder = cp.spawn(Dub.executable, options);
-        let buildPromise = new Promise((resolve) => {
-            builder.on('exit', resolve);
-        });
-
-        buildPromise.then(() => {
-            msg.remove('Building', packageNamePretty);
-        });
-
-        return buildPromise;
+        return this.launchCommand('build', args);
     }
 
-    public convert(path: string) {
+    public convert(format: string) {
+        return this.launchCommand('convert', [
+            '--format=' + format,
+            '--root=' + vsc.workspace.rootPath
+        ]);
+    }
+
+    public getJSONFromSDL(path: string) {
         if (!this._tmp) {
             this._tmp = tmp.dirSync();
         }
@@ -132,7 +155,48 @@ export default class Dub extends vsc.Disposable {
             reader.on('close', resolve);
         })
     }
-}
+
+    private launchCommand(command: string, args?: any, stdin?: string) {
+        if (args.length) {
+            msg.add(command, args[0]);
+        }
+
+        let dubProcess = cp.spawn(Dub.executable, [command].concat(args));
+        let outReader = rl.createInterface(dubProcess.stdout, null);
+        let errReader = rl.createInterface(dubProcess.stderr, null);
+        let out: string[] = [];
+        let err: string[] = [];
+
+        if (stdin) {
+            dubProcess.stdin.end(stdin);
+        }
+
+        outReader.on('line', (line: string) => {
+            out.push(line);
+        });
+
+        errReader.on('line', (line: string) => {
+            err.push(line);
+        });
+
+        return new Promise((resolve) => {
+            dubProcess.on('exit', (code) => {
+                if (args.length) {
+                    msg.remove(command, args[0]);
+                }
+
+                if (code) {
+                    vsc.window.showErrorMessage(err.toString());
+                }
+
+                resolve({
+                    code,
+                    lines: code ? err : out
+                });
+            });
+        });
+    }
+};
 
 export class Package {
     public constructor(private _version: string, private _path: string) { }
@@ -144,12 +208,8 @@ export class Package {
     get path() {
         return this._path;
     }
-}
+};
 
 function isVersionSuperior(first: string, second: string) {
-    // let reg = '^[0-9.]*$';
-
-    // return !second.match(reg) || (first.match(reg) && (first > second));
-
     return second == "~master" || first > second;
 }
