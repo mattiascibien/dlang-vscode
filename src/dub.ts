@@ -34,6 +34,7 @@ export default class Dub extends vsc.Disposable {
 
     public constructor() {
         super(null);
+        this._tmp = tmp.dirSync();
     }
 
     public dispose() {
@@ -82,7 +83,7 @@ export default class Dub extends vsc.Disposable {
                             description: formattedLine.substring(secondSpace + 1),
                         });
                     }
-                })
+                });
 
                 return packageNames;
             }
@@ -107,10 +108,6 @@ export default class Dub extends vsc.Disposable {
     }
 
     public getJSONFromSDL(path: string) {
-        if (!this._tmp) {
-            this._tmp = tmp.dirSync();
-        }
-
         let sdlData = fs.readFileSync(path);
         let dubSdl = p.join(this._tmp.name, 'dub.sdl');
         let dubJson = p.join(this._tmp.name, 'dub.json');
@@ -211,5 +208,5 @@ export class Package {
 };
 
 function isVersionSuperior(first: string, second: string) {
-    return second == "~master" || first > second;
+    return second === '~master' || first > second;
 }
