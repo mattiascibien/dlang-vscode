@@ -15,22 +15,20 @@ export default class Server {
         return Server._instanceLaunched;
     }
 
-    public constructor(paths?: string[]) {
-        this.start(paths);
+    public constructor() {
+        this.start();
     }
 
-    public start(paths?: string[]) {
+    public start() {
         let additions = new Set<string>();
         let additionsImports: string[] = [];
 
-        if (paths) {
-            for (let i = 0; i < paths.length; i++) {
-                let dirs = this.importDirs(paths[i]);
-
-                dirs.forEach((dir) => {
+        if (Server.dub.paths) {
+            Server.dub.paths.forEach((p) => {
+                this.importDirs(p).forEach((dir) => {
                     additions.add(dir);
                 });
-            }
+            });
         }
 
         if (vsc.workspace.rootPath) {

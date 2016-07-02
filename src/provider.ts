@@ -4,20 +4,28 @@ import * as ev from 'events';
 import * as vsc from 'vscode';
 import Server from './dcd/server';
 import Client from './dcd/client';
-import * as util from './dcd/util';
+import * as dcdUtil from './dcd/util';
 import Dfmt from './dfmt';
+import Dscanner from './dscanner/dscanner';
+import * as dscannerUtil from './dscanner/util';
 
 export default class Provider extends ev.EventEmitter implements
     vsc.CompletionItemProvider,
     vsc.SignatureHelpProvider,
     vsc.DefinitionProvider,
-    vsc.DocumentFormattingEditProvider {
+    vsc.DocumentFormattingEditProvider,
+    vsc.DocumentSymbolProvider,
+    vsc.WorkspaceSymbolProvider {
+    public constructor() {
+        super();
+    }
+
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken
     ) {
-        return this.provide(document, position, token, util.Operation.Completion);
+        return this.provide(document, position, token, dcdUtil.Operation.Completion);
     }
 
     public provideSignatureHelp(
@@ -25,7 +33,7 @@ export default class Provider extends ev.EventEmitter implements
         position: vsc.Position,
         token: vsc.CancellationToken
     ) {
-        return this.provide(document, position, token, util.Operation.Calltips);
+        return this.provide(document, position, token, dcdUtil.Operation.Calltips);
     }
 
     public provideDefinition(
@@ -33,7 +41,7 @@ export default class Provider extends ev.EventEmitter implements
         position: vsc.Position,
         token: vsc.CancellationToken
     ) {
-        return this.provide(document, position, token, util.Operation.Definition);
+        return this.provide(document, position, token, dcdUtil.Operation.Definition);
     }
 
     public provideDocumentFormattingEdits(
@@ -43,8 +51,38 @@ export default class Provider extends ev.EventEmitter implements
     ) {
         let dfmt = new Dfmt(document, options, token);
 
+        return new Promise(dfmt.execute.bind(dfmt));
+    }
+
+    public provideDocumentSymbols(
+        document: vsc.TextDocument,
+        token: vsc.CancellationToken
+    ) {
+        let dscanner = new Dscanner(document, token, dscannerUtil.Operation.DocumentSymbols);
+        return new Promise(dscanner.execute.bind(dscanner));
+    }
+
+    public provideWorkspaceSymbols(
+        query: string,
+        token: vsc.CancellationToken
+    ) {
         return new Promise((resolve, reject) => {
-            dfmt.execute(resolve, reject);
+            vsc.workspace.findFiles('**/*.d*', null).then((uris) => {
+                let promises: PromiseLike<vsc.SymbolInformation[]>[] = uris.map((uri) => {
+                    return vsc.workspace.openTextDocument(uri).then((document) => {
+                        if (document && document.languageId === 'd') {
+                            let dscanner = new Dscanner(document, token, dscannerUtil.Operation.WorkspaceSymbols);
+                            return new Promise(dscanner.execute.bind(dscanner));
+                        }
+                    });
+                });
+
+                Promise.all(promises).then((symbolInformationLists) => {
+                    resolve(symbolInformationLists.reduce((previous, current) => {
+                        return current ? (previous || []).concat(current) : previous;
+                    }));
+                });
+            });
         });
     }
 
@@ -52,7 +90,7 @@ export default class Provider extends ev.EventEmitter implements
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken,
-        operation: util.Operation
+        operation: dcdUtil.Operation
     ) {
         let client = new Client(document, position, token, operation);
 
@@ -60,10 +98,8 @@ export default class Provider extends ev.EventEmitter implements
             if (!Server.instanceLaunched) {
                 this.emit('restart');
             }
-        })
-
-        return new Promise((resolve, reject) => {
-            client.execute(resolve, reject);
         });
+
+        return new Promise(client.execute.bind(client));
     }
 };
