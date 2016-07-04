@@ -136,7 +136,7 @@ export default class Client extends ev.EventEmitter {
             });
         }
 
-        this._client.stdin.end(this._document.getText());
+        this._client.stdin.end(this._document.getText(), 'ascii');
     }
 
     private getCompletionPosition() {
