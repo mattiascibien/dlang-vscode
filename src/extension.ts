@@ -50,7 +50,7 @@ export function activate(context: vsc.ExtensionContext) {
             context.subscriptions.push(signatureProvider);
             context.subscriptions.push(definitionProvider);
         })
-        .then(dub.build.bind(dub, 'dfmt'))
+        .then(dub.build.bind(dub, 'dfmt', null))
         .then(() => {
             Dfmt.path = dub.packages.get('dfmt').path;
 
@@ -58,7 +58,7 @@ export function activate(context: vsc.ExtensionContext) {
 
             context.subscriptions.push(formattingProvider);
         })
-        .then(dub.build.bind(dub, 'dscanner'))
+        .then(dub.build.bind(dub, 'dscanner', null))
         .then(() => {
             Dscanner.path = dub.packages.get('dscanner').path;
 
@@ -90,12 +90,10 @@ export function deactivate() {
 };
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
-    let jsb = require('js-beautify').js_beautify;
-
     subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks',
         fs.mkdir.bind(null, path.join(vsc.workspace.rootPath, '.vscode'),
             fs.writeFile.bind(null, path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'),
-                jsb(JSON.stringify(tasks))))));
+                JSON.stringify(tasks, null, vsc.workspace.getConfiguration().get('editor.tabSize', 4))))));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.init', () => {
         let initEntries: string[] = [];
@@ -104,7 +102,6 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         initOptions.forEach((options) => {
             thenable = thenable.then((result) => {
                 initEntries.push(result || '');
-
                 return vsc.window.showInputBox(options);
             });
         });

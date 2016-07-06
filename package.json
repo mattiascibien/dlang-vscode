@@ -205,7 +205,6 @@
     },
     "dependencies": {
         "tmp": "^0.0.28",
-        "js-beautify": "^1.6.3",
-        "xml2js": "^0.4.16"
+        "xml2js": "^0.4.17"
     }
 }
