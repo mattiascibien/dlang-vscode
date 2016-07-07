@@ -112,32 +112,45 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         });
     }));
 
+    let packageToQuickPickItem = (p) => {
+        return {
+            label: p.name,
+            description: p.version,
+            detail: p.description
+        };
+    };
+
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.fetch', () => {
         vsc.window.showInputBox({
             prompt: 'The package to search for',
             placeHolder: 'Package name'
-        }).then((name) => {
-            return vsc.window.showQuickPick(dub.search(name), { matchOnDescription: true });
-        }).then((arg) => {
-            if (arg) {
-                dub.fetch(arg.label);
+        }).then(dub.search.bind(dub)).then((packages: any) => {
+            return vsc.window.showQuickPick(packages.map(packageToQuickPickItem),
+                { matchOnDescription: true });
+        }).then((result: any) => {
+            if (result) {
+                dub.fetch(result.label);
             }
         });
     }));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.remove', () => {
-        let packages: string[] = [];
-
-        dub.packages.forEach((value, name) => {
-            packages.push(name);
+        dub.list().then((packages) => {
+            vsc.window.showQuickPick(packages.sort((p1, p2) => {
+                return p1.name > p2.name ? 1
+                    : p1.name < p2.name ? -1
+                        : p1.version > p2.version ? 1
+                            : p1.version < p2.version ? -1
+                                : 0;
+            }).map(packageToQuickPickItem), { matchOnDescription: true }).then((result) => {
+                if (result) {
+                    dub.remove(result.label, result.description);
+                }
+            });
         });
-
-        vsc.window.showQuickPick(packages).then(dub.remove.bind(dub));
     }));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', () => {
-        dub.upgrade();
-    }));
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', dub.upgrade.bind(dub)));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () => {
         vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' }).then(dub.convert.bind(dub));

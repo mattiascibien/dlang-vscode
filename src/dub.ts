@@ -53,8 +53,14 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    public remove(packageName: string) {
-        return this.launchCommand('remove', [packageName]).then(() => {
+    public remove(packageName: string, version?: string) {
+        let args = [packageName];
+
+        if (version) {
+            args.push('--version=' + version);
+        }
+
+        return this.launchCommand('remove', args).then(() => {
             return this.refresh();
         });
     }
@@ -63,30 +69,41 @@ export default class Dub extends vsc.Disposable {
         return this.launchCommand('upgrade', ['--root=' + vsc.workspace.rootPath]);
     }
 
+    public list() {
+        return this.launchCommand('list', []).then((result: any) => {
+            if (result.code) {
+                return [];
+            } else {
+                let packages: Package[] = [];
+
+                result.lines.shift();
+                result.lines.pop();
+                result.lines.forEach((line: string) => {
+                    let match = line.match(/([^\s]+) ([^\s]+): (.+)/);
+                    packages.push(new Package(match[1], match[2], match[3]));
+                });
+
+                return packages;
+            }
+        });
+    }
+
     public search(packageName: string) {
         return this.launchCommand('search', [packageName]).then((result: any) => {
             if (result.code) {
                 return [];
             } else {
-                let packageNames: vsc.QuickPickItem[] = [];
-                let firstLine = true;
+                let packages: Package[] = [];
 
-                result.lines.forEach((line) => {
-                    if (firstLine) {
-                        firstLine = false
-                    } else {
-                        let formattedLine: string = line.replace(/\s+/, ' ');
-                        let firstSpace = formattedLine.indexOf(' ');
-                        let secondSpace = formattedLine.indexOf(' ', firstSpace + 1);
+                result.lines.shift();
+                result.lines.forEach((line: string) => {
+                    let formattedLine = line.replace(/\s+/, ' ');
+                    let match = formattedLine.match(/([^\s]+) \(([^\s]+)\) (.+)/);
 
-                        packageNames.push({
-                            label: formattedLine.substring(0, firstSpace),
-                            description: formattedLine.substring(secondSpace + 1),
-                        });
-                    }
+                    packages.push(new Package(match[1], match[2], null, match[3]));
                 });
 
-                return packageNames;
+                return packages;
             }
         });
     }
@@ -144,7 +161,7 @@ export default class Dub extends vsc.Disposable {
 
                 if (!this._packages.get(name)
                     || isVersionSuperior(version, this._packages.get(name).version)) {
-                    this._packages.set(name, new Package(version, path));
+                    this._packages.set(name, new Package(name, version, path));
                 }
             }
         });
@@ -197,7 +214,16 @@ export default class Dub extends vsc.Disposable {
 };
 
 export class Package {
-    public constructor(private _version: string, private _path: string) { }
+    public constructor(
+        private _name: string,
+        private _version: string,
+        private _path: string,
+        private _description?: string
+    ) { }
+
+    get name() {
+        return this._name;
+    }
 
     get version() {
         return this._version;
@@ -205,6 +231,10 @@ export class Package {
 
     get path() {
         return this._path;
+    }
+
+    get description() {
+        return this._description;
     }
 };
 
