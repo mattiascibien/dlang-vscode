@@ -13,7 +13,6 @@ import * as util from './util';
 export default class Client extends ev.EventEmitter {
     public static path: string;
     private _client: cp.ChildProcess;
-    private _commas: number;
 
     public constructor(
         private _document: vsc.TextDocument,
@@ -66,7 +65,7 @@ export default class Client extends ev.EventEmitter {
         });
 
         reader.on('line', (line: string) => {
-            let parts = line.split('\t');
+            let parts = line.split(/\s+/);
 
             switch (completionType) {
                 case 'identifiers':
@@ -82,27 +81,25 @@ export default class Client extends ev.EventEmitter {
                     break;
 
                 case 'definition':
-                    if (parts.length < 2) {
+                    if (parts.length < 2 || isNaN(Number(parts[1]))) {
                         reject();
                         return;
                     }
 
+                    let doc: Thenable<vsc.TextDocument>;
                     let filename = parts[0];
-                    let position = this._document.positionAt(Number(parts[1]));
 
                     if (filename === 'stdin') {
-                        resolve(new vsc.Location(vsc.Uri.file(this._document.fileName), position));
-                    } else {
-                        fs.readFile(filename, (err, data) => {
-                            if (!err) {
-                                let text = data.toString().slice(0, Number(parts[1])); // TODO : can go too far
-                                position = new vsc.Position(text.match(new RegExp(os.EOL, 'g')).length,
-                                    text.slice(text.lastIndexOf(os.EOL)).length - 1);
-
-                                resolve(new vsc.Location(vsc.Uri.file(filename), position));
-                            }
+                        doc = new Promise((res) => {
+                            res(this._document);
                         });
+                    } else {
+                        doc = vsc.workspace.openTextDocument(filename);
                     }
+
+                    doc.then((d) => {
+                        resolve(new vsc.Location(d.uri, d.positionAt(Number(parts[1]))));
+                    });
 
                     break;
 
