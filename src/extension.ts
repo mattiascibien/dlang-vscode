@@ -3,7 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vsc from 'vscode';
-import tasks from './tasks';
+import Tasks from './tasks';
 import Dub from './dub';
 import Provider from './provider';
 import Dfix from './dfix';
@@ -15,6 +15,7 @@ import * as util from './dscanner/util';
 import {D_MODE} from './mode';
 
 let server: Server;
+let tasks: Tasks;
 
 export function activate(context: vsc.ExtensionContext) {
     if (Dub.check()) {
@@ -22,9 +23,12 @@ export function activate(context: vsc.ExtensionContext) {
         return;
     }
 
+    tasks = new Tasks();
+
     let dub = new Dub();
     let provider = new Provider();
 
+    context.subscriptions.push(tasks);
     context.subscriptions.push(dub);
 
     Promise.all([registerCommands(context.subscriptions, dub),
@@ -84,6 +88,16 @@ export function activate(context: vsc.ExtensionContext) {
             context.subscriptions.push(documentSymbolProvider);
             context.subscriptions.push(workspaceSymbolProvider);
             context.subscriptions.push(diagnosticCollection);
+        })
+        .then(() => {
+            let tasksWatcher = vsc.workspace.createFileSystemWatcher(path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'));
+
+            tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks));
+            tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks));
+            tasksWatcher.onDidDelete(tasks.hideChoosers.bind(tasks));
+            tasks.showChoosers();
+
+            context.subscriptions.push(tasksWatcher);
         });
 };
 
@@ -94,10 +108,7 @@ export function deactivate() {
 };
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
-    subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks',
-        fs.mkdir.bind(null, path.join(vsc.workspace.rootPath, '.vscode'),
-            fs.writeFile.bind(null, path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'),
-                JSON.stringify(tasks, null, vsc.workspace.getConfiguration().get('editor.tabSize', 4))))));
+    subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks', tasks.createFile.bind(tasks)));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.init', () => {
         let initEntries: string[] = [];
@@ -158,6 +169,22 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () => {
         vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' }).then(dub.convert.bind(dub));
+    }));
+
+    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () => {
+        vsc.window.showQuickPick(Tasks.compilers).then((compiler) => {
+            if (compiler) {
+                tasks.compiler = compiler;
+            }
+        });
+    }));
+
+    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.build', () => {
+        vsc.window.showQuickPick(Tasks.builds).then((build) => {
+            if (build) {
+                tasks.build = build;
+            }
+        });
     }));
 
     return dub.fetch('dfix')

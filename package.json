@@ -191,6 +191,16 @@
                 "title": "Convert Dub File Format",
                 "category": "Dub",
                 "command": "dlang.dub.convert"
+            },
+            {
+                "title": "Change Compiler",
+                "category": "Dlang",
+                "command": "dlang.tasks.compiler"
+            },
+            {
+                "title": "Change Build Type",
+                "category": "Dlang",
+                "command": "dlang.tasks.build"
             }
         ]
     },
@@ -200,8 +210,8 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^1.8.5",
-        "vscode": "^0.11.0"
+        "typescript": "^1.8.10",
+        "vscode": "^0.11.14"
     },
     "dependencies": {
         "tmp": "^0.0.28",
