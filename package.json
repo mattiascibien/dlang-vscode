@@ -97,12 +97,12 @@
                 "d.dfmt.alignSwitchStatements": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Align 'switch' and 'case' in switch statements."
+                    "description": "Align labels, cases, and defaults with their enclosing switch."
                 },
                 "d.dfmt.braceStyle": {
                     "type": "string",
                     "default": "allman",
-                    "description": "Brace style",
+                    "description": "Denotes the style for using curly braces in code blocks.",
                     "enum": [
                         "allman",
                         "otbs",
@@ -112,7 +112,7 @@
                 "d.dfmt.endOfLine": {
                     "type": "string",
                     "default": "lf",
-                    "description": "Which line ending to use.",
+                    "description": "Line ending file format.",
                     "enum": [
                         "lf",
                         "cr",
@@ -127,7 +127,7 @@
                 "d.dfmt.maxLineLength": {
                     "type": "number",
                     "default": 120,
-                    "description": "The line length hard limit."
+                    "description": "Forces hard line wrapping after the amount of characters specified."
                 },
                 "d.dfmt.outdentAttributes": {
                     "type": "boolean",
