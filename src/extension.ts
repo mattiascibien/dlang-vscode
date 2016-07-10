@@ -33,8 +33,9 @@ export function activate(context: vsc.ExtensionContext) {
         dub.fetch('dscanner')])
         .then(dub.build.bind(dub, 'dcd', 'server'))
         .then(dub.build.bind(dub, 'dcd', 'client'))
-        .then(() => {
-            Server.path = Client.path = dub.packages.get('dcd').path;
+        .then(dub.getLatestVersion.bind(dub, 'dcd'))
+        .then((p: any) => {
+            Server.path = Client.path = p.path;
             Server.dub = dub;
 
             server = new Server();
@@ -50,17 +51,20 @@ export function activate(context: vsc.ExtensionContext) {
             context.subscriptions.push(signatureProvider);
             context.subscriptions.push(definitionProvider);
         })
+        .then(() => { return server.importSelections(); })
         .then(dub.build.bind(dub, 'dfmt', null))
-        .then(() => {
-            Dfmt.path = dub.packages.get('dfmt').path;
+        .then(dub.getLatestVersion.bind(dub, 'dfmt'))
+        .then((p: any) => {
+            Dfmt.path = p.path;
 
             let formattingProvider = vsc.languages.registerDocumentFormattingEditProvider(D_MODE, provider);
 
             context.subscriptions.push(formattingProvider);
         })
         .then(dub.build.bind(dub, 'dscanner', null))
-        .then(() => {
-            Dscanner.path = dub.packages.get('dscanner').path;
+        .then(dub.getLatestVersion.bind(dub, 'dscanner'))
+        .then((p: any) => {
+            Dscanner.path = p.path;
 
             let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(D_MODE, provider);
             let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
@@ -157,9 +161,10 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     }));
 
     return dub.fetch('dfix')
-        .then(dub.build.bind(dub, 'dfix'))
-        .then(() => {
-            Dfix.path = dub.packages.get('dfix').path;
+        .then(dub.build.bind(dub, 'dfix', null))
+        .then(dub.getLatestVersion.bind(dub, 'dfix'))
+        .then((p: any) => {
+            Dfix.path = p.path;
 
             subscriptions.push(vsc.commands.registerCommand('dlang.dfix', () => {
                 let choices = ['Run on open file(s)', 'Run on workspace'];

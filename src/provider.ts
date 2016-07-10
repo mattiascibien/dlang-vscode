@@ -50,7 +50,6 @@ export default class Provider extends ev.EventEmitter implements
         token: vsc.CancellationToken
     ) {
         let dfmt = new Dfmt(document, options, token);
-
         return new Promise(dfmt.execute.bind(dfmt));
     }
 

@@ -11,6 +11,7 @@ export default class Server {
     public static path: string;
     public static dub: Dub;
     private static _instanceLaunched: boolean;
+    private _dubSelectionsWatcher: vsc.FileSystemWatcher;
 
     public static get instanceLaunched() {
         return Server._instanceLaunched;
@@ -21,28 +22,13 @@ export default class Server {
     }
 
     public start() {
-        let additions = new Set<string>();
         let additionsImports: string[] = [];
 
-        if (Server.dub.paths) {
-            Server.dub.paths.forEach((p) => {
-                this.importDirs(p).forEach((dir) => {
-                    additions.add(dir);
-                });
-            });
-        }
-
         if (vsc.workspace.rootPath) {
-            this.importDirs(vsc.workspace.rootPath + path.sep).forEach((dir) => {
-                additions.add(dir);
+            this.getImportDirs(vsc.workspace.rootPath).forEach((dir) => {
+                additionsImports.push('-I' + dir);
             });
-
-            additions.add(vsc.workspace.rootPath);
         }
-
-        additions.forEach((item) => {
-            additionsImports.push('-I' + item);
-        });
 
         try {
             let section = 'd.dmdConf.' + (process.platform === 'win32' ? 'windows' : 'posix');
@@ -53,11 +39,7 @@ export default class Server {
             let result = conf.match(/-I[^\s"]+/g);
 
             result.forEach((match) => {
-                if (process.platform === 'win32') {
-                    match = match.replace('%@P%', path.dirname(configFile));
-                }
-
-                additionsImports.push(match);
+                additionsImports.push(match.replace('%@P%', path.dirname(configFile)));
             });
         } catch (e) { }
 
@@ -72,9 +54,59 @@ export default class Server {
 
     public stop() {
         cp.spawn(path.join(Server.path, 'dcd-client'), ['--shutdown'].concat(util.getTcpArgs()));
+        this._dubSelectionsWatcher.dispose();
     }
 
-    private importDirs(dubPath: string) {
+    public importSelections() {
+        let selectionsUri = vsc.Uri.file(path.join(vsc.workspace.rootPath, 'dub.selections.json'));
+        let importPackageDirs = (uri: vsc.Uri) => {
+            return new Promise((resolve) => {
+                fs.readFile(uri.fsPath, (err, data) => {
+                    this.importPackages(JSON.parse(data.toString()).versions).then(resolve);
+                });
+            });
+        };
+
+        this._dubSelectionsWatcher = vsc.workspace.createFileSystemWatcher(selectionsUri.fsPath);
+        this._dubSelectionsWatcher.onDidCreate(importPackageDirs);
+        this._dubSelectionsWatcher.onDidChange(importPackageDirs);
+
+        return importPackageDirs(selectionsUri);
+    }
+
+    private importPackages(selections) {
+        return Server.dub.list().then((packages) => {
+            return new Promise((resolve) => {
+                cp.spawn('dcd-client', ['--clearCache']).on('exit', () => {
+                    let clients: cp.ChildProcess[] = [];
+
+                    for (let selection in selections) {
+                        let importPath: string;
+
+                        packages.forEach((p) => {
+                            if (selection === p.name && selections[selection] === p.version) {
+                                importPath = p.path;
+                            }
+                        });
+
+                        if (importPath) {
+                            this.getImportDirs(importPath).forEach((dir) => {
+                                clients.push(cp.spawn('dcd-client', ['-I' + dir]));
+                            });
+                        }
+                    }
+
+                    Promise.all(clients.map((client) => {
+                        return new Promise((res) => {
+                            client.on('exit', res);
+                        });
+                    })).then(resolve);
+                });
+            });
+        });
+    }
+
+    private getImportDirs(dubPath: string) {
         let imp = new Set<string>();
 
         ['json', 'sdl'].forEach((dubExt) => {
@@ -85,11 +117,7 @@ export default class Server {
                 let dubData;
                 let sourcePaths: string[] = [];
 
-                if (dubExt === 'json') {
-                    dubData = require(dubFile);
-                } else {
-                    dubData = require(Server.dub.getJSONFromSDL(dubFile));
-                }
+                dubData = require(dubExt === 'json' ? dubFile : Server.dub.getJSONFromSDL(dubFile));
 
                 let allPackages = [dubData];
 
@@ -99,7 +127,7 @@ export default class Server {
 
                 allPackages.forEach((p) => {
                     if (p instanceof String) {
-                        let impAdded = this.importDirs(path.join(dubPath, p));
+                        let impAdded = this.getImportDirs(path.join(dubPath, p));
                         impAdded.forEach((newP) => {
                             imp.add(newP);
                         });

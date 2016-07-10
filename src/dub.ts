@@ -12,21 +12,6 @@ import * as msg from './messenger';
 export default class Dub extends vsc.Disposable {
     public static executable = vsc.workspace.getConfiguration().get('d.dub', 'dub');
     private _tmp: tmp.SynchrounousResult;
-    private _packages = new Map<string, Package>();
-
-    get packages() {
-        return this._packages;
-    }
-
-    get paths() {
-        let result: string[] = [];
-
-        this._packages.forEach((p) => {
-            result.push(p.path);
-        });
-
-        return result;
-    }
 
     public static check() {
         return cp.spawnSync(Dub.executable, ['--help']).error;
@@ -39,7 +24,6 @@ export default class Dub extends vsc.Disposable {
 
     public dispose() {
         this._tmp.removeCallback();
-        this._packages.clear();
     }
 
     public init(entries: string[]) {
@@ -48,9 +32,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public fetch(packageName: string) {
-        return this.launchCommand('fetch', [packageName]).then(() => {
-            return this.refresh();
-        });
+        return this.launchCommand('fetch', [packageName]);
     }
 
     public remove(packageName: string, version?: string) {
@@ -60,9 +42,7 @@ export default class Dub extends vsc.Disposable {
             args.push('--version=' + version);
         }
 
-        return this.launchCommand('remove', args).then(() => {
-            return this.refresh();
-        });
+        return this.launchCommand('remove', args);
     }
 
     public upgrade() {
@@ -109,13 +89,15 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(packageName: string, config?: string) {
-        let args = ['--root=' + this._packages.get(packageName).path];
+        return this.getLatestVersion(packageName).then((p) => {
+            let args = ['--root=' + p.path];
 
-        if (config) {
-            args.push('--config=' + config);
-        }
+            if (config) {
+                args.push('--config=' + config);
+            }
 
-        return this.launchCommand('build', args, packageName + (config ? ` (${config})` : ''));
+            return this.launchCommand('build', args, packageName + (config ? ` (${config})` : ''));
+        });
     }
 
     public convert(format: string) {
@@ -132,9 +114,10 @@ export default class Dub extends vsc.Disposable {
 
         fs.writeFileSync(dubSdl, sdlData);
 
-        if (fs.existsSync(dubJson)) {
+        try {
+            fs.accessSync(dubJson);
             fs.unlinkSync(dubJson);
-        }
+        } catch (e) { }
 
         let res = cp.spawnSync(Dub.executable, ['convert', '--format=json'], {
             cwd: this._tmp.name
@@ -143,31 +126,29 @@ export default class Dub extends vsc.Disposable {
         return dubJson;
     }
 
-    public refresh() {
-        let dub = cp.spawn(Dub.executable, ['list']);
-        let reader = rl.createInterface(dub.stdout, null);
-        let firstLine = true;
-
-        reader.on('line', (line: string) => {
-            if (firstLine) {
-                firstLine = false;
-            } else if (line.length) {
-                line = line.trim();
-
-                let name = line.slice(0, line.indexOf(' '));
-                let rest = line.slice(line.indexOf(' ') + 1);
-                let version = rest.slice(0, rest.indexOf(' ') - 1);
-                let path = rest.slice(rest.indexOf(' ') + 1);
-
-                if (!this._packages.get(name)
-                    || isVersionSuperior(version, this._packages.get(name).version)) {
-                    this._packages.set(name, new Package(name, version, path));
+    public getLatestVersion(packageName: string) {
+        return this.list().then((packages) => {
+            return packages.reduce((previous, next) => {
+                if (!previous) {
+                    return next;
                 }
-            }
-        });
 
-        return new Promise((resolve) => {
-            reader.on('close', resolve);
+                if (!next) {
+                    return previous;
+                }
+
+                if (next.name === packageName) {
+                    return previous && previous.name !== packageName
+                        ? next : isVersionSuperior(next.version, previous.version)
+                            ? next : previous;
+                }
+
+                if (previous.name === packageName) {
+                    return previous;
+                }
+
+                return null;
+            });
         });
     }
 
