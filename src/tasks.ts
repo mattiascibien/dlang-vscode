@@ -21,18 +21,19 @@ export default class Tasks implements vsc.Disposable {
             'gdmd'
         ];
 
-        let installedCompilers: string[] = [];
+        let installedCompilers = new Set<string>();
+        let isWin = process.platform === 'win32';
 
         compilers.forEach((compiler) => {
-            process.env.PATH.split(process.platform === 'win32' ? ';' : ':').forEach((dir) => {
+            process.env.PATH.split(isWin ? ';' : ':').forEach((dir) => {
                 try {
-                    fs.accessSync(path.join(dir, compiler), fs.F_OK);
-                    installedCompilers.push(compiler);
+                    fs.accessSync(path.join(dir, compiler + (isWin ? '.exe' : '')), fs.F_OK);
+                    installedCompilers.add(compiler);
                 } catch (e) { }
             });
         });
 
-        return installedCompilers;
+        return Array.from(installedCompilers);
     }
 
     public static get builds() {
