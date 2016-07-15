@@ -18,6 +18,12 @@
 	<key>patterns</key>
 	<array>
 		<dict>
+			<key>match</key>
+			<string>\A#!.+</string>
+			<key>name</key>
+			<string>comment.line.number-sign.shebang.d</string>
+		</dict>
+		<dict>
 			<key>captures</key>
 			<dict>
 				<key>0</key>
@@ -55,7 +61,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>\s*(\b(deprecated|unittest|debug)\b|((static)\s+)?(assert))</string>
+			<string>\s*(\b(deprecated|unittest|debug)\b|(\b(static)\b\s+)?\b(assert)\b)</string>
 			<key>name</key>
 			<string>meta.other.debug.d</string>
 		</dict>
@@ -468,7 +474,7 @@
 			<key>begin</key>
 			<string>(?x)^\s*
 					((?:\b(?:public|private|protected|static|final|synchronized|abstract|export|override|auto|nothrow|immutable|const|inout|ref|shared)\b\s*)*) # modifier
-					(?:(_|\w[^\s]*))\s+ # return type
+					(?:(_|\w[^"'`\s]*))\s+ # return type
 					(\w+)\s* # identifier
 					(?=\()</string>
 			<key>beginCaptures</key>
