@@ -57,19 +57,23 @@ export default class Server {
         this._dubSelectionsWatcher.dispose();
     }
 
-    public importSelections() {
+    public importSelections(subscriptions: vsc.Disposable[]) {
         let selectionsUri = vsc.Uri.file(path.join(vsc.workspace.rootPath, 'dub.selections.json'));
         let importPackageDirs = (uri: vsc.Uri) => {
             return new Promise((resolve) => {
                 fs.readFile(uri.fsPath, (err, data) => {
-                    this.importPackages(JSON.parse(data.toString()).versions).then(resolve);
+                    if (data) {
+                        this.importPackages(JSON.parse(data.toString()).versions).then(resolve);
+                    } else {
+                        resolve();
+                    }
                 });
             });
         };
 
         this._dubSelectionsWatcher = vsc.workspace.createFileSystemWatcher(selectionsUri.fsPath);
-        this._dubSelectionsWatcher.onDidCreate(importPackageDirs);
-        this._dubSelectionsWatcher.onDidChange(importPackageDirs);
+        this._dubSelectionsWatcher.onDidCreate(importPackageDirs, null, subscriptions);
+        this._dubSelectionsWatcher.onDidChange(importPackageDirs, null, subscriptions);
 
         return importPackageDirs(selectionsUri);
     }

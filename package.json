@@ -25,17 +25,27 @@
         "Languages",
         "Snippets"
     ],
+    "keywords": [
+        "dub",
+        "dcd",
+        "dfmt",
+        "dscanner",
+        "dfix"
+    ],
     "activationEvents": [
         "onLanguage:d",
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
         "onCommand:dlang.default-tasks",
         "onCommand:dlang.dfix",
+        "dlang.d-profile-viewer",
         "onCommand:dlang.dub.init",
         "onCommand:dlang.dub.fetch",
         "onCommand:dlang.dub.remove",
         "onCommand:dlang.dub.upgrade",
-        "onCommand:dlang.dub.convert"
+        "onCommand:dlang.dub.convert",
+        "onCommand:dlang.tasks.compiler",
+        "onCommand:dlang.tasks.build"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -166,6 +176,11 @@
                 "title": "Run Dfix",
                 "category": "Dlang",
                 "command": "dlang.dfix"
+            },
+            {
+                "title": "See Program Profile",
+                "category": "Dlang",
+                "command": "dlang.d-profile-viewer"
             },
             {
                 "title": "Init Package",

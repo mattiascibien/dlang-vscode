@@ -7,6 +7,7 @@ import Tasks from './tasks';
 import Dub from './dub';
 import Provider from './provider';
 import Dfix from './dfix';
+import DProfileViewer from './dProfileViewer';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
@@ -28,16 +29,15 @@ export function activate(context: vsc.ExtensionContext) {
     let dub = new Dub();
     let provider = new Provider();
 
-    context.subscriptions.push(tasks);
-    context.subscriptions.push(dub);
+    context.subscriptions.push(tasks, dub);
 
     Promise.all([registerCommands(context.subscriptions, dub),
         dub.fetch('dcd'),
         dub.fetch('dfmt'),
         dub.fetch('dscanner')])
-        .then(dub.build.bind(dub, 'dcd', 'server'))
-        .then(dub.build.bind(dub, 'dcd', 'client'))
         .then(dub.getLatestVersion.bind(dub, 'dcd'))
+        .then((p: any) => dub.build(p, 'server'))
+        .then((p: any) => dub.build(p, 'client'))
         .then((p: any) => {
             Server.path = Client.path = p.path;
             Server.dub = dub;
@@ -51,13 +51,11 @@ export function activate(context: vsc.ExtensionContext) {
                 server.start();
             });
 
-            context.subscriptions.push(completionProvider);
-            context.subscriptions.push(signatureProvider);
-            context.subscriptions.push(definitionProvider);
+            context.subscriptions.push(completionProvider, signatureProvider, definitionProvider);
         })
-        .then(() => { return server.importSelections(); })
-        .then(dub.build.bind(dub, 'dfmt', null))
+        .then(() => server.importSelections(context.subscriptions))
         .then(dub.getLatestVersion.bind(dub, 'dfmt'))
+        .then(dub.build.bind(dub))
         .then((p: any) => {
             Dfmt.path = p.path;
 
@@ -65,8 +63,8 @@ export function activate(context: vsc.ExtensionContext) {
 
             context.subscriptions.push(formattingProvider);
         })
-        .then(dub.build.bind(dub, 'dscanner', null))
         .then(dub.getLatestVersion.bind(dub, 'dscanner'))
+        .then(dub.build.bind(dub))
         .then((p: any) => {
             Dscanner.path = p.path;
 
@@ -75,7 +73,7 @@ export function activate(context: vsc.ExtensionContext) {
             let diagnosticCollection = vsc.languages.createDiagnosticCollection();
             let lintDocument = (document: vsc.TextDocument) => {
                 if (document.languageId === 'd') {
-                    let dscanner = new Dscanner(document, null, util.Operation.Lint);
+                    new Dscanner(document, null, util.Operation.Lint);
                 }
             };
 
@@ -85,16 +83,14 @@ export function activate(context: vsc.ExtensionContext) {
             vsc.workspace.onDidOpenTextDocument(lintDocument);
             vsc.workspace.textDocuments.forEach(lintDocument);
 
-            context.subscriptions.push(documentSymbolProvider);
-            context.subscriptions.push(workspaceSymbolProvider);
-            context.subscriptions.push(diagnosticCollection);
+            context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, diagnosticCollection);
         })
         .then(() => {
             let tasksWatcher = vsc.workspace.createFileSystemWatcher(path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'));
 
-            tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks));
-            tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks));
-            tasksWatcher.onDidDelete(tasks.hideChoosers.bind(tasks));
+            tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks), null, context.subscriptions);
+            tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks), null, context.subscriptions);
+            tasksWatcher.onDidDelete(tasks.hideChoosers.bind(tasks), null, context.subscriptions);
             tasks.showChoosers();
 
             context.subscriptions.push(tasksWatcher);
@@ -187,9 +183,9 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         });
     }));
 
-    return dub.fetch('dfix')
-        .then(dub.build.bind(dub, 'dfix', null))
+    return Promise.all([dub.fetch('dfix'), dub.fetch('d-profile-viewer')])
         .then(dub.getLatestVersion.bind(dub, 'dfix'))
+        .then(dub.build.bind(dub))
         .then((p: any) => {
             Dfix.path = p.path;
 
@@ -208,6 +204,19 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                             new Dfix(vsc.workspace.rootPath);
                         });
                     }
+                });
+            }));
+        })
+        .then(dub.getLatestVersion.bind(dub, 'd-profile-viewer'))
+        .then(dub.build.bind(dub))
+        .then((p: any) => {
+            DProfileViewer.path = p.path;
+
+            subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () => {
+                return new Promise((resolve) => {
+                    new DProfileViewer(vsc.workspace.rootPath, resolve);
+                }).then(() => {
+                    vsc.commands.executeCommand('vscode.previewHtml', vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
                 });
             }));
         });

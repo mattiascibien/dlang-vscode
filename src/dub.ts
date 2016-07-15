@@ -88,16 +88,15 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    public build(packageName: string, config?: string) {
-        return this.getLatestVersion(packageName).then((p) => {
-            let args = ['--root=' + p.path];
+    public build(p: Package, config?: string) {
+        let args = ['--root=' + p.path];
 
-            if (config) {
-                args.push('--config=' + config);
-            }
+        if (config) {
+            args.push('--config=' + config);
+        }
 
-            return this.launchCommand('build', args, packageName + (config ? ` (${config})` : ''));
-        });
+        return this.launchCommand('build', args, p.name + (config ? ` (${config})` : ''))
+            .then(() => { return p; });
     }
 
     public convert(format: string) {
