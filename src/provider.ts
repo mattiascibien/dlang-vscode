@@ -16,10 +16,6 @@ export default class Provider extends ev.EventEmitter implements
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
     vsc.WorkspaceSymbolProvider {
-    public constructor() {
-        super();
-    }
-
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
