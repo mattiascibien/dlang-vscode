@@ -116,21 +116,27 @@ export default class Tasks implements vsc.Disposable {
     }
 
     public updateChoosers() {
-        this._choosers.compiler.text = Tasks.compilers[0];
-        this._choosers.build.text = Tasks.builds[0];
+        this._choosers.compiler.text = '$(tools) ' + Tasks.compilers[0];
+        this._choosers.build.text = '$(gear) ' + Tasks.builds[0];
 
         this.apply((args) => {
             args.forEach((arg) => {
                 let map = {
-                    compiler: this._choosers.compiler,
-                    build: this._choosers.build
+                    compiler: {
+                        chooser: this._choosers.compiler,
+                        icon: '$(tools)'
+                    },
+                    build: {
+                        chooser: this._choosers.build,
+                        icon: '$(gear)'
+                    }
                 };
 
                 for (let regexp in map) {
                     let match = arg.match(new RegExp(`--${regexp}=(.*)`));
 
                     if (match) {
-                        map[regexp].text = match[1];
+                        map[regexp].chooser.text = map[regexp].icon + ' ' + match[1];
                     }
                 }
             });
