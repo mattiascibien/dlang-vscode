@@ -62,7 +62,7 @@ export default class Server {
         } catch (e) { }
 
         let args = ['--logLevel', 'off'].concat(util.getTcpArgs());
-        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports.concat(args));
+        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports.concat(args), { stdio: 'ignore' });
         Server._instanceLaunched = true;
 
         server.on('exit', () => {
