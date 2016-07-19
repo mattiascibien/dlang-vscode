@@ -38,7 +38,7 @@
         "workspaceContains:dub.sdl",
         "onCommand:dlang.default-tasks",
         "onCommand:dlang.dfix",
-        "dlang.d-profile-viewer",
+        "onCommand:dlang.d-profile-viewer",
         "onCommand:dlang.dub.init",
         "onCommand:dlang.dub.fetch",
         "onCommand:dlang.dub.remove",
