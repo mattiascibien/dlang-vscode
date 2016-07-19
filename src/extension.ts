@@ -10,7 +10,8 @@ import Dfix from './dfix';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
-import Dscanner from './dscanner';
+import Dscanner from './dscanner/dscanner';
+import * as util from './dscanner/util';
 import {D_MODE} from './mode';
 
 let server: Server;
@@ -25,20 +26,24 @@ export function activate(context: vsc.ExtensionContext) {
     let provider = new Provider();
 
     context.subscriptions.push(dub);
-    Promise.all([registerCommands(context.subscriptions, dub), dub.fetch('dcd'), dub.fetch('dfmt'), dub.fetch('dscanner')])
+
+    Promise.all([registerCommands(context.subscriptions, dub),
+        dub.fetch('dcd'),
+        dub.fetch('dfmt'),
+        dub.fetch('dscanner')])
         .then(dub.build.bind(dub, 'dcd', 'server'))
         .then(dub.build.bind(dub, 'dcd', 'client'))
         .then(() => {
             Server.path = Client.path = dub.packages.get('dcd').path;
             Server.dub = dub;
 
-            server = new Server(dub.paths);
+            server = new Server();
             let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
             let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
             let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
 
             provider.on('restart', () => {
-                server.start(dub.paths);
+                server.start();
             });
 
             context.subscriptions.push(completionProvider);
@@ -57,10 +62,12 @@ export function activate(context: vsc.ExtensionContext) {
         .then(() => {
             Dscanner.path = dub.packages.get('dscanner').path;
 
+            let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(D_MODE, provider);
+            let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
             let diagnosticCollection = vsc.languages.createDiagnosticCollection();
             let lintDocument = (document: vsc.TextDocument) => {
                 if (document.languageId === 'd') {
-                    new Dscanner(document);
+                    let dscanner = new Dscanner(document, null, util.Operation.Lint);
                 }
             };
 
@@ -70,6 +77,8 @@ export function activate(context: vsc.ExtensionContext) {
             vsc.workspace.onDidOpenTextDocument(lintDocument);
             vsc.workspace.textDocuments.forEach(lintDocument);
 
+            context.subscriptions.push(documentSymbolProvider);
+            context.subscriptions.push(workspaceSymbolProvider);
             context.subscriptions.push(diagnosticCollection);
         });
 };

@@ -31,7 +31,7 @@ export default class Client extends ev.EventEmitter {
             args.push('-d');
         }
 
-        this._client = cp.spawn(path.join(Client.path, 'dcd-client'), args);
+        this._client = cp.spawn(path.join(Client.path, 'dcd-client'), args.concat(util.getTcpArgs()));
 
         this._client.on('exit', (code: number) => {
             if (code) {

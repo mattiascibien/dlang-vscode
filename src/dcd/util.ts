@@ -30,3 +30,13 @@ export enum Operation {
     Definition,
     Documentation
 };
+
+export function getTcpArgs() {
+    let args: string[] = [];
+
+    if (vsc.workspace.getConfiguration().get('d.dcd.tcp')) {
+        args.push('--tcp', '--port', String(vsc.workspace.getConfiguration().get('d.dcd.port')));
+    }
+
+    return args;
+}

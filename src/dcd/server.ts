@@ -4,6 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as cp from 'child_process';
 import * as vsc from 'vscode';
+import * as util from './util';
 import Dub from '../dub';
 
 export default class Server {
@@ -15,22 +16,20 @@ export default class Server {
         return Server._instanceLaunched;
     }
 
-    public constructor(paths?: string[]) {
-        this.start(paths);
+    public constructor() {
+        this.start();
     }
 
-    public start(paths?: string[]) {
+    public start() {
         let additions = new Set<string>();
         let additionsImports: string[] = [];
 
-        if (paths) {
-            for (let i = 0; i < paths.length; i++) {
-                let dirs = this.importDirs(paths[i]);
-
-                dirs.forEach((dir) => {
+        if (Server.dub.paths) {
+            Server.dub.paths.forEach((p) => {
+                this.importDirs(p).forEach((dir) => {
                     additions.add(dir);
                 });
-            }
+            });
         }
 
         if (vsc.workspace.rootPath) {
@@ -62,7 +61,8 @@ export default class Server {
             });
         } catch (e) { }
 
-        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports, { stdio: 'ignore' });
+        let args = ['--logLevel', 'off'].concat(util.getTcpArgs());
+        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports.concat(args), { stdio: 'ignore' });
         Server._instanceLaunched = true;
 
         server.on('exit', () => {
@@ -71,7 +71,7 @@ export default class Server {
     }
 
     public stop() {
-        cp.spawn(path.join(Server.path, 'dcd-client'), ['--shutdown']);
+        cp.spawn(path.join(Server.path, 'dcd-client'), ['--shutdown'].concat(util.getTcpArgs()));
     }
 
     private importDirs(dubPath: string) {

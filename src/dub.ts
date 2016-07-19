@@ -34,6 +34,7 @@ export default class Dub extends vsc.Disposable {
 
     public constructor() {
         super(null);
+        this._tmp = tmp.dirSync();
     }
 
     public dispose() {
@@ -42,7 +43,8 @@ export default class Dub extends vsc.Disposable {
     }
 
     public init(entries: string[]) {
-        return this.launchCommand('init', ['--root=' + vsc.workspace.rootPath], entries.join(os.EOL));
+        return this.launchCommand('init', ['--root=' + vsc.workspace.rootPath],
+            vsc.workspace.rootPath, entries.join(os.EOL));
     }
 
     public fetch(packageName: string) {
@@ -82,7 +84,7 @@ export default class Dub extends vsc.Disposable {
                             description: formattedLine.substring(secondSpace + 1),
                         });
                     }
-                })
+                });
 
                 return packageNames;
             }
@@ -90,27 +92,23 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(packageName: string, config?: string) {
-        let args = [packageName, '--root=' + this._packages.get(packageName).path];
+        let args = ['--root=' + this._packages.get(packageName).path];
 
         if (config) {
             args.push('--config=' + config);
         }
 
-        return this.launchCommand('build', args);
+        return this.launchCommand('build', args, packageName + (config ? ` (${config})` : ''));
     }
 
     public convert(format: string) {
         return this.launchCommand('convert', [
             '--format=' + format,
             '--root=' + vsc.workspace.rootPath
-        ]);
+        ], 'to ' + format);
     }
 
     public getJSONFromSDL(path: string) {
-        if (!this._tmp) {
-            this._tmp = tmp.dirSync();
-        }
-
         let sdlData = fs.readFileSync(path);
         let dubSdl = p.join(this._tmp.name, 'dub.sdl');
         let dubJson = p.join(this._tmp.name, 'dub.json');
@@ -153,12 +151,12 @@ export default class Dub extends vsc.Disposable {
 
         return new Promise((resolve) => {
             reader.on('close', resolve);
-        })
+        });
     }
 
-    private launchCommand(command: string, args?: any, stdin?: string) {
+    private launchCommand(command: string, args: any, message?: string, stdin?: string) {
         if (args.length) {
-            msg.add(command, args[0]);
+            msg.add(command, message || args[0]);
         }
 
         let dubProcess = cp.spawn(Dub.executable, [command].concat(args));
@@ -182,7 +180,7 @@ export default class Dub extends vsc.Disposable {
         return new Promise((resolve) => {
             dubProcess.on('exit', (code) => {
                 if (args.length) {
-                    msg.remove(command, args[0]);
+                    msg.remove(command, message || args[0]);
                 }
 
                 if (code) {
@@ -211,5 +209,5 @@ export class Package {
 };
 
 function isVersionSuperior(first: string, second: string) {
-    return second == "~master" || first > second;
+    return second === '~master' || first > second;
 }

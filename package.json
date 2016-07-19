@@ -72,17 +72,87 @@
                 "d.dub": {
                     "type": "string",
                     "default": "dub",
-                    "description": "Path to the dub executable"
+                    "description": "Path to the dub executable."
                 },
                 "d.dmdConf.posix": {
                     "type": "string",
                     "default": "/etc/dmd.conf",
-                    "description": "Path to the DMD configuration file on POSIX systems"
+                    "description": "Path to the DMD configuration file on POSIX systems."
                 },
                 "d.dmdConf.windows": {
                     "type": "string",
                     "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
-                    "description": "Path to the DMD configuration file on Windows"
+                    "description": "Path to the DMD configuration file on Windows."
+                },
+                "d.dcd.tcp": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows."
+                },
+                "d.dcd.port": {
+                    "type": "number",
+                    "default": 9166,
+                    "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
+                },
+                "d.dfmt.alignSwitchStatements": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Align 'switch' and 'case' in switch statements."
+                },
+                "d.dfmt.braceStyle": {
+                    "type": "string",
+                    "default": "allman",
+                    "description": "Brace style",
+                    "enum": [
+                        "allman",
+                        "otbs",
+                        "stroustrup"
+                    ]
+                },
+                "d.dfmt.endOfLine": {
+                    "type": "string",
+                    "default": "lf",
+                    "description": "Which line ending to use.",
+                    "enum": [
+                        "lf",
+                        "cr",
+                        "crlf"
+                    ]
+                },
+                "d.dfmt.softMaxLineLength": {
+                    "type": "number",
+                    "default": 80,
+                    "description": "The formatting process will usually keep lines below this length."
+                },
+                "d.dfmt.maxLineLength": {
+                    "type": "number",
+                    "default": 120,
+                    "description": "The line length hard limit."
+                },
+                "d.dfmt.outdentAttributes": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Decrease the indentation level of attributes."
+                },
+                "d.dfmt.spaceAfterCast": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Insert space after the closing parenthesis of a cast expression."
+                },
+                "d.dfmt.selectiveImportSpace": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Insert space after the module name and before the ':' for selective imports."
+                },
+                "d.dfmt.splitOperatorAtLineEnd": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "Place operators on the end of the previous line when splitting lines."
+                },
+                "d.dfmt.compactLabeledStatements": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement."
                 }
             }
         },
@@ -135,6 +205,7 @@
     },
     "dependencies": {
         "tmp": "^0.0.28",
-        "js-beautify": "^1.6.3"
+        "js-beautify": "^1.6.3",
+        "xml2js": "^0.4.16"
     }
 }

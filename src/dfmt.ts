@@ -20,7 +20,24 @@ export default class Dfmt {
             String(options.tabSize),
             '--tab_width',
             String(options.tabSize)
-        ]
+        ];
+
+        [
+            'alignSwitchStatements',
+            'braceStyle',
+            'endOfLine',
+            'softMaxLineLength',
+            'maxLineLength',
+            'outdentAttributes',
+            'spaceAfterCast',
+            'selectiveImportSpace',
+            'splitOperatorAtLineEnd',
+            'compactLabeledStatements'
+        ].forEach((attr) => {
+            args.push('--' + attr.replace(/[A-Z]/g, (found) => {
+                return '_' + found.toLowerCase();
+            }), String(vsc.workspace.getConfiguration().get('d.dfmt.' + attr)));
+        });
 
         this._dfmt = cp.spawn(path.join(Dfmt.path, 'dfmt'), args);
     }
@@ -43,7 +60,7 @@ export default class Dfmt {
             let range = new vsc.Range(0, 0, lastLine, lastCol);
 
             resolve([new vsc.TextEdit(range, output)]);
-        })
+        });
 
         this._dfmt.stdin.end(this._document.getText());
     }
