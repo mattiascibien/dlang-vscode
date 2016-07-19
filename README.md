@@ -10,16 +10,17 @@ D Language Page: https://dlang.org/
 * Syntax Colorization
 * Snippets
 * Autocompletion using [DCD](https://github.com/Hackerpilot/dcd)
-* Formatting using [Dfmt](https://github.com/Hackerpilot/dfmt)
+* Formatting using [dfmt](https://github.com/Hackerpilot/dfmt)
 * Linting using [Dscanner](https://github.com/Hackerpilot/dscanner)
 * Code upgrade using [dfix](https://github.com/Hackerpilot/dfix)
-* Integration with Dub
+* Profiling using [D Profile Viewer](https://bitbucket.org/andrewtrotman/d-profile-viewer)
+* Integration with Dub using VSCode commands and tasks
 
-In order to use DCD, dfmt, dscanner and dfix you must have [Dub](https://github.com/D-Programming-Language/dub#installation) installed on your system.
+In order to use DCD, dfmt, Dscanner, dfix and D Profile Viewer you must have [Dub](https://github.com/D-Programming-Language/dub#installation) installed on your system.
 Dub will then fetch, build and use the packages automatically.
 
 Though this extension lacks a debugger integration, debugging can easily be done using the general purpose [Debug](https://github.com/WebFreak001/code-debug) extension.
-After creating a debug configuration, simply change the name of the executable and add `"preLaunchTask": "build"` to build the project when debugging.
+After creating a debug configuration and the default dub tasks, simply change the name of the executable and add `"preLaunchTask": "build"` to build the project when debugging.
 
 ## Extension Settings
 
@@ -53,6 +54,7 @@ Note: these dfmt formatting options have yet to be implemented in dfmt  itself a
 
 * `Create Default Tasks`: creates a default tasks.json file for VSCode containing standard dub tasks such as `build`, `run`, `test` and `clean`
 * `Run Dfix`: runs dfix on either the currently opened files or the entire workspace
+* `See Program Profile`: runs d-profile-viewer and displays the profiling results as a HTML page
 * `Init Package`: creates a new dub package in the current directory
 * `Fetch Package`: fetches a dub package
 * `Remove Package`: removes a dub package
@@ -63,7 +65,7 @@ Note: these dfmt formatting options have yet to be implemented in dfmt  itself a
 
 * Documentation display
 * Code coverage
-* Profiling
+* GC profiling
 * Add range formatting
 * [SDL file format](http://code.dlang.org/package-format?lang=sdl) support
 * [Diet template](http://vibed.org/features#diet-templates) support
