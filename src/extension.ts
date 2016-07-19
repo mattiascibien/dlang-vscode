@@ -82,6 +82,9 @@ export function activate(context: vsc.ExtensionContext) {
             vsc.workspace.onDidSaveTextDocument(lintDocument);
             vsc.workspace.onDidOpenTextDocument(lintDocument);
             vsc.workspace.textDocuments.forEach(lintDocument);
+            vsc.workspace.onDidCloseTextDocument((document) => {
+                diagnosticCollection.delete(document.uri);
+            });
 
             context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, diagnosticCollection);
         })
@@ -189,16 +192,28 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         .then((p: any) => {
             Dfix.path = p.path;
 
-            subscriptions.push(vsc.commands.registerCommand('dlang.dfix', () => {
+            subscriptions.push(vsc.commands.registerCommand('dlang.dfix', (uri: vsc.Uri) => {
+                let applyDfix = (document: vsc.TextDocument) => {
+                    document.save().then(() => {
+                        let changeDisposable = vsc.workspace.onDidChangeTextDocument((event) => {
+                            new Dscanner(event.document, null, util.Operation.Lint);
+                            changeDisposable.dispose();
+                        });
+
+                        new Dfix(document.fileName);
+                    });
+                };
+
+                if (uri) {
+                    vsc.workspace.openTextDocument(uri).then(applyDfix);
+                    return;
+                }
+
                 let choices = ['Run on open file(s)', 'Run on workspace'];
 
                 vsc.window.showQuickPick(choices).then((value) => {
                     if (value === choices[0]) {
-                        vsc.workspace.textDocuments.forEach((document) => {
-                            document.save().then(() => {
-                                new Dfix(document.fileName);
-                            });
-                        })
+                        vsc.workspace.textDocuments.forEach(applyDfix);
                     } else {
                         vsc.workspace.saveAll(false).then(() => {
                             new Dfix(vsc.workspace.rootPath);

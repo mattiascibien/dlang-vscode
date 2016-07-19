@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^0.10.1"
+        "vscode": "^0.11.14"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -217,7 +217,16 @@
                 "category": "Dlang",
                 "command": "dlang.tasks.build"
             }
-        ]
+        ],
+        "menus": {
+            "editor/title": [
+                {
+                    "group": "actions",
+                    "command": "dlang.dfix",
+                    "when": "resourceLangId == d"
+                }
+            ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "node ./node_modules/vscode/bin/compile",
