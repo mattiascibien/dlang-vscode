@@ -46,12 +46,13 @@ export function activate(context: vsc.ExtensionContext) {
             let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
             let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
             let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
+            let hoverProvider = vsc.languages.registerHoverProvider(D_MODE, provider);
 
             provider.on('restart', () => {
                 server.start();
             });
 
-            context.subscriptions.push(completionProvider, signatureProvider, definitionProvider);
+            context.subscriptions.push(completionProvider, signatureProvider, definitionProvider, hoverProvider);
         })
         .then(() => server.importSelections(context.subscriptions))
         .then(dub.getLatestVersion.bind(dub, 'dfmt'))

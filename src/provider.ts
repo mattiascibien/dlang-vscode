@@ -13,6 +13,7 @@ export default class Provider extends ev.EventEmitter implements
     vsc.CompletionItemProvider,
     vsc.SignatureHelpProvider,
     vsc.DefinitionProvider,
+    vsc.HoverProvider,
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
     vsc.WorkspaceSymbolProvider {
@@ -38,6 +39,14 @@ export default class Provider extends ev.EventEmitter implements
         token: vsc.CancellationToken
     ) {
         return this.provide(document, position, token, dcdUtil.Operation.Definition);
+    }
+
+    public provideHover(
+        document: vsc.TextDocument,
+        position: vsc.Position,
+        token: vsc.CancellationToken
+    ) {
+        return this.provide(document, position, token, dcdUtil.Operation.Documentation);
     }
 
     public provideDocumentFormattingEdits(

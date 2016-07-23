@@ -86,20 +86,29 @@ export default class Client extends ev.EventEmitter {
                         return;
                     }
 
-                    let doc: Thenable<vsc.TextDocument>;
+                    let documentThenable: Thenable<vsc.TextDocument>;
                     let filename = parts[0];
 
                     if (filename === 'stdin') {
-                        doc = new Promise((res) => {
+                        documentThenable = new Promise((res) => {
                             res(this._document);
                         });
                     } else {
-                        doc = vsc.workspace.openTextDocument(filename);
+                        documentThenable = vsc.workspace.openTextDocument(filename);
                     }
 
-                    doc.then((d) => {
-                        resolve(new vsc.Location(d.uri, d.positionAt(Number(parts[1]))));
+                    documentThenable.then((document) => {
+                        resolve(new vsc.Location(document.uri, document.positionAt(Number(parts[1]))));
                     });
+
+                    break;
+
+                case 'documentation':
+                    if (line.length) {
+                        resolve(new vsc.Hover(parseDoc(line)));
+                    } else {
+                        reject();
+                    }
 
                     break;
 
@@ -120,7 +129,7 @@ export default class Client extends ev.EventEmitter {
                         resolve(completions);
                         break;
 
-                    default:
+                    case 'calltips':
                         let infoLine = this._document.lineAt(this._position.line).text;
                         let infoArgs = infoLine.substring(infoLine.lastIndexOf('(', this._position.character), this._position.character);
                         let infoNumArg = infoArgs.match(/,/g);
@@ -159,3 +168,20 @@ export default class Client extends ev.EventEmitter {
         return information;
     }
 };
+
+function parseDoc(docLine: string) {
+    let result: vsc.MarkedString[] = docLine
+        .replace(/\$\(\w*\s*([^)]+)\)/g, '`$1`')
+        .replace(/([^\\])\\n/g, '$1\n')
+        .replace('\\\\', '\\')
+        .split(/-+\n/g);
+
+    for (let i = 1; i < result.length; i += 2) {
+        result[i] = {
+            value: result[i].toString(),
+            language: 'd'
+        };
+    }
+
+    return result;
+}
