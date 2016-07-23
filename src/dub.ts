@@ -88,8 +88,8 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    public build(p: Package, config?: string) {
-        let args = ['--root=' + p.path];
+    public build(p: Package, type: string, config?: string) {
+        let args = ['--root=' + p.path, '--build=' + type];
 
         if (config) {
             args.push('--config=' + config);

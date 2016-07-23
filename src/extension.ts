@@ -36,8 +36,8 @@ export function activate(context: vsc.ExtensionContext) {
         dub.fetch('dfmt'),
         dub.fetch('dscanner')])
         .then(dub.getLatestVersion.bind(dub, 'dcd'))
-        .then((p: any) => dub.build(p, 'server'))
-        .then((p: any) => dub.build(p, 'client'))
+        .then((p: any) => dub.build(p, 'release', 'server'))
+        .then((p: any) => dub.build(p, 'release', 'client'))
         .then((p: any) => {
             Server.path = Client.path = p.path;
             Server.dub = dub;
@@ -55,7 +55,7 @@ export function activate(context: vsc.ExtensionContext) {
         })
         .then(() => server.importSelections(context.subscriptions))
         .then(dub.getLatestVersion.bind(dub, 'dfmt'))
-        .then(dub.build.bind(dub))
+        .then((p: any) => dub.build(p, 'release'))
         .then((p: any) => {
             Dfmt.path = p.path;
 
@@ -64,7 +64,7 @@ export function activate(context: vsc.ExtensionContext) {
             context.subscriptions.push(formattingProvider);
         })
         .then(dub.getLatestVersion.bind(dub, 'dscanner'))
-        .then(dub.build.bind(dub))
+        .then((p: any) => dub.build(p, 'release'))
         .then((p: any) => {
             Dscanner.path = p.path;
 
@@ -138,7 +138,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         vsc.window.showInputBox({
             prompt: 'The package to search for',
             placeHolder: 'Package name'
-        }).then(dub.search.bind(dub)).then((packages: any) => {
+        }).then(dub.search.bind(dub)).then((packages: any[]) => {
             return vsc.window.showQuickPick(packages.map(packageToQuickPickItem),
                 { matchOnDescription: true });
         }).then((result: any) => {
@@ -188,7 +188,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
 
     return Promise.all([dub.fetch('dfix'), dub.fetch('d-profile-viewer')])
         .then(dub.getLatestVersion.bind(dub, 'dfix'))
-        .then(dub.build.bind(dub))
+        .then((p: any) => dub.build(p, 'release'))
         .then((p: any) => {
             Dfix.path = p.path;
 
@@ -223,7 +223,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
             }));
         })
         .then(dub.getLatestVersion.bind(dub, 'd-profile-viewer'))
-        .then(dub.build.bind(dub))
+        .then((p: any) => dub.build(p, 'release'))
         .then((p: any) => {
             DProfileViewer.path = p.path;
 
