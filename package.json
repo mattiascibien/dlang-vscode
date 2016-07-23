@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^0.11.14"
+        "vscode": "^1.3.1"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -221,7 +221,7 @@
         "menus": {
             "editor/title": [
                 {
-                    "group": "actions",
+                    "group": "dlang",
                     "command": "dlang.dfix",
                     "when": "resourceLangId == d"
                 }
