@@ -57,6 +57,10 @@ export default class Server {
         this._dubSelectionsWatcher.dispose();
     }
 
+    public importPath(path: string) {
+        return cp.spawn('dcd-client', ['-I' + path]);
+    }
+
     public importSelections(subscriptions: vsc.Disposable[]) {
         let selectionsUri = vsc.Uri.file(path.join(vsc.workspace.rootPath, 'dub.selections.json'));
         let importPackageDirs = (uri: vsc.Uri) => {
@@ -95,7 +99,7 @@ export default class Server {
 
                         if (importPath) {
                             this.getImportDirs(importPath).forEach((dir) => {
-                                clients.push(cp.spawn('dcd-client', ['-I' + dir]));
+                                clients.push(this.importPath(dir));
                             });
                         }
                     }

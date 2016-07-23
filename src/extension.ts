@@ -110,6 +110,19 @@ export function deactivate() {
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks', tasks.createFile.bind(tasks)));
 
+    subscriptions.push(vsc.commands.registerCommand('dlang.dcd.import', (uri: vsc.Uri) => {
+        if (uri) {
+            server.importPath(uri.fsPath);
+            return;
+        }
+
+        vsc.window.showInputBox({ placeHolder: 'Path' }).then((importPath) => {
+            if (importPath) {
+                server.importPath(importPath);
+            }
+        });
+    }));
+
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.init', () => {
         let initEntries: string[] = [];
         let thenable = vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Recipe format' });

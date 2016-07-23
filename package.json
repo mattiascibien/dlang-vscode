@@ -39,6 +39,7 @@
         "onCommand:dlang.default-tasks",
         "onCommand:dlang.dfix",
         "onCommand:dlang.d-profile-viewer",
+        "onCommand:dlang.dcd.import",
         "onCommand:dlang.dub.init",
         "onCommand:dlang.dub.fetch",
         "onCommand:dlang.dub.remove",
@@ -183,6 +184,11 @@
                 "command": "dlang.d-profile-viewer"
             },
             {
+                "title": "Add Import Path To DCD",
+                "category": "DCD",
+                "command": "dlang.dcd.import"
+            },
+            {
                 "title": "Init Package",
                 "category": "Dub",
                 "command": "dlang.dub.init"
@@ -224,6 +230,12 @@
                     "group": "dlang",
                     "command": "dlang.dfix",
                     "when": "resourceLangId == d"
+                }
+            ],
+            "explorer/context": [
+                {
+                    "group": "dlang",
+                    "command": "dlang.dcd.import"
                 }
             ]
         }
