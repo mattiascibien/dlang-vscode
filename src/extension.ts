@@ -168,7 +168,11 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', dub.upgrade.bind(dub)));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () => {
-        vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' }).then(dub.convert.bind(dub));
+        vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' }).then((format) => {
+            if (format) {
+                dub.convert(format);
+            }
+        });
     }));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () => {
