@@ -16,8 +16,10 @@ export default class Tasks implements vsc.Disposable {
         let compilers = [
             'dmd',
             'ldc',
+            'ldc2',
             'gdc',
             'ldmd',
+            'ldmd2',
             'gdmd'
         ];
 
