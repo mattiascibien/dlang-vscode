@@ -31,7 +31,12 @@ export default class Server {
         }
 
         try {
-            let section = 'd.dmdConf.' + (process.platform === 'win32' ? 'windows' : 'posix');
+            let section = 'd.dmdConf.' + {
+                linux: 'linux',
+                darwin: 'osx',
+                win32: 'windows'
+            }[process.platform];
+
             let configFile = vsc.workspace.getConfiguration().get<string>(section);
             fs.accessSync(configFile);
 

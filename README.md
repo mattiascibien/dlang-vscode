@@ -25,7 +25,8 @@ After creating a debug configuration and the default dub tasks, simply change th
 ## Extension Settings
 
 * `d.dub`: Path to the `dub` executable. Default value: `dub`
-* `d.dmdConf.posix`: Path to the dmd configuration file on POSIX systems. Default value: `/etc/dmd.conf`
+* `d.dmdConf.linux`: Path to the dmd configuration file on Linux. Default value: `/etc/dmd.conf`
+* `d.dmdConf.osx`: Path to the dmd configuration file on OS X. Default value: `/usr/local/etc/dmd.conf`
 * `d.dmdConf.windows`: Path to the dmd configuration file on Windows. Default value: `C:\\D\\dmd2\\windows\\bin\\sc.ini`
 * `d.dcd.tcp`: Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows. Default value: `false`
 * `d.dcd.port`: Listens on this port instead of the default port 9166 when TCP sockets are used. Default value: `9166`
