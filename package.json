@@ -74,10 +74,15 @@
                     "default": "dub",
                     "description": "Path to the dub executable."
                 },
-                "d.dmdConf.posix": {
+                "d.dmdConf.linux": {
                     "type": "string",
                     "default": "/etc/dmd.conf",
-                    "description": "Path to the DMD configuration file on POSIX systems."
+                    "description": "Path to the DMD configuration file on Linux."
+                },
+                "d.dmdConf.osx": {
+                    "type": "string",
+                    "default": "/usr/local/etc/dmd.conf",
+                    "description": "Path to the DMD configuration file on OS X."
                 },
                 "d.dmdConf.windows": {
                     "type": "string",

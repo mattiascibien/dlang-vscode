@@ -22,7 +22,8 @@ Though this extension lacks a debugger integration, debugging can easily be done
 ## Extension Settings
 
 * `d.dub`: Path to the `dub` executable
-* `d.dmdConf.posix`: Path to the dmd configuration file on POSIX systems
+* `d.dmdConf.linux`: Path to the dmd configuration file on Linux
+* `d.dmdConf.osx`: Path to the dmd configuration file on OS X
 * `d.dmdConf.windows`: Path to the dmd configuration file on Windows
 
 ## Extension Commands
