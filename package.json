@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.3.1"
+        "vscode": "^1.0.0"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -23,7 +23,9 @@
     },
     "categories": [
         "Languages",
-        "Snippets"
+        "Snippets",
+        "Linters",
+        "Other"
     ],
     "keywords": [
         "dub",
