@@ -26,10 +26,12 @@ export function activate(context: vsc.ExtensionContext) {
 
     tasks = new Tasks();
 
-    let dub = new Dub();
+    let output = vsc.window.createOutputChannel('D language');
+    let dub = new Dub(output);
     let provider = new Provider();
 
-    context.subscriptions.push(tasks, dub);
+    output.show(true);
+    context.subscriptions.push(tasks, output, dub);
 
     Promise.all([registerCommands(context.subscriptions, dub),
         dub.fetch('dcd'),
@@ -43,6 +45,8 @@ export function activate(context: vsc.ExtensionContext) {
             Server.dub = dub;
 
             server = new Server();
+            output.appendLine('DCD : starting server...');
+
             let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
             let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
             let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
@@ -50,6 +54,7 @@ export function activate(context: vsc.ExtensionContext) {
 
             provider.on('restart', () => {
                 server.start();
+                output.appendLine('DCD : restarting server...');
             });
 
             context.subscriptions.push(completionProvider, signatureProvider, definitionProvider, hoverProvider);

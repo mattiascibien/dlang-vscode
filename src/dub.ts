@@ -7,7 +7,6 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
 import * as tmp from 'tmp';
-import * as msg from './messenger';
 
 export default class Dub extends vsc.Disposable {
     public static executable = vsc.workspace.getConfiguration().get('d.dub', 'dub');
