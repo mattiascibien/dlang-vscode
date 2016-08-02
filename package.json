@@ -47,6 +47,7 @@
         "onCommand:dlang.dub.remove",
         "onCommand:dlang.dub.upgrade",
         "onCommand:dlang.dub.convert",
+        "onCommand:dlang.dub.dustmite",
         "onCommand:dlang.tasks.compiler",
         "onCommand:dlang.tasks.build"
     ],
@@ -221,6 +222,11 @@
                 "command": "dlang.dub.convert"
             },
             {
+                "title": "Dustmite",
+                "category": "Dub",
+                "command": "dlang.dub.dustmite"
+            },
+            {
                 "title": "Change Compiler",
                 "category": "Dlang",
                 "command": "dlang.tasks.compiler"
@@ -258,6 +264,7 @@
     },
     "dependencies": {
         "tmp": "^0.0.28",
-        "xml2js": "^0.4.17"
+        "xml2js": "^0.4.17",
+        "escape-string-regexp": "^1.0.5"
     }
 }

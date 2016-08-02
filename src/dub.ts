@@ -7,6 +7,7 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
 import * as tmp from 'tmp';
+import escapeStringRegexp = require('escape-string-regexp');
 
 export default class Dub extends vsc.Disposable {
     public static executable = vsc.workspace.getConfiguration().get('d.dub', 'dub');
@@ -16,7 +17,7 @@ export default class Dub extends vsc.Disposable {
         return cp.spawnSync(Dub.executable, ['--help']).error;
     }
 
-    public constructor() {
+    public constructor(private _output: vsc.OutputChannel) {
         super(null);
         this._tmp = tmp.dirSync();
     }
@@ -26,8 +27,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public init(entries: string[]) {
-        return this.launchCommand('init', ['--root=' + vsc.workspace.rootPath],
-            vsc.workspace.rootPath, entries.join(os.EOL));
+        return this.launchCommand('init', [], vsc.workspace.rootPath, { stdin: entries.join(os.EOL) });
     }
 
     public fetch(packageName: string) {
@@ -45,7 +45,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public upgrade() {
-        return this.launchCommand('upgrade', ['--root=' + vsc.workspace.rootPath]);
+        return this.launchCommand('upgrade', []);
     }
 
     public list() {
@@ -99,10 +99,51 @@ export default class Dub extends vsc.Disposable {
     }
 
     public convert(format: string) {
-        return this.launchCommand('convert', [
-            '--format=' + format,
-            '--root=' + vsc.workspace.rootPath
-        ], 'to ' + format);
+        return this.launchCommand('convert', ['--format=' + format], 'to ' + format);
+    }
+
+    public dustmite() {
+        let dustmitePath = p.join(this._tmp.name, p.basename(vsc.workspace.rootPath));
+        let args: string[];
+
+        return new Promise(del.bind(null, [dustmitePath, dustmitePath + '.reduced']))
+            .then(() => {
+                return new Promise((resolve) => {
+                    fs.readFile(p.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'), (err, data) => {
+                        if (err) {
+                            resolve();
+                            return;
+                        }
+
+                        let tasks = JSON.parse(data.toString()).tasks;
+                        let task = tasks.find((task: any) => task.taskName === 'build');
+
+                        if (task) {
+                            args = task.args;
+                        }
+
+                        resolve(this.launchCommand('build', args || [], vsc.workspace.rootPath));
+                    });
+                });
+            }).then((buildResult: any) => {
+                if (buildResult.code) {
+                    return vsc.window.showQuickPick(buildResult.lines, { placeHolder: 'Select a line' });
+                } else {
+                    vsc.window.showInformationMessage('The project builds correctly');
+                }
+            }).then((line: string) => {
+                if (line) {
+                    return this.launchCommand('dustmite', (args || []).concat([
+                        dustmitePath,
+                        '--combined',
+                        '--compiler-regex=' + escapeStringRegexp(line)
+                    ]), vsc.workspace.rootPath, { verbose: true });
+                }
+            }).then((dustmiteResult: any) => {
+                if (dustmiteResult && !dustmiteResult.code) {
+                    vsc.commands.executeCommand('vscode.openFolder', vsc.Uri.file(dustmitePath + '.reduced'), true);
+                }
+            });
     }
 
     public getJSONFromSDL(path: string) {
@@ -150,37 +191,43 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    private launchCommand(command: string, args: any, message?: string, stdin?: string) {
+    private launchCommand(command: string, args: any, message?: string, options?: { stdin?: string, verbose?: boolean }) {
+        options = options || {};
+
         if (args.length) {
-            msg.add(command, message || args[0]);
+            this._output.appendLine('Dub ' + command + ' : ' + (message || args[0]));
         }
 
-        let dubProcess = cp.spawn(Dub.executable, [command].concat(args));
+        let dubProcess = cp.spawn(Dub.executable, [command].concat(args), { cwd: vsc.workspace.rootPath });
         let outReader = rl.createInterface(dubProcess.stdout, null);
         let errReader = rl.createInterface(dubProcess.stderr, null);
         let out: string[] = [];
         let err: string[] = [];
 
-        if (stdin) {
-            dubProcess.stdin.end(stdin);
+        if (options.stdin) {
+            dubProcess.stdin.end(options.stdin);
         }
 
         outReader.on('line', (line: string) => {
             out.push(line);
+
+            if (options.verbose) {
+                this._output.appendLine(line);
+            }
         });
 
         errReader.on('line', (line: string) => {
             err.push(line);
+
+            if (options.verbose) {
+                this._output.appendLine(line);
+            }
         });
 
         return new Promise((resolve) => {
             dubProcess.on('exit', (code) => {
-                if (args.length) {
-                    msg.remove(command, message || args[0]);
-                }
-
                 if (code) {
-                    vsc.window.showErrorMessage(err.toString());
+                    err.forEach(this._output.appendLine.bind(this._output));
                 }
 
                 resolve({
@@ -219,4 +266,34 @@ export class Package {
 
 function isVersionSuperior(first: string, second: string) {
     return second === '~master' || first > second;
+}
+
+function del(pathsToDelete: string | string[], callback: (...any) => any) {
+    let paths = pathsToDelete instanceof Array ? pathsToDelete : [pathsToDelete];
+    let path = paths.pop();
+
+    if (path) {
+        fs.stat(path, (err, stats) => {
+            if (err) {
+                new Promise(del.bind(null, paths));
+                callback();
+                return;
+            }
+
+            if (stats.isFile()) {
+                fs.unlink(path, callback);
+            } else if (stats.isDirectory()) {
+                fs.readdir(path, (err, files) => {
+                    Promise.all(files.map((file) => {
+                        paths.push(p.join(path, file));
+                        return new Promise(del.bind(null, paths));
+                    })).then(fs.rmdir.bind(null, path, callback));
+                });
+            } else {
+                callback();
+            }
+        });
+    } else {
+        callback();
+    }
 }

@@ -193,6 +193,8 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         });
     }));
 
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.dustmite', dub.dustmite.bind(dub)));
+
     subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () => {
         vsc.window.showQuickPick(Tasks.compilers).then((compiler) => {
             if (compiler) {
