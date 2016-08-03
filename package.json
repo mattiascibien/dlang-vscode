@@ -266,5 +266,8 @@
         "tmp": "^0.0.28",
         "xml2js": "^0.4.17",
         "escape-string-regexp": "^1.0.5"
-    }
+    },
+    "extensionDependencies": [
+        "LaurentTreguier.sdlang"
+    ]
 }
