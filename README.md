@@ -9,12 +9,13 @@ D Language Page: https://dlang.org/
 
 * Syntax Colorization
 * Snippets
-* Autocompletion using [DCD](https://github.com/Hackerpilot/dcd)
+* Autocompletion and code navigation using [DCD](https://github.com/Hackerpilot/dcd)
 * Formatting using [dfmt](https://github.com/Hackerpilot/dfmt)
 * Linting using [Dscanner](https://github.com/Hackerpilot/dscanner)
 * Code upgrade using [dfix](https://github.com/Hackerpilot/dfix)
 * Profiling using [D Profile Viewer](https://bitbucket.org/andrewtrotman/d-profile-viewer)
 * Integration with Dub using VSCode commands and tasks
+* [Dustmite](https://github.com/CyberShadow/DustMite/wiki) integration
 
 In order to use DCD, dfmt, Dscanner, dfix and D Profile Viewer you must have [Dub](https://github.com/D-Programming-Language/dub#installation) installed on your system.
 Dub will then fetch, build and use the packages automatically.
@@ -61,14 +62,13 @@ Note: these dfmt formatting options have yet to be implemented in dfmt  itself a
 * `Remove Package`: removes a dub package
 * `Upgrade Package Dependencies`: upgrade a package's dependencies
 * `Convert Dub File Format`: converts dub.json to SDL format or dub.sdl to JSON format
+* `Dustmite`: tries to build the project and sends the compiler output to Dustmite
 
 ## TODO
 
-* Documentation display
 * Code coverage
 * GC profiling
 * Add range formatting
-* [SDL file format](http://code.dlang.org/package-format?lang=sdl) support
 * [Diet template](http://vibed.org/features#diet-templates) support
 * Code actions for fixing problems from linter
 * Symbol highlighting/renaming
