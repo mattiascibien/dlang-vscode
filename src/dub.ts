@@ -49,7 +49,8 @@ export default class Dub extends vsc.Disposable {
     }
 
     public list() {
-        return this.launchCommand('list', []).then((result: any) => {
+        let match = this._tmp.name.match(/^.*?[\\/]/);
+        return this.launchCommand('list', [], null, { cwd: match[0] }).then((result: any) => {
             if (result.code) {
                 return [];
             } else {
@@ -88,13 +89,15 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(p: Package, type: string, config?: string) {
-        let args = ['--root=' + p.path, '--build=' + type];
+        let args = ['--build=' + type];
 
         if (config) {
             args.push('--config=' + config);
         }
 
-        return this.launchCommand('build', args, p.name + (config ? ` (${config})` : ''))
+        return this.launchCommand('build', args,
+            p.name + (config ? ` (${config})` : ''),
+            { cwd: p.path })
             .then(() => { return p; });
     }
 
@@ -191,14 +194,22 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    private launchCommand(command: string, args: any, message?: string, options?: { stdin?: string, verbose?: boolean }) {
+    private launchCommand(command: string,
+        args: any,
+        message?: string,
+        options?: {
+            cwd?: string,
+            stdin?: string,
+            verbose?: boolean
+        }) {
         options = options || {};
+        options.cwd = options.cwd || vsc.workspace.rootPath;
 
         if (args.length) {
             this._output.appendLine('Dub ' + command + ' : ' + (message || args[0]));
         }
 
-        let dubProcess = cp.spawn(Dub.executable, [command].concat(args), { cwd: vsc.workspace.rootPath });
+        let dubProcess = cp.spawn(Dub.executable, [command].concat(args), { cwd: options.cwd });
         let outReader = rl.createInterface(dubProcess.stdout, null);
         let errReader = rl.createInterface(dubProcess.stderr, null);
         let out: string[] = [];
@@ -268,8 +279,8 @@ function isVersionSuperior(first: string, second: string) {
     return second === '~master' || first > second;
 }
 
-function del(pathsToDelete: string | string[], callback: (...any) => any) {
-    let paths = pathsToDelete instanceof Array ? pathsToDelete : [pathsToDelete];
+function del(pathOrPaths: string | string[], callback: Function) {
+    let paths = pathOrPaths instanceof Array ? pathOrPaths : [pathOrPaths];
     let path = paths.pop();
 
     if (path) {
@@ -281,7 +292,7 @@ function del(pathsToDelete: string | string[], callback: (...any) => any) {
             }
 
             if (stats.isFile()) {
-                fs.unlink(path, callback);
+                fs.unlink(path, callback.bind(null));
             } else if (stats.isDirectory()) {
                 fs.readdir(path, (err, files) => {
                     Promise.all(files.map((file) => {
