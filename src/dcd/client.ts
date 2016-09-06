@@ -171,8 +171,8 @@ export default class Client extends ev.EventEmitter {
 
 function parseDoc(docLine: string) {
     let result: vsc.MarkedString[] = docLine
-        .replace(/\$\(\w*\s*([^)]+)\)/g, '`$1`')
-        .replace(/([^\\])\\n/g, '$1\n')
+        .replace(/\$\(\w+\s*([^)]+?)\)/g, '`$1`')
+        .replace(/(?!=\\)\\n/g, '\n')
         .replace('\\\\', '\\')
         .split(/-+\n/g);
 
