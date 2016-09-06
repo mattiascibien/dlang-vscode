@@ -16,10 +16,6 @@ export default class Provider extends ev.EventEmitter implements
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
     vsc.WorkspaceSymbolProvider {
-    public constructor() {
-        super();
-    }
-
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
@@ -50,7 +46,6 @@ export default class Provider extends ev.EventEmitter implements
         token: vsc.CancellationToken
     ) {
         let dfmt = new Dfmt(document, options, token);
-
         return new Promise(dfmt.execute.bind(dfmt));
     }
 

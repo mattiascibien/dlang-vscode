@@ -12,21 +12,6 @@ import * as msg from './messenger';
 export default class Dub extends vsc.Disposable {
     public static executable = vsc.workspace.getConfiguration().get('d.dub', 'dub');
     private _tmp: tmp.SynchrounousResult;
-    private _packages = new Map<string, Package>();
-
-    get packages() {
-        return this._packages;
-    }
-
-    get paths() {
-        let result: string[] = [];
-
-        this._packages.forEach((p) => {
-            result.push(p.path);
-        });
-
-        return result;
-    }
 
     public static check() {
         return cp.spawnSync(Dub.executable, ['--help']).error;
@@ -39,7 +24,6 @@ export default class Dub extends vsc.Disposable {
 
     public dispose() {
         this._tmp.removeCallback();
-        this._packages.clear();
     }
 
     public init(entries: string[]) {
@@ -48,19 +32,40 @@ export default class Dub extends vsc.Disposable {
     }
 
     public fetch(packageName: string) {
-        return this.launchCommand('fetch', [packageName]).then(() => {
-            return this.refresh();
-        });
+        return this.launchCommand('fetch', [packageName]);
     }
 
-    public remove(packageName: string) {
-        return this.launchCommand('remove', [packageName]).then(() => {
-            return this.refresh();
-        });
+    public remove(packageName: string, version?: string) {
+        let args = [packageName];
+
+        if (version) {
+            args.push('--version=' + version);
+        }
+
+        return this.launchCommand('remove', args);
     }
 
     public upgrade() {
         return this.launchCommand('upgrade', ['--root=' + vsc.workspace.rootPath]);
+    }
+
+    public list() {
+        return this.launchCommand('list', []).then((result: any) => {
+            if (result.code) {
+                return [];
+            } else {
+                let packages: Package[] = [];
+
+                result.lines.shift();
+                result.lines.pop();
+                result.lines.forEach((line: string) => {
+                    let match = line.match(/([^\s]+) ([^\s]+): (.+)/);
+                    packages.push(new Package(match[1], match[2], match[3]));
+                });
+
+                return packages;
+            }
+        });
     }
 
     public search(packageName: string) {
@@ -68,37 +73,30 @@ export default class Dub extends vsc.Disposable {
             if (result.code) {
                 return [];
             } else {
-                let packageNames: vsc.QuickPickItem[] = [];
-                let firstLine = true;
+                let packages: Package[] = [];
 
-                result.lines.forEach((line) => {
-                    if (firstLine) {
-                        firstLine = false
-                    } else {
-                        let formattedLine: string = line.replace(/\s+/, ' ');
-                        let firstSpace = formattedLine.indexOf(' ');
-                        let secondSpace = formattedLine.indexOf(' ', firstSpace + 1);
+                result.lines.shift();
+                result.lines.forEach((line: string) => {
+                    let formattedLine = line.replace(/\s+/, ' ');
+                    let match = formattedLine.match(/([^\s]+) \(([^\s]+)\) (.+)/);
 
-                        packageNames.push({
-                            label: formattedLine.substring(0, firstSpace),
-                            description: formattedLine.substring(secondSpace + 1),
-                        });
-                    }
+                    packages.push(new Package(match[1], match[2], null, match[3]));
                 });
 
-                return packageNames;
+                return packages;
             }
         });
     }
 
-    public build(packageName: string, config?: string) {
-        let args = ['--root=' + this._packages.get(packageName).path];
+    public build(p: Package, config?: string) {
+        let args = ['--root=' + p.path];
 
         if (config) {
             args.push('--config=' + config);
         }
 
-        return this.launchCommand('build', args, packageName + (config ? ` (${config})` : ''));
+        return this.launchCommand('build', args, p.name + (config ? ` (${config})` : ''))
+            .then(() => { return p; });
     }
 
     public convert(format: string) {
@@ -115,9 +113,10 @@ export default class Dub extends vsc.Disposable {
 
         fs.writeFileSync(dubSdl, sdlData);
 
-        if (fs.existsSync(dubJson)) {
+        try {
+            fs.accessSync(dubJson);
             fs.unlinkSync(dubJson);
-        }
+        } catch (e) { }
 
         let res = cp.spawnSync(Dub.executable, ['convert', '--format=json'], {
             cwd: this._tmp.name
@@ -126,31 +125,29 @@ export default class Dub extends vsc.Disposable {
         return dubJson;
     }
 
-    public refresh() {
-        let dub = cp.spawn(Dub.executable, ['list']);
-        let reader = rl.createInterface(dub.stdout, null);
-        let firstLine = true;
-
-        reader.on('line', (line: string) => {
-            if (firstLine) {
-                firstLine = false;
-            } else if (line.length) {
-                line = line.trim();
-
-                let name = line.slice(0, line.indexOf(' '));
-                let rest = line.slice(line.indexOf(' ') + 1);
-                let version = rest.slice(0, rest.indexOf(' ') - 1);
-                let path = rest.slice(rest.indexOf(' ') + 1);
-
-                if (!this._packages.get(name)
-                    || isVersionSuperior(version, this._packages.get(name).version)) {
-                    this._packages.set(name, new Package(version, path));
+    public getLatestVersion(packageName: string) {
+        return this.list().then((packages) => {
+            return packages.reduce((previous, next) => {
+                if (!previous) {
+                    return next;
                 }
-            }
-        });
 
-        return new Promise((resolve) => {
-            reader.on('close', resolve);
+                if (!next) {
+                    return previous;
+                }
+
+                if (next.name === packageName) {
+                    return previous && previous.name !== packageName
+                        ? next : isVersionSuperior(next.version, previous.version)
+                            ? next : previous;
+                }
+
+                if (previous.name === packageName) {
+                    return previous;
+                }
+
+                return null;
+            });
         });
     }
 
@@ -197,7 +194,16 @@ export default class Dub extends vsc.Disposable {
 };
 
 export class Package {
-    public constructor(private _version: string, private _path: string) { }
+    public constructor(
+        private _name: string,
+        private _version: string,
+        private _path: string,
+        private _description?: string
+    ) { }
+
+    get name() {
+        return this._name;
+    }
 
     get version() {
         return this._version;
@@ -205,6 +211,10 @@ export class Package {
 
     get path() {
         return this._path;
+    }
+
+    get description() {
+        return this._description;
     }
 };
 

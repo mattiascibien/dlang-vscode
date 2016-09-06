@@ -9,4 +9,4 @@ export default class Dfix {
     public constructor(fileOrDir: string) {
         cp.spawn(path.join(Dfix.path, 'dfix'), [fileOrDir]);
     }
-}
+};

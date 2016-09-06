@@ -1,6 +1,5 @@
 {
     "globalDependencies": {
-        "js-beautify": "registry:dt/js-beautify#0.0.0+20160316155526",
         "tmp": "registry:dt/tmp#0.0.0+20160514170650",
         "xml2js": "registry:dt/xml2js#0.0.0+20160317120654"
     },
