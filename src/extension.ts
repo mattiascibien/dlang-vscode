@@ -13,7 +13,7 @@ import Client from './dcd/client';
 import Dfmt from './dfmt';
 import Dscanner from './dscanner/dscanner';
 import * as util from './dscanner/util';
-import {D_MODE} from './mode';
+import { D_MODE } from './mode';
 
 let server: Server;
 let tasks: Tasks;
@@ -33,14 +33,17 @@ export function activate(context: vsc.ExtensionContext) {
     output.show(true);
     context.subscriptions.push(tasks, output, dub);
 
-    Promise.all([registerCommands(context.subscriptions, dub),
+    Promise.all([
+        registerCommands(context.subscriptions, dub),
         dub.fetch('dcd'),
         dub.fetch('dfmt'),
-        dub.fetch('dscanner')])
+        dub.fetch('dscanner')
+    ])
         .then(dub.getLatestVersion.bind(dub, 'dcd'))
         .then((p: any) => dub.build(p, 'release', 'server'))
         .then((p: any) => dub.build(p, 'release', 'client'))
         .then((p: any) => {
+            console.log(p.path);
             Server.path = Client.path = p.path;
             Server.dub = dub;
 
@@ -78,7 +81,7 @@ export function activate(context: vsc.ExtensionContext) {
             let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
             let diagnosticCollection = vsc.languages.createDiagnosticCollection();
             let lintDocument = (document: vsc.TextDocument) => {
-                if (document.languageId === 'd') {
+                if (document.languageId === D_MODE.language) {
                     new Dscanner(document, null, util.Operation.Lint);
                 }
             };
@@ -104,9 +107,7 @@ export function activate(context: vsc.ExtensionContext) {
 
             context.subscriptions.push(tasksWatcher);
         })
-        .then(() => {
-            output.hide();
-        });
+        .then(output.hide.bind(output));
 };
 
 export function deactivate() {

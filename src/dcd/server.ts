@@ -90,7 +90,7 @@ export default class Server {
     private importPackages(selections) {
         return Server.dub.list().then((packages) => {
             return new Promise((resolve) => {
-                cp.spawn('dcd-client', ['--clearCache']).on('exit', () => {
+                cp.spawn(path.join(Server.path, 'dcd-client'), ['--clearCache']).on('exit', () => {
                     let clients: cp.ChildProcess[] = [];
 
                     for (let selection in selections) {
@@ -126,7 +126,7 @@ export default class Server {
             let dubFile = path.join(dubPath, 'dub.' + dubExt);
 
             try {
-                fs.accessSync(dubFile, fs.R_OK);
+                fs.accessSync(dubFile, fs.constants.R_OK);
                 let dubData;
                 let sourcePaths: string[] = [];
 
@@ -159,7 +159,7 @@ export default class Server {
 
                 sourcePaths.forEach((p: string) => {
                     try {
-                        fs.accessSync(path.join(dubPath, p), fs.R_OK);
+                        fs.accessSync(path.join(dubPath, p), fs.constants.R_OK);
                         imp.add(path.join(dubPath, p));
                     } catch (e) { }
                 });
