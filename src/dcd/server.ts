@@ -62,8 +62,8 @@ export default class Server {
         this._dubSelectionsWatcher.dispose();
     }
 
-    public importPath(path: string) {
-        return cp.spawn('dcd-client', ['-I' + path]);
+    public importPath(p: string) {
+        return cp.spawn(path.join(Server.path, 'dcd-client'), ['-I' + p]);
     }
 
     public importSelections(subscriptions: vsc.Disposable[]) {
