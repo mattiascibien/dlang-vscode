@@ -24,7 +24,9 @@
     "categories": [
         "Languages",
         "Snippets",
+        "Formatters",
         "Linters",
+        "Productivity",
         "Other"
     ],
     "keywords": [
@@ -259,14 +261,14 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.0.3",
-        "vscode": "^1.0.0",
-        "mocha": "^2.3.3",
-        "@types/node": "^6.0.40",
+        "typescript": "^2.0.6",
+        "vscode": "^1.0.3",
+        "mocha": "^3.1.2",
+        "@types/node": "^6.0.46",
         "@types/mocha": "^2.2.32"
     },
     "dependencies": {
-        "tmp": "^0.0.29",
+        "tmp": "^0.0.30",
         "xml2js": "^0.4.17",
         "escape-string-regexp": "^1.0.5"
     },
