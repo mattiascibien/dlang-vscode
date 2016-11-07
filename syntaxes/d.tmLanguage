@@ -805,7 +805,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b((0[bB][01_]+)|(0[xX][0-9a-fA-F_]*)|(([0-9_]+\.?[0-9_]*)|(\.[0-9_]+))((e|E)(\+|-)?[0-9_]+)?)([LlFfUuDd]|UL|ul)?\b</string>
+			<string>\b((0[bB][01_]*)|(0[xX][0-9a-fA-F_]*)|(((0|[1-9][0-9_]*)\.?[0-9_]*)|(\.[0-9_]+))((e|E)(\+|-)?[0-9_]+)?)([LlFfUuDd]|UL|ul)?\b</string>
 			<key>name</key>
 			<string>constant.numeric.d</string>
 		</dict>
