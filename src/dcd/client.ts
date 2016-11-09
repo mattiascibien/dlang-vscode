@@ -134,6 +134,7 @@ export default class Client extends ev.EventEmitter {
                         let infoNumArg = infoArgs.match(/,/g);
 
                         signatureHelp.activeParameter = infoNumArg ? infoNumArg.length : 0;
+                        signatureHelp.activeSignature = 0;
                         resolve(signatureHelp);
 
                         break;

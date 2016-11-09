@@ -90,7 +90,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(?x)^\s*
+			<string>(?x)(?&lt;=^|\}|:)\s*
 					(else\s+)?(version)\s*
 					\(\s*
 					((DigitalMars|
@@ -206,7 +206,7 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>(?x)^\s*
+			<string>(?x)(?&lt;=^|\}|;)\s*
 					((?:\b(public|private|protected|static|final|synchronized|abstract|export|shared)\b\s*)*) # modifier
 					(class|interface)\s+
 					(\w+)\s* # identifier
@@ -327,7 +327,7 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>(?x)^\s*
+			<string>(?x)(?&lt;=^|\}|;)\s*
 					((?:\b(public|private|protected|static|final|synchronized|abstract|export|shared)\b\s*)*) # modifier
 					(struct)\s+
 					(\w+)\s* # identifier
@@ -398,7 +398,7 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>(?x)^\s*
+			<string>(?x)(?&lt;=^|\}|;)\s*
 					((?:\b(public|private|protected|static|final|synchronized|abstract|export)\b\s*)*) # modifier
 					(\b(this))\s* # identifier
 					(?=\()</string>
@@ -472,7 +472,7 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>(?x)^\s*
+			<string>(?x)(?&lt;=^|\}|;)\s*
 					((?:\b(?:public|private|protected|static|final|synchronized|abstract|export|override|auto|nothrow|immutable|const|inout|ref|shared)\b\s*)*) # modifier
 					(?:(_|\w[^"'`\s]*))\s+ # return type
 					(\w+)\s* # identifier
@@ -518,7 +518,7 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>(?x)^\s*
+			<string>(?x)(?&lt;=^|;)\s*
 					(__traits)
 					\(
 					(isAbstractClass|
@@ -560,7 +560,7 @@
 					derivedMembers|
 					isSame|
 					compiles)
-					,</string>
+					</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>1</key>
@@ -606,7 +606,7 @@
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(extern)(\s*\(\s*(((C\+\+)(\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|(C|D|Windows|Pascal|System))\s*\))?</string>
+			<string>\b(extern)\b(\s*\(\s*(((C\+\+)(\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|(C|D|Windows|Pascal|System))\s*\))?</string>
 			<key>name</key>
 			<string>meta.external.d</string>
 		</dict>
@@ -731,7 +731,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b(return|with|invariant|body|scope|asm|mixin|function|delegate)\b</string>
+			<string>\b(return|with|invariant|body|scope|asm|mixin|function|delegate|out|in)\b</string>
 			<key>name</key>
 			<string>keyword.control.statement.d</string>
 		</dict>
@@ -805,7 +805,7 @@
 		</dict>
 		<dict>
 			<key>match</key>
-			<string>\b((0(x|X)[0-9a-fA-F]*)|(([0-9]+\.?[0-9]*)|(\.[0-9]+))((e|E)(\+|-)?[0-9]+)?)([LlFfUuDd]|UL|ul)?\b</string>
+			<string>\b((0[bB][01_]*)|(0[xX][0-9a-fA-F_]*)|(((0|[1-9][0-9_]*)\.?[0-9_]*)|(\.[0-9_]+))((e|E)(\+|-)?[0-9_]+)?)([LlFfUuDd]|UL|ul)?\b</string>
 			<key>name</key>
 			<string>constant.numeric.d</string>
 		</dict>
@@ -908,6 +908,12 @@
 				)\b</string>
 			<key>name</key>
 			<string>keyword.operator.overload.d</string>
+		</dict>
+		<dict>
+			<key>match</key>
+			<string>=&gt;</string>
+			<key>name</key>
+			<string>keyword.operator.lambda.d</string>
 		</dict>
 		<dict>
 			<key>match</key>
