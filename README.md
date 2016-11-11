@@ -29,6 +29,12 @@ After creating a debug configuration and the default dub tasks, simply change th
 * `d.dmdConf.linux`: Path to the dmd configuration file on Linux. Default value: `/etc/dmd.conf`
 * `d.dmdConf.osx`: Path to the dmd configuration file on OS X. Default value: `/usr/local/etc/dmd.conf`
 * `d.dmdConf.windows`: Path to the dmd configuration file on Windows. Default value: `C:\\D\\dmd2\\windows\\bin\\sc.ini`
+* `d.tools.dcd.client`: Path to the system DCD client executable (optional).
+* `d.tools.dcd.server`: Path to the system DCD server executable (optional).
+* `d.tools.dfmt`: Path to the system DFMT executable (optional).
+* `d.tools.dscanner`: Path to the system Dscanner executable (optional).
+* `d.tools.dfix`: Path to the system Dfix executable (optional).
+* `d.tools.dProfileViewer`: Path to the system D Profile Viewer executable (optional).
 * `d.dcd.tcp`: Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows. Default value: `false`
 * `d.dcd.port`: Listens on this port instead of the default port 9166 when TCP sockets are used. Default value: `9166`
 * `d.dfmt.alignSwitchStatements`: Align labels, cases, and defaults with their enclosing switch. Default value: `true`
@@ -48,7 +54,7 @@ After creating a debug configuration and the default dub tasks, simply change th
 * `d.dfmt.splitOperatorAtLineEnd`: Place operators on the end of the previous line when splitting lines. Default value: `false`
 * `d.dfmt.compactLabeledStatements`: Place labels on the same line as the labeled switch, for, foreach, or while statement. Default value: `true`
 
-Note: these dfmt formatting options have yet to be implemented in dfmt  itself and won't affect formatting for now:
+Note: these dfmt formatting options have yet to be implemented in dfmt itself and won't affect formatting for now:
 * `d.dfmt.alignSwitchStatements`
 * `d.dfmt.outdentAttributes`
 

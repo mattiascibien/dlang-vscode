@@ -17,6 +17,109 @@ import { D_MODE } from './mode';
 
 let server: Server;
 let tasks: Tasks;
+let output = vsc.window.createOutputChannel('D language');
+
+class Tool {
+    public static dub: Dub;
+    public activate: Function;
+    private _name: string;
+    private _configName: string;
+    private _buildConfig: string;
+    private _isSystemTool = false;
+    private _toolDirectory: string;
+    private _toolFile: string;
+
+    public get toolDirectory() {
+        return this._toolDirectory;
+    }
+
+    public get toolFile() {
+        return this._toolFile;
+    }
+
+    public constructor(name: string, options?: { configName?: string, buildConfig?: string }) {
+        options = options || {};
+        this._name = name;
+        this._configName = options.configName || name;
+        this._buildConfig = options.buildConfig;
+    }
+
+    public fetch() {
+        return Tool.dub.fetch(this._name);
+    }
+
+    public build() {
+        return Tool.dub.getLatestVersion(this._name)
+            .then((p) => {
+                this._toolDirectory = p.path;
+                return p;
+            })
+            .then((p) => Tool.dub.build(p, 'release', this._buildConfig));
+    }
+
+    public setup() {
+        let toolPath: string;
+
+        toolPath = vsc.workspace.getConfiguration().get<string>('d.tools.' + this._configName
+            + (this._buildConfig ? '.' + this._buildConfig : ''));
+
+        if (path.isAbsolute(toolPath)) {
+            try {
+                fs.accessSync(toolPath, fs.constants.F_OK);
+                this._isSystemTool = true;
+            } catch (e) { }
+        } else {
+            let isWin = process.platform === 'win32';
+
+            process.env.PATH.split(isWin ? ';' : ':').forEach((dir) => {
+                try {
+                    fs.accessSync(path.join(dir, toolPath + (isWin ? '.exe' : '')), fs.constants.F_OK);
+                    this._isSystemTool = true;
+                } catch (e) { }
+            });
+        }
+
+        if (this._isSystemTool) {
+            this._toolDirectory = path.dirname(toolPath);
+            this._toolFile = path.basename(toolPath);
+            output.appendLine('Found ' + this._name + (this._buildConfig ? ` (${this._buildConfig})` : '') + ' : ' + toolPath);
+        }
+
+        let promise = this._isSystemTool ? Promise.resolve(null)
+            : this.fetch().then(this.build.bind(this));
+
+        if (this.activate) {
+            promise = promise.then(this.activate.bind(this));
+        }
+
+        return promise;
+    }
+}
+
+const initOptions = [
+    {
+        prompt: 'The name of the package',
+        placeHolder: 'Name',
+        value: path.basename(vsc.workspace.rootPath)
+    },
+    {
+        prompt: 'Brief description of the package',
+        placeHolder: 'Description'
+    },
+    {
+        prompt: 'The name of the author of the package',
+        placeHolder: 'Author name',
+        value: process.env.USERNAME
+    },
+    {
+        prompt: 'The license of the package',
+        placeHolder: 'License'
+    },
+    {
+        prompt: 'The copyright of the package',
+        placeHolder: 'Copyright'
+    }
+];
 
 export function activate(context: vsc.ExtensionContext) {
     if (Dub.check()) {
@@ -26,77 +129,87 @@ export function activate(context: vsc.ExtensionContext) {
 
     tasks = new Tasks();
 
-    let output = vsc.window.createOutputChannel('D language');
     let dub = new Dub(output);
     let provider = new Provider();
 
     output.show(true);
     context.subscriptions.push(tasks, output, dub);
 
-    Promise.all([
-        registerCommands(context.subscriptions, dub),
-        dub.fetch('dcd'),
-        dub.fetch('dfmt'),
-        dub.fetch('dscanner')
-    ])
-        .then(dub.getLatestVersion.bind(dub, 'dcd'))
-        .then((p: any) => dub.build(p, 'release', 'server'))
-        .then((p: any) => dub.build(p, 'release', 'client'))
-        .then((p: any) => {
-            console.log(p.path);
-            Server.path = Client.path = p.path;
-            Server.dub = dub;
+    let dcdClientTool = new Tool('dcd', { buildConfig: 'client' });
+    let dcdServerTool = new Tool('dcd', { buildConfig: 'server' });
+    let dfmtTool = new Tool('dfmt');
+    let dscannerTool = new Tool('dscanner');
 
-            server = new Server();
-            output.appendLine('DCD : starting server...');
+    Tool.dub = dub;
 
-            let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
-            let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
-            let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
-            let hoverProvider = vsc.languages.registerHoverProvider(D_MODE, provider);
+    dcdClientTool.activate = () => {
+        Client.toolDirectory = dcdClientTool.toolDirectory;
+        Client.toolFile = dcdClientTool.toolFile || 'dcd-client';
+    };
 
-            provider.on('restart', () => {
-                server.start();
-                output.appendLine('DCD : restarting server...');
-            });
+    dcdServerTool.activate = () => {
+        Server.toolDirectory = dcdServerTool.toolDirectory;
+        Server.toolFile = dcdServerTool.toolFile || 'dcd-server';
+        Server.dub = dub;
 
-            context.subscriptions.push(completionProvider, signatureProvider, definitionProvider, hoverProvider);
-        })
-        .then(() => server.importSelections(context.subscriptions))
-        .then(dub.getLatestVersion.bind(dub, 'dfmt'))
-        .then((p: any) => dub.build(p, 'release'))
-        .then((p: any) => {
-            Dfmt.path = p.path;
+        server = new Server();
+        output.appendLine('DCD : starting server...');
 
-            let formattingProvider = vsc.languages.registerDocumentFormattingEditProvider(D_MODE, provider);
+        let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
+        let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
+        let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
+        let hoverProvider = vsc.languages.registerHoverProvider(D_MODE, provider);
 
-            context.subscriptions.push(formattingProvider);
-        })
-        .then(dub.getLatestVersion.bind(dub, 'dscanner'))
-        .then((p: any) => dub.build(p, 'release'))
-        .then((p: any) => {
-            Dscanner.path = p.path;
+        provider.on('restart', () => {
+            output.appendLine('DCD : restarting server...');
+            server.start();
+            server.importSelections(context.subscriptions);
+        });
 
-            let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(D_MODE, provider);
-            let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
-            let diagnosticCollection = vsc.languages.createDiagnosticCollection();
-            let lintDocument = (document: vsc.TextDocument) => {
-                if (document.languageId === D_MODE.language) {
-                    new Dscanner(document, null, util.Operation.Lint);
-                }
-            };
+        context.subscriptions.push(completionProvider, signatureProvider, definitionProvider, hoverProvider);
 
-            Dscanner.collection = diagnosticCollection;
+        return server.importSelections(context.subscriptions);
+    };
 
-            vsc.workspace.onDidSaveTextDocument(lintDocument);
-            vsc.workspace.onDidOpenTextDocument(lintDocument);
-            vsc.workspace.textDocuments.forEach(lintDocument);
-            vsc.workspace.onDidCloseTextDocument((document) => {
-                diagnosticCollection.delete(document.uri);
-            });
+    dfmtTool.activate = () => {
+        Dfmt.toolDirectory = dfmtTool.toolDirectory;
+        Dfmt.toolFile = dfmtTool.toolFile || 'dfmt';
 
-            context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, diagnosticCollection);
-        })
+        let formattingProvider = vsc.languages.registerDocumentFormattingEditProvider(D_MODE, provider);
+
+        context.subscriptions.push(formattingProvider);
+    };
+
+    dscannerTool.activate = () => {
+        Dscanner.toolDirtory = dscannerTool.toolDirectory;
+        Dscanner.toolFile = dscannerTool.toolFile || 'dscanner';
+
+        let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(D_MODE, provider);
+        let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
+        let diagnosticCollection = vsc.languages.createDiagnosticCollection();
+        let lintDocument = (document: vsc.TextDocument) => {
+            if (document.languageId === D_MODE.language) {
+                new Dscanner(document, null, util.Operation.Lint);
+            }
+        };
+
+        Dscanner.collection = diagnosticCollection;
+
+        vsc.workspace.onDidSaveTextDocument(lintDocument);
+        vsc.workspace.onDidOpenTextDocument(lintDocument);
+        vsc.workspace.textDocuments.forEach(lintDocument);
+        vsc.workspace.onDidCloseTextDocument((document) => {
+            diagnosticCollection.delete(document.uri);
+        });
+
+        context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, diagnosticCollection);
+    };
+
+    registerCommands(context.subscriptions, dub)
+        .then(dcdClientTool.setup.bind(dcdClientTool))
+        .then(dcdServerTool.setup.bind(dcdServerTool))
+        .then(dfmtTool.setup.bind(dfmtTool))
+        .then(dscannerTool.setup.bind(dscannerTool))
         .then(() => {
             let tasksWatcher = vsc.workspace.createFileSystemWatcher(path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'));
 
@@ -161,7 +274,9 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         vsc.window.showInputBox({
             prompt: 'The package to search for',
             placeHolder: 'Package name'
-        }).then(dub.search.bind(dub)).then((packages: any[]) => {
+        }).then((packageName) => {
+            return dub.search(packageName);
+        }).then((packages: any[]) => {
             return vsc.window.showQuickPick(packages.map(packageToQuickPickItem),
                 { matchOnDescription: true });
         }).then((result: any) => {
@@ -215,78 +330,56 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         });
     }));
 
-    return Promise.all([dub.fetch('dfix'), dub.fetch('d-profile-viewer')])
-        .then(dub.getLatestVersion.bind(dub, 'dfix'))
-        .then((p: any) => dub.build(p, 'release'))
-        .then((p: any) => {
-            Dfix.path = p.path;
+    let dfixTool = new Tool('dfix');
+    let dProfileViewerTool = new Tool('d-profile-viewer', { configName: 'dProfileViewer' });
 
-            subscriptions.push(vsc.commands.registerCommand('dlang.dfix', (uri: vsc.Uri) => {
-                let applyDfix = (document: vsc.TextDocument) => {
-                    document.save().then(() => {
-                        let changeDisposable = vsc.workspace.onDidChangeTextDocument((event) => {
-                            new Dscanner(event.document, null, util.Operation.Lint);
-                            changeDisposable.dispose();
-                        });
+    dfixTool.activate = () => {
+        Dfix.toolDirectory = dfixTool.toolDirectory;
+        Dfix.toolFile = dfixTool.toolFile || 'dfix';
 
-                        new Dfix(document.fileName);
+        subscriptions.push(vsc.commands.registerCommand('dlang.dfix', (uri: vsc.Uri) => {
+            let applyDfix = (document: vsc.TextDocument) => {
+                document.save().then(() => {
+                    let changeDisposable = vsc.workspace.onDidChangeTextDocument((event) => {
+                        new Dscanner(event.document, null, util.Operation.Lint);
+                        changeDisposable.dispose();
                     });
-                };
 
-                if (uri) {
-                    vsc.workspace.openTextDocument(uri).then(applyDfix);
-                    return;
+                    new Dfix(document.fileName);
+                });
+            };
+
+            if (uri) {
+                vsc.workspace.openTextDocument(uri).then(applyDfix);
+                return;
+            }
+
+            let choices = ['Run on open file(s)', 'Run on workspace'];
+
+            vsc.window.showQuickPick(choices).then((value) => {
+                if (value === choices[0]) {
+                    vsc.workspace.textDocuments.forEach(applyDfix);
+                } else {
+                    vsc.workspace.saveAll(false).then(() => {
+                        new Dfix(vsc.workspace.rootPath);
+                    });
                 }
+            });
+        }));
+    };
 
-                let choices = ['Run on open file(s)', 'Run on workspace'];
+    dProfileViewerTool.activate = () => {
+        DProfileViewer.toolDirectory = dProfileViewerTool.toolDirectory;
+        DProfileViewer.toolFile = dProfileViewerTool.toolFile || 'd-profile-viewer';
 
-                vsc.window.showQuickPick(choices).then((value) => {
-                    if (value === choices[0]) {
-                        vsc.workspace.textDocuments.forEach(applyDfix);
-                    } else {
-                        vsc.workspace.saveAll(false).then(() => {
-                            new Dfix(vsc.workspace.rootPath);
-                        });
-                    }
-                });
-            }));
-        })
-        .then(dub.getLatestVersion.bind(dub, 'd-profile-viewer'))
-        .then((p: any) => dub.build(p, 'release'))
-        .then((p: any) => {
-            DProfileViewer.path = p.path;
+        subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () => {
+            return new Promise((resolve) => {
+                new DProfileViewer(vsc.workspace.rootPath, resolve);
+            }).then(() => {
+                vsc.commands.executeCommand('vscode.previewHtml', vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
+            });
+        }));
+    };
 
-            subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () => {
-                return new Promise((resolve) => {
-                    new DProfileViewer(vsc.workspace.rootPath, resolve);
-                }).then(() => {
-                    vsc.commands.executeCommand('vscode.previewHtml', vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
-                });
-            }));
-        });
+    return dfixTool.setup().then(dProfileViewerTool.setup.bind(dProfileViewerTool));
 }
-
-const initOptions = [
-    {
-        prompt: 'The name of the package',
-        placeHolder: 'Name',
-        value: path.basename(vsc.workspace.rootPath)
-    },
-    {
-        prompt: 'Brief description of the package',
-        placeHolder: 'Description'
-    },
-    {
-        prompt: 'The name of the author of the package',
-        placeHolder: 'Author name',
-        value: process.env.USERNAME
-    },
-    {
-        prompt: 'The license of the package',
-        placeHolder: 'License'
-    },
-    {
-        prompt: 'The copyright of the package',
-        placeHolder: 'Copyright'
-    }
-];

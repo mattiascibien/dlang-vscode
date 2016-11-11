@@ -48,7 +48,7 @@ export default class Dub extends vsc.Disposable {
         return this.launchCommand('upgrade', []);
     }
 
-    public list() {
+    public list(): Promise<Package[]> {
         let match = this._tmp.name.match(/^.*?[\\/]/);
         return this.launchCommand('list', [], null, { cwd: match[0] }).then((result: any) => {
             if (result.code) {
@@ -68,7 +68,7 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    public search(packageName: string) {
+    public search(packageName: string): Promise<Package[]> {
         return this.launchCommand('search', [packageName]).then((result: any) => {
             if (result.code) {
                 return [];
@@ -88,7 +88,7 @@ export default class Dub extends vsc.Disposable {
         });
     }
 
-    public build(p: Package, type: string, config?: string) {
+    public build(p: Package, type: string, config?: string): Promise<Package> {
         let args = ['--build=' + type];
 
         if (config) {
@@ -136,6 +136,7 @@ export default class Dub extends vsc.Disposable {
                 }
             }).then((line: string) => {
                 if (line) {
+                    this._output.show(true);
                     return this.launchCommand('dustmite', (args || []).concat([
                         dustmitePath,
                         '--combined',

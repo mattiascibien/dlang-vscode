@@ -76,7 +76,7 @@ export default class Provider extends ev.EventEmitter implements
                     return vsc.workspace.openTextDocument(uri).then((document) => {
                         if (document && document.languageId === 'd') {
                             let dscanner = new Dscanner(document, token, dscannerUtil.Operation.WorkspaceSymbols);
-                            return new Promise(dscanner.execute.bind(dscanner));
+                            return new Promise<vsc.SymbolInformation[]>(dscanner.execute.bind(dscanner));
                         }
                     });
                 });

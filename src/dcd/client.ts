@@ -11,7 +11,8 @@ import Server from './server';
 import * as util from './util';
 
 export default class Client extends ev.EventEmitter {
-    public static path: string;
+    public static toolDirectory = '';
+    public static toolFile = '';
     private _client: cp.ChildProcess;
 
     public constructor(
@@ -30,7 +31,7 @@ export default class Client extends ev.EventEmitter {
             args.push('-d');
         }
 
-        this._client = cp.spawn(path.join(Client.path, 'dcd-client'), args.concat(util.getTcpArgs()));
+        this._client = cp.spawn(path.join(Client.toolDirectory, Client.toolFile), args.concat(util.getTcpArgs()));
         this._client.on('exit', (code: number) => {
             if (code) {
                 this.emit('error');

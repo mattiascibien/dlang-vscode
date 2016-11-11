@@ -105,6 +105,36 @@
                     "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
                     "description": "Path to the DMD configuration file on Windows."
                 },
+                "d.tools.dcd.client": {
+                    "type": "string",
+                    "default": "dcd-client",
+                    "description": "Path to the system DCD client executable (optional)."
+                },
+                "d.tools.dcd.server": {
+                    "type": "string",
+                    "default": "dcd-server",
+                    "description": "Path to the system DCD server executable (optional)."
+                },
+                "d.tools.dfmt": {
+                    "type": "string",
+                    "default": "dfmt",
+                    "description": "Path to the system DFMT executable (optional)."
+                },
+                "d.tools.dscanner": {
+                    "type": "string",
+                    "default": "dscanner",
+                    "description": "Path to the system Dscanner executable (optional)."
+                },
+                "d.tools.dfix": {
+                    "type": "string",
+                    "default": "dfix",
+                    "description": "Path to the system Dfix executable (optional)."
+                },
+                "d.tools.dProfileViewer": {
+                    "type": "string",
+                    "default": "d-profile-viewer",
+                    "description": "Path to the system D Profile Viewer executable (optional)."
+                },
                 "d.dcd.tcp": {
                     "type": "boolean",
                     "default": false,
@@ -261,11 +291,9 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.0.6",
+        "typescript": "^2.0.8",
         "vscode": "^1.0.3",
-        "mocha": "^3.1.2",
-        "@types/node": "^6.0.46",
-        "@types/mocha": "^2.2.32"
+        "@types/node": "^6.0.46"
     },
     "dependencies": {
         "tmp": "^0.0.30",
