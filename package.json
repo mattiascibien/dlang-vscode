@@ -26,7 +26,6 @@
         "Snippets",
         "Formatters",
         "Linters",
-        "Productivity",
         "Other"
     ],
     "keywords": [
@@ -104,6 +103,31 @@
                     "type": "string",
                     "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
                     "description": "Path to the DMD configuration file on Windows."
+                },
+                "d.tools.enabled.dcd": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether DCD is used or not."
+                },
+                "d.tools.enabled.dfmt": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether DFMT is used or not."
+                },
+                "d.tools.enabled.dscanner": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether Dscanner is used or not."
+                },
+                "d.tools.enabled.dfix": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether Dfix is used or not."
+                },
+                "d.tools.enabled.dProfileViewer": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Whether F Profile Viewer is used or not."
                 },
                 "d.tools.dcd.client": {
                     "type": "string",
@@ -291,12 +315,12 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.0.8",
+        "typescript": "^2.1.4",
         "vscode": "^1.0.3",
-        "@types/node": "^6.0.46"
+        "@types/node": "^6.0.52"
     },
     "dependencies": {
-        "tmp": "^0.0.30",
+        "tmp": "^0.0.31",
         "xml2js": "^0.4.17",
         "escape-string-regexp": "^1.0.5"
     },

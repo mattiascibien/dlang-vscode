@@ -58,9 +58,13 @@ class Tool {
     }
 
     public setup() {
-        let toolPath: string;
+        let toolEnabled = vsc.workspace.getConfiguration().get<boolean>(`d.tools.enabled.${this._configName}`);
 
-        toolPath = vsc.workspace.getConfiguration().get<string>('d.tools.' + this._configName
+        if (!toolEnabled) {
+            return Promise.resolve(undefined);
+        }
+
+        let toolPath = vsc.workspace.getConfiguration().get<string>('d.tools.' + this._configName
             + (this._buildConfig ? '.' + this._buildConfig : ''));
 
         if (path.isAbsolute(toolPath)) {
@@ -82,7 +86,9 @@ class Tool {
         if (this._isSystemTool) {
             this._toolDirectory = path.dirname(toolPath);
             this._toolFile = path.basename(toolPath);
-            output.appendLine('Found ' + this._name + (this._buildConfig ? ` (${this._buildConfig})` : '') + ' : ' + toolPath);
+            output.appendLine('Found ' + this._name
+                + (this._buildConfig ? ` (${this._buildConfig})` : '')
+                + ' : ' + toolPath);
         }
 
         let promise = this._isSystemTool ? Promise.resolve(null)
