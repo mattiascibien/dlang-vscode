@@ -317,7 +317,10 @@
     "devDependencies": {
         "typescript": "^2.1.4",
         "vscode": "^1.0.3",
-        "@types/node": "^6.0.52"
+        "@types/node": "^6.0.52",
+        "@types/tmp": "^0.0.32",
+        "@types/xml2js": "^0.0.32",
+        "@types/escape-string-regexp": "^0.0.30"
     },
     "dependencies": {
         "tmp": "^0.0.31",
