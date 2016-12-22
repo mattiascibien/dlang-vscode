@@ -53,8 +53,13 @@ export default class Dscanner {
 
     public lint() {
         let output = '';
+        let args = ['--report', this._document.fileName];
 
-        this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), ['--report', this._document.fileName]);
+        if (vsc.workspace.rootPath) {
+            args.push('--config', path.join(vsc.workspace.rootPath, 'dscanner.ini'));
+        }
+
+        this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), args);
 
         this._dscanner.stdout.on('data', (data) => {
             output += data.toString();
