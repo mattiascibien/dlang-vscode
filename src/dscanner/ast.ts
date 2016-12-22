@@ -3,9 +3,11 @@
 import * as xml from 'xml2js';
 import * as vsc from 'vscode';
 
+const variableContainers = [vsc.SymbolKind.Module, vsc.SymbolKind.Enum, vsc.SymbolKind.Class, vsc.SymbolKind.Interface];
 let types = new Map<string, vsc.SymbolKind>();
 
 types.set(declaration('module'), vsc.SymbolKind.Module);
+types.set(declaration('variable'), vsc.SymbolKind.Variable);
 types.set(declaration('function'), vsc.SymbolKind.Function);
 types.set(declaration('enum'), vsc.SymbolKind.Enum);
 types.set(declaration('union'), vsc.SymbolKind.Class);
@@ -35,9 +37,11 @@ function parseNode(rootNode: any) {
     let declarations: Declaration[] = [];
     let nodes = [rootNode];
     let names: string[] = [null];
-    let containers: string[] = [null];
+    let declarationNodes = [];
     let dec: Declaration;
     let nameIsIdentifier: boolean;
+
+    rootNode.depth = 0;
 
     function addDeclaration(dec: Declaration) {
         if (dec) {
@@ -47,21 +51,34 @@ function parseNode(rootNode: any) {
     }
 
     function canContainLine(n: string) {
-        return n === 'name' || n === 'identifier' || n === 'declarator';
+        return ['name', 'identifier', 'declarator'].indexOf(n) > -1;
     }
 
     while (nodes.length) {
         let node = nodes.pop();
         let name = names.pop();
+        let kind = types.get(name);
 
-        if (types.get(name)) {
-            addDeclaration(dec);
+        if (kind) {
+            let parent;
 
-            dec = {
-                name: null,
-                kind: types.get(name),
-                line: node.$ ? Number(node.$.line) : null
-            };
+            if (kind === vsc.SymbolKind.Variable) {
+                parent = declarationNodes.reverse().find((dn) => dn.depth < node.depth);
+                declarationNodes.reverse();
+            }
+
+            if (kind !== vsc.SymbolKind.Variable || variableContainers.indexOf(parent.kind) > -1) {
+                addDeclaration(dec);
+
+                dec = {
+                    name: null,
+                    kind: kind,
+                    line: node.$ ? Number(node.$.line) : null
+                };
+
+                declarationNodes = declarationNodes.filter((dn) => dn.depth < node.depth);
+                declarationNodes.push({ depth: node.depth, kind: kind });
+            }
         } else if (dec) {
             switch (name) {
                 case 'name':
@@ -85,27 +102,35 @@ function parseNode(rootNode: any) {
             }
         }
 
-        let tempNodes = [];
-        let tempNames: string[] = [];
+        let newNodes = [];
+        let newNames: string[] = [];
 
         for (let childName in node) {
             let child = node[childName];
 
             if (child instanceof Array) {
-                let array = child.reverse();
+                child.reverse();
 
-                for (let itemName in array) {
-                    nodes.push(array[itemName]);
+                for (let itemName in child) {
+                    if (child[itemName] instanceof Object) {
+                        child[itemName].depth = node.depth + 1;
+                    }
+
+                    nodes.push(child[itemName]);
                     names.push(itemName);
                 }
             } else if (child instanceof Object || canContainLine(childName)) {
-                tempNodes.unshift(child);
-                tempNames.unshift(childName);
+                if (child instanceof Object) {
+                    child.depth = node.depth + 1;
+                }
+
+                newNodes.unshift(child);
+                newNames.unshift(childName);
             }
         }
 
-        nodes = nodes.concat(tempNodes);
-        names = names.concat(tempNames);
+        nodes = nodes.concat(newNodes);
+        names = names.concat(newNames);
     }
 
     addDeclaration(dec);
