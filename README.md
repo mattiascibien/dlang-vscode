@@ -81,7 +81,6 @@ code dlang-<version>.vsix
 * Code coverage
 * GC profiling
 * Add range formatting
-* [SDL file format](http://code.dlang.org/package-format?lang=sdl) support
 * [Diet template](http://vibed.org/features#diet-templates) support
 * Code actions for fixing problems from linter
 * Symbol highlighting/renaming
