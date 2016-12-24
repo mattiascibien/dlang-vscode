@@ -5,7 +5,8 @@ import * as cp from 'child_process';
 import * as vsc from 'vscode';
 
 export default class Dfmt {
-    public static path: string;
+    public static toolDirectory = '';
+    public static toolFile = '';
     private _dfmt: cp.ChildProcess;
 
     public constructor(
@@ -39,7 +40,7 @@ export default class Dfmt {
             }), String(vsc.workspace.getConfiguration().get('d.dfmt.' + attr)));
         });
 
-        this._dfmt = cp.spawn(path.join(Dfmt.path, 'dfmt'), args);
+        this._dfmt = cp.spawn(path.join(Dfmt.toolDirectory, Dfmt.toolFile), args);
     }
 
     public execute(resolve: Function, reject: Function) {

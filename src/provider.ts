@@ -13,6 +13,7 @@ export default class Provider extends ev.EventEmitter implements
     vsc.CompletionItemProvider,
     vsc.SignatureHelpProvider,
     vsc.DefinitionProvider,
+    vsc.HoverProvider,
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
     vsc.WorkspaceSymbolProvider {
@@ -38,6 +39,14 @@ export default class Provider extends ev.EventEmitter implements
         token: vsc.CancellationToken
     ) {
         return this.provide(document, position, token, dcdUtil.Operation.Definition);
+    }
+
+    public provideHover(
+        document: vsc.TextDocument,
+        position: vsc.Position,
+        token: vsc.CancellationToken
+    ) {
+        return this.provide(document, position, token, dcdUtil.Operation.Documentation);
     }
 
     public provideDocumentFormattingEdits(
@@ -67,7 +76,7 @@ export default class Provider extends ev.EventEmitter implements
                     return vsc.workspace.openTextDocument(uri).then((document) => {
                         if (document && document.languageId === 'd') {
                             let dscanner = new Dscanner(document, token, dscannerUtil.Operation.WorkspaceSymbols);
-                            return new Promise(dscanner.execute.bind(dscanner));
+                            return new Promise<vsc.SymbolInformation[]>(dscanner.execute.bind(dscanner));
                         }
                     });
                 });

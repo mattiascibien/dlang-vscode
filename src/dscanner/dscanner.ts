@@ -9,7 +9,8 @@ import * as rep from './report';
 import * as util from './util';
 
 export default class Dscanner {
-    public static path: string;
+    public static toolDirtory = '';
+    public static toolFile = '';
     public static collection: vsc.DiagnosticCollection;
     private _dscanner: cp.ChildProcess;
 
@@ -21,7 +22,7 @@ export default class Dscanner {
         if (this._operation === util.Operation.Lint) {
             this.lint();
         } else {
-            this._dscanner = cp.spawn(path.join(Dscanner.path, 'dscanner'), ['--ast']);
+            this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), ['--ast']);
         }
     }
 
@@ -52,8 +53,13 @@ export default class Dscanner {
 
     public lint() {
         let output = '';
+        let args = ['--report', this._document.fileName];
 
-        this._dscanner = cp.spawn(path.join(Dscanner.path, 'dscanner'), ['--report', this._document.fileName]);
+        if (vsc.workspace.rootPath) {
+            args.push('--config', path.join(vsc.workspace.rootPath, 'dscanner.ini'));
+        }
+
+        this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), args);
 
         this._dscanner.stdout.on('data', (data) => {
             output += data.toString();

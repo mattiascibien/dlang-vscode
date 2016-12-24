@@ -6,9 +6,11 @@ import * as cp from 'child_process';
 import * as vsc from 'vscode';
 import * as util from './util';
 import Dub from '../dub';
+import Client from './client';
 
 export default class Server {
-    public static path: string;
+    public static toolDirectory = '';
+    public static toolFile = '';
     public static dub: Dub;
     private static _instanceLaunched: boolean;
     private _dubSelectionsWatcher: vsc.FileSystemWatcher;
@@ -49,7 +51,7 @@ export default class Server {
         } catch (e) { }
 
         let args = ['--logLevel', 'off'].concat(util.getTcpArgs());
-        let server = cp.spawn(path.join(Server.path, 'dcd-server'), additionsImports.concat(args), { stdio: 'ignore' });
+        let server = cp.spawn(path.join(Server.toolDirectory, Server.toolFile), additionsImports.concat(args), { stdio: 'ignore' });
         Server._instanceLaunched = true;
 
         server.on('exit', () => {
@@ -58,8 +60,12 @@ export default class Server {
     }
 
     public stop() {
-        cp.spawn(path.join(Server.path, 'dcd-client'), ['--shutdown'].concat(util.getTcpArgs()));
+        cp.spawn(path.join(Client.toolDirectory, Client.toolFile), ['--shutdown'].concat(util.getTcpArgs()));
         this._dubSelectionsWatcher.dispose();
+    }
+
+    public importPath(p: string) {
+        return cp.spawn(path.join(Client.toolDirectory, Client.toolFile), ['-I' + p]);
     }
 
     public importSelections(subscriptions: vsc.Disposable[]) {
@@ -86,7 +92,7 @@ export default class Server {
     private importPackages(selections) {
         return Server.dub.list().then((packages) => {
             return new Promise((resolve) => {
-                cp.spawn(path.join(Server.path, 'dcd-client'), ['--clearCache']).on('exit', () => {
+                cp.spawn(path.join(Client.toolDirectory, Client.toolFile), ['--clearCache']).on('exit', () => {
                     let clients: cp.ChildProcess[] = [];
 
                     for (let selection in selections) {
@@ -100,7 +106,7 @@ export default class Server {
 
                         if (importPath) {
                             this.getImportDirs(importPath).forEach((dir) => {
-                                clients.push(cp.spawn(path.join(Server.path, 'dcd-client'), ['-I' + dir]));
+                                clients.push(this.importPath(dir));
                             });
                         }
                     }
@@ -122,7 +128,7 @@ export default class Server {
             let dubFile = path.join(dubPath, 'dub.' + dubExt);
 
             try {
-                fs.accessSync(dubFile, fs.R_OK);
+                fs.accessSync(dubFile, fs.constants.R_OK);
                 let dubData;
                 let sourcePaths: string[] = [];
 
@@ -155,7 +161,7 @@ export default class Server {
 
                 sourcePaths.forEach((p: string) => {
                     try {
-                        fs.accessSync(path.join(dubPath, p), fs.R_OK);
+                        fs.accessSync(path.join(dubPath, p), fs.constants.R_OK);
                         imp.add(path.join(dubPath, p));
                     } catch (e) { }
                 });

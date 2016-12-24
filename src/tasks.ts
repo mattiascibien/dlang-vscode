@@ -16,8 +16,10 @@ export default class Tasks implements vsc.Disposable {
         let compilers = [
             'dmd',
             'ldc',
+            'ldc2',
             'gdc',
             'ldmd',
+            'ldmd2',
             'gdmd'
         ];
 
@@ -27,7 +29,7 @@ export default class Tasks implements vsc.Disposable {
         compilers.forEach((compiler) => {
             process.env.PATH.split(isWin ? ';' : ':').forEach((dir) => {
                 try {
-                    fs.accessSync(path.join(dir, compiler + (isWin ? '.exe' : '')), fs.F_OK);
+                    fs.accessSync(path.join(dir, compiler + (isWin ? '.exe' : '')), fs.constants.F_OK);
                     installedCompilers.add(compiler);
                 } catch (e) { }
             });
@@ -77,7 +79,7 @@ export default class Tasks implements vsc.Disposable {
 
     public createFile() {
         fs.mkdir(path.join(vsc.workspace.rootPath, '.vscode'), () => {
-            fs.access(this._tasksFile, fs.W_OK, (err) => {
+            fs.access(this._tasksFile, fs.constants.W_OK, (err) => {
                 if (!err) {
                     vsc.window.showWarningMessage('File tasks.json already exists', 'overwrite').then((choice) => {
                         if (choice === 'overwrite') {
