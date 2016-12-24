@@ -62,6 +62,19 @@ Note: these dfmt formatting options have yet to be implemented in dfmt  itself a
 * `Upgrade Package Dependencies`: upgrade a package's dependencies
 * `Convert Dub File Format`: converts dub.json to SDL format or dub.sdl to JSON format
 
+## Manual installation
+
+You have to install [the SDLang extension](https://marketplace.visualstudio.com/items?itemName=LaurentTreguier.sdlang) in order for dlang-vscode to work.
+
+```sh
+git clone https://github.com/dlang-vscode/dlang-vscode
+git checkout dev # if you want to install the latest development version
+cd dlang-vscode
+npm install
+vsce package
+code dlang-<version>.vsix
+```
+
 ## TODO
 
 * Documentation display
