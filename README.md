@@ -29,6 +29,11 @@ After creating a debug configuration and the default dub tasks, simply change th
 * `d.dmdConf.linux`: Path to the dmd configuration file on Linux. Default value: `/etc/dmd.conf`
 * `d.dmdConf.osx`: Path to the dmd configuration file on OS X. Default value: `/usr/local/etc/dmd.conf`
 * `d.dmdConf.windows`: Path to the dmd configuration file on Windows. Default value: `C:\\D\\dmd2\\windows\\bin\\sc.ini`
+* `d.tools.enabled.dcd`: Whether DCD is used or not. Default value: `true`
+* `d.tools.enabled.dfmt`: Whether DFMT is used or not. Default value: `true`
+* `d.tools.enabled.dscanner`: Whether Dscanner is used or not. Default value: `true`
+* `d.tools.enabled.dfix`: Whether Dfix is used or not. Default value: `true`
+* `d.tools.enabled.dProfileViewer`: Whether D Profile Viewer is used or not. Default value: `true`
 * `d.tools.dcd.client`: Path to the system DCD client executable (optional).
 * `d.tools.dcd.server`: Path to the system DCD server executable (optional).
 * `d.tools.dfmt`: Path to the system DFMT executable (optional).
