@@ -10,7 +10,7 @@ import * as tmp from 'tmp';
 import escapeStringRegexp = require('escape-string-regexp');
 
 export default class Dub extends vsc.Disposable {
-    public static executable = vsc.workspace.getConfiguration().get('d.dub', 'dub');
+    public static executable = vsc.workspace.getConfiguration().get('d.tools.dub', 'dub');
     private _tmp: tmp.SynchrounousResult;
 
     public static check() {
@@ -89,7 +89,7 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(p: Package, type: string, config?: string): Promise<Package> {
-        let args = ['--build=' + type];
+        let args = ['--build=' + type, '--compiler=' + vsc.workspace.getConfiguration().get('d.dub.compiler', 'dmd')];
 
         if (config) {
             args.push('--config=' + config);

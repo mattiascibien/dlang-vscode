@@ -84,11 +84,6 @@
         "configuration": {
             "title": "D configuration",
             "properties": {
-                "d.dub": {
-                    "type": "string",
-                    "default": "dub",
-                    "description": "Path to the dub executable."
-                },
                 "d.dmdConf.linux": {
                     "type": "string",
                     "default": "/etc/dmd.conf",
@@ -129,6 +124,11 @@
                     "default": true,
                     "description": "Whether F Profile Viewer is used or not."
                 },
+                "d.tools.dub": {
+                    "type": "string",
+                    "default": "dub",
+                    "description": "Path to the dub executable."
+                },
                 "d.tools.dcd.client": {
                     "type": "string",
                     "default": "dcd-client",
@@ -158,6 +158,11 @@
                     "type": "string",
                     "default": "d-profile-viewer",
                     "description": "Path to the system D Profile Viewer executable (optional)."
+                },
+                "d.dub.compiler": {
+                    "type": "string",
+                    "default": "dmd",
+                    "description": "The compiler used by dub when compiling other tools."
                 },
                 "d.dcd.tcp": {
                     "type": "boolean",
@@ -317,7 +322,7 @@
     "devDependencies": {
         "typescript": "^2.1.4",
         "vscode": "^1.0.3",
-        "@types/node": "^6.0.52",
+        "@types/node": "^6.0.56",
         "@types/tmp": "^0.0.32",
         "@types/xml2js": "^0.0.32",
         "@types/escape-string-regexp": "^0.0.30"

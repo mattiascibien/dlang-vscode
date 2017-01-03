@@ -25,7 +25,6 @@ After creating a debug configuration and the default dub tasks, simply change th
 
 ## Extension Settings
 
-* `d.dub`: Path to the `dub` executable. Default value: `dub`
 * `d.dmdConf.linux`: Path to the dmd configuration file on Linux. Default value: `/etc/dmd.conf`
 * `d.dmdConf.osx`: Path to the dmd configuration file on OS X. Default value: `/usr/local/etc/dmd.conf`
 * `d.dmdConf.windows`: Path to the dmd configuration file on Windows. Default value: `C:\\D\\dmd2\\windows\\bin\\sc.ini`
@@ -34,11 +33,13 @@ After creating a debug configuration and the default dub tasks, simply change th
 * `d.tools.enabled.dscanner`: Whether Dscanner is used or not. Default value: `true`
 * `d.tools.enabled.dfix`: Whether Dfix is used or not. Default value: `true`
 * `d.tools.enabled.dProfileViewer`: Whether D Profile Viewer is used or not. Default value: `true`
+* `d.tools.dub`: Path to the `dub` executable. Default value: `dub`
 * `d.tools.dcd.client`: Path to the system DCD client executable (optional).
 * `d.tools.dcd.server`: Path to the system DCD server executable (optional).
 * `d.tools.dfmt`: Path to the system DFMT executable (optional).
 * `d.tools.dscanner`: Path to the system Dscanner executable (optional).
 * `d.tools.dfix`: Path to the system Dfix executable (optional).
+* `d.dub.compiler`: The compiler used by dub when compiling other tools.
 * `d.tools.dProfileViewer`: Path to the system D Profile Viewer executable (optional).
 * `d.dcd.tcp`: Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows. Default value: `false`
 * `d.dcd.port`: Listens on this port instead of the default port 9166 when TCP sockets are used. Default value: `9166`
