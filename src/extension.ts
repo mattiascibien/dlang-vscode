@@ -225,8 +225,7 @@ export function activate(context: vsc.ExtensionContext) {
             tasks.showChoosers();
 
             context.subscriptions.push(tasksWatcher);
-        })
-        .then(output.hide.bind(output));
+        });
 };
 
 export function deactivate() {
