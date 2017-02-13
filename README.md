@@ -39,7 +39,10 @@ After creating a debug configuration and the default dub tasks, simply change th
 * `d.tools.dfmt`: Path to the system DFMT executable (optional).
 * `d.tools.dscanner`: Path to the system Dscanner executable (optional).
 * `d.tools.dfix`: Path to the system Dfix executable (optional).
-* `d.dub.compiler`: The compiler used by dub when compiling other tools.
+* `d.dub.compiler`: The compiler used by dub when compiling other tools. Possible values:
+  * `dmd` [default]
+  * `ldc2`
+  * `gdc`
 * `d.tools.dProfileViewer`: Path to the system D Profile Viewer executable (optional).
 * `d.dcd.tcp`: Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows. Default value: `false`
 * `d.dcd.port`: Listens on this port instead of the default port 9166 when TCP sockets are used. Default value: `9166`

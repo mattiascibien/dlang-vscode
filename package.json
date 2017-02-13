@@ -162,7 +162,12 @@
                 "d.dub.compiler": {
                     "type": "string",
                     "default": "dmd",
-                    "description": "The compiler used by dub when compiling other tools."
+                    "description": "The compiler used by dub when compiling other tools.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
                 },
                 "d.dcd.tcp": {
                     "type": "boolean",
