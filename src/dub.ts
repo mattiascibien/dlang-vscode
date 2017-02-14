@@ -85,7 +85,8 @@ export default class Dub extends vsc.Disposable {
     }
 
     public build(p: Package, type: string, config?: string): Promise<Package> {
-        let compiler = vsc.workspace.getConfiguration().get<string>(`d.${p.name}.compiler`);
+        let packageName = p.name.replace(/-\w/g, (found) => found.substr(1, 1).toUpperCase());
+        let compiler = vsc.workspace.getConfiguration().get<string>(`d.${packageName}.compiler`);
         let args = ['--build=' + type, '--compiler=' +
             (compiler || vsc.workspace.getConfiguration().get('d.dub.compiler', 'dmd'))];
 
