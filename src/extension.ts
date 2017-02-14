@@ -54,7 +54,6 @@ class Tool {
     public build() {
         return Tool.dub.getLatestVersion(this._name)
             .then((p) => {
-                console.log(p.path);
                 this._toolDirectory = p.path;
                 return Tool.dub.build(p, 'release', this._buildConfig);
             });

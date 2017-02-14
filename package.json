@@ -170,6 +170,16 @@
                         "gdc"
                     ]
                 },
+                "d.dcd.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling DCD.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
                 "d.dcd.tcp": {
                     "type": "boolean",
                     "default": false,
@@ -179,6 +189,16 @@
                     "type": "number",
                     "default": 9166,
                     "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
+                },
+                "d.dfmt.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling DFMT.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
                 },
                 "d.dfmt.alignSwitchStatements": {
                     "type": "boolean",
@@ -239,6 +259,36 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement."
+                },
+                "d.dscanner.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling Dscanner.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
+                "d.dfix.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling Dfix.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
+                "d.dProfileViewer.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling D Profile Viewer.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
                 }
             }
         },

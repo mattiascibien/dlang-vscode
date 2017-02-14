@@ -49,18 +49,18 @@ export default class Dub extends vsc.Disposable {
         return this.launchCommand('list', [], null, { cwd: match[0] }).then((result: any) => {
             if (result.code) {
                 return [];
-            } else {
-                let packages: Package[] = [];
-
-                result.lines.shift();
-                result.lines.pop();
-                result.lines.forEach((line: string) => {
-                    let match = line.match(/([^\s]+) ([^\s]+): (.+)/);
-                    packages.push(new Package(match[1], match[2], match[3]));
-                });
-
-                return packages;
             }
+
+            let packages: Package[] = [];
+
+            result.lines.shift();
+            result.lines.pop();
+            result.lines.forEach((line: string) => {
+                let match = line.match(/([^\s]+) ([^\s]+): (.+)/);
+                packages.push(new Package(match[1], match[2], match[3]));
+            });
+
+            return packages;
         });
     }
 
@@ -68,24 +68,26 @@ export default class Dub extends vsc.Disposable {
         return this.launchCommand('search', [packageName]).then((result: any) => {
             if (result.code) {
                 return [];
-            } else {
-                let packages: Package[] = [];
-
-                result.lines.shift();
-                result.lines.forEach((line: string) => {
-                    let formattedLine = line.replace(/\s+/, ' ');
-                    let match = formattedLine.match(/([^\s]+) \(([^\s]+)\) (.+)/);
-
-                    packages.push(new Package(match[1], match[2], null, match[3]));
-                });
-
-                return packages;
             }
+
+            let packages: Package[] = [];
+
+            result.lines.shift();
+            result.lines.forEach((line: string) => {
+                let formattedLine = line.replace(/\s+/, ' ');
+                let match = formattedLine.match(/([^\s]+) \(([^\s]+)\) (.+)/);
+
+                packages.push(new Package(match[1], match[2], null, match[3]));
+            });
+
+            return packages;
         });
     }
 
     public build(p: Package, type: string, config?: string): Promise<Package> {
-        let args = ['--build=' + type, '--compiler=' + vsc.workspace.getConfiguration().get('d.dub.compiler', 'dmd')];
+        let compiler = vsc.workspace.getConfiguration().get<string>(`d.${p.name}.compiler`);
+        let args = ['--build=' + type, '--compiler=' +
+            (compiler || vsc.workspace.getConfiguration().get('d.dub.compiler', 'dmd'))];
 
         if (config) {
             args.push('--config=' + config);
@@ -94,7 +96,7 @@ export default class Dub extends vsc.Disposable {
         return this.launchCommand('build', args,
             p.name + (config ? ` (${config})` : ''),
             { cwd: p.path })
-            .then(() => { return p; });
+            .then(() => p);
     }
 
     public convert(format: string) {
@@ -106,30 +108,28 @@ export default class Dub extends vsc.Disposable {
         let args: string[];
 
         return new Promise(del.bind(null, [dustmitePath, dustmitePath + '.reduced']))
-            .then(() => {
-                return new Promise((resolve) => {
-                    fs.readFile(p.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'), (err, data) => {
-                        if (err) {
-                            resolve();
-                            return;
-                        }
+            .then(() => new Promise((resolve) => {
+                fs.readFile(p.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'), (err, data) => {
+                    if (err) {
+                        resolve();
+                        return;
+                    }
 
-                        let tasks = JSON.parse(data.toString()).tasks;
-                        let task = tasks.find((task: any) => task.taskName === 'build');
+                    let tasks = JSON.parse(data.toString()).tasks;
+                    let task = tasks.find((task: any) => task.taskName === 'build');
 
-                        if (task) {
-                            args = task.args;
-                        }
+                    if (task) {
+                        args = task.args;
+                    }
 
-                        resolve(this.launchCommand('build', args || [], vsc.workspace.rootPath));
-                    });
+                    resolve(this.launchCommand('build', args || [], vsc.workspace.rootPath));
                 });
-            }).then((buildResult: any) => {
+            })).then((buildResult: any) => {
                 if (buildResult.code) {
                     return vsc.window.showQuickPick(buildResult.lines, { placeHolder: 'Select a line' });
-                } else {
-                    vsc.window.showInformationMessage('The project builds correctly');
                 }
+
+                vsc.window.showInformationMessage('The project builds correctly');
             }).then((line: string) => {
                 if (line) {
                     this._output.show(true);
