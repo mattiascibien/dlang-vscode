@@ -8,7 +8,6 @@
         "packagekit": "ldc",
         "brew": "ldc",
         "fallback": {
-            "name": "ldc",
             "version": {
                 "feed": "https://github.com/ldc-developers/ldc/releases.atom",
                 "regexp": "LDC ([\\d.]+)$"

@@ -389,7 +389,7 @@
         "@types/escape-string-regexp": "^0.0.30"
     },
     "dependencies": {
-        "meta-pkg": "^0.6.2",
+        "meta-pkg": "^0.6.4",
         "tmp": "^0.0.31",
         "xml2js": "^0.4.17",
         "escape-string-regexp": "^1.0.5"
