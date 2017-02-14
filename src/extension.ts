@@ -131,11 +131,11 @@ const initOptions = [
 
 export function activate(context: vsc.ExtensionContext) {
     let packageNames = ['dmd', 'ldc', 'gdc', 'dub'];
-    let packagesData = packageNames
+    let packagePromises = packageNames
         .map((packageName) => path.join(__dirname, '..', '..', 'packages', packageName + '.json'))
         .map((p) => new Promise((resolve) => fs.readFile(p, (err, data) => resolve(data.toString()))));
 
-    Promise.all(packagesData)
+    Promise.all(packagePromises)
         .then((packagesStrings: string[]) => packagesStrings.map(JSON.parse.bind(JSON)))
         .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage.bind(mpkg)))
         .then(() => packageNames.map(mpkg.getInstallers.bind(mpkg)))
@@ -158,21 +158,17 @@ export function activate(context: vsc.ExtensionContext) {
                             ...packageInstallers.get('dub')
                                 .map((installer) => ({ title: 'install with ' + installer.prettyName, installer: installer })))
                             .then((choice) => {
-                                if (choice) {
-                                    return choice.installer.install(output.append.bind(output));
+                                if (!choice) {
+                                    throw new Error('Dub is not going to be installed');
                                 }
+
+                                return choice.installer.install(output.append.bind(output))
+                                    .then(() => vsc.window.showInformationMessage('Dub is now installed'));
                             });
                     }
-
-                    return true;
                 });
-        }).then((result) => {
-            if (result !== undefined) {
-                start(context)
-            }
-        });
-
-    Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        }).then(() => packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        .then(Promise.all.bind(Promise))
         .then((installed: boolean[]) => packageNames
             .map((name, i) => installed[i] ? mpkg.isUpgradable(name) : false))
         .then(Promise.all.bind(Promise))
@@ -180,16 +176,24 @@ export function activate(context: vsc.ExtensionContext) {
         .then((upgradablePackages: string[]) => upgradablePackages
             .map((name) => vsc.window.showInformationMessage(name + ' can be upgraded',
                 { title: 'upgrade', name: name }))
-            .map((message) => message.then((choice) => choice
-                ? packageInstallers.get(choice.name)
-                : Promise.resolve(<mpkg.Installer[]>[])))
-            .map((installersPromise) => installersPromise.then((installers) => {
-                let fallbackInstaller = installers.find((installer) => installer.name === 'fallback');
+            .map((message) => message.then((choice) => ({
+                name: choice && choice.name,
+                installers: choice
+                    ? packageInstallers.get(choice.name)
+                    : <mpkg.Installer[]>[]
+            }))).map((installersPromise) => installersPromise.then((results) => {
+                let fallbackInstaller = results.installers
+                    .find((installer) => installer.name === 'fallback');
 
                 if (fallbackInstaller) {
-                    fallbackInstaller.install(output.append.bind(output));
+                    return fallbackInstaller.install(output.append.bind(output))
+                        .then(vsc.window.showInformationMessage.bind(vsc.window,
+                            results.name + ' was upgraded'));
                 }
-            })));
+            })))
+        .then(Promise.all.bind(Promise)).then(() => {
+            start(context)
+        }).catch(console.log.bind(console));
 };
 
 export function deactivate() {
@@ -401,19 +405,28 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 size = names.length;
                 return vsc.window.showQuickPick(names);
             }).then((packageName) => {
+                if (!packageName) {
+                    throw new Error('No tool selected');
+                }
+
                 installedPackageName = packageName;
 
                 if (packageInstallers.get(packageName).length > 1) {
                     return vsc.window.showInformationMessage(`Install ${packageName} using...`,
                         ...packageInstallers.get(packageName).map((installer) => installer.prettyName))
-                        .then((choice) => packageInstallers.get(packageName)
-                            .find((installer) => installer.prettyName === choice));
+                        .then((choice) => ({
+                            name: packageName,
+                            installer: packageInstallers.get(packageName)
+                                .find((installer) => installer.prettyName === choice)
+                        }));
                 }
 
-                return packageInstallers.get(packageName)[0];
-            }).then((installer) => {
-                if (installer) {
-                    installer.install(output.append.bind(output));
+                return { name: packageName, installer: packageInstallers.get(packageName)[0] };
+            }).then((result) => {
+                if (result) {
+                    result.installer.install(output.append.bind(output))
+                        .then(vsc.window.showInformationMessage.bind(vsc.window, result.name + ' is now installed'));
+
                     return size <= 1;
                 }
 
@@ -422,7 +435,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 if (hideToolsInstaller) {
                     toolsInstaller.hide();
                 }
-            });
+            }).catch(console.log.bind(console));
     }));
 
     Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
