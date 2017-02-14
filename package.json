@@ -50,7 +50,8 @@
         "onCommand:dlang.dub.convert",
         "onCommand:dlang.dub.dustmite",
         "onCommand:dlang.tasks.compiler",
-        "onCommand:dlang.tasks.build"
+        "onCommand:dlang.tasks.build",
+        "onCommand:dlang.install"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -301,6 +302,11 @@
                 "title": "Change Build Type",
                 "category": "Dlang",
                 "command": "dlang.tasks.build"
+            },
+            {
+                "title": "Install Tools",
+                "category": "Dlang",
+                "command": "dlang.install"
             }
         ],
         "menus": {

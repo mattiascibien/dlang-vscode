@@ -1,0 +1,12 @@
+{
+    "name": "dmd",
+    "targets": [
+        "dmd",
+        "rdmd"
+    ],
+    "backends": {
+        "packagekit": "dmd",
+        "brew": "dmd",
+        "chocolatey": "dmd"
+    }
+}

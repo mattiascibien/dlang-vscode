@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vsc from 'vscode';
+import * as mpkg from 'meta-pkg';
 import Tasks from './tasks';
 import Dub from './dub';
 import Provider from './provider';
@@ -15,6 +16,8 @@ import Dscanner from './dscanner/dscanner';
 import * as util from './dscanner/util';
 import { D_MODE } from './mode';
 
+let toolsInstaller: vsc.StatusBarItem;
+let packageInstallers = new Map<string, mpkg.Installer[]>();
 let server: Server;
 let tasks: Tasks;
 let output = vsc.window.createOutputChannel('D language');
@@ -24,7 +27,7 @@ class Tool {
     public activate: Function;
     private _name: string;
     private _configName: string;
-    private _buildConfig: string;
+    private _buildConfig: string; i
     private _isSystemTool = false;
     private _toolDirectory: string;
     private _toolFile: string;
@@ -51,10 +54,10 @@ class Tool {
     public build() {
         return Tool.dub.getLatestVersion(this._name)
             .then((p) => {
+                console.log(p.path);
                 this._toolDirectory = p.path;
-                return p;
-            })
-            .then((p) => Tool.dub.build(p, 'release', this._buildConfig));
+                return Tool.dub.build(p, 'release', this._buildConfig);
+            });
     }
 
     public setup() {
@@ -128,11 +131,75 @@ const initOptions = [
 ];
 
 export function activate(context: vsc.ExtensionContext) {
-    if (Dub.check()) {
-        vsc.window.showErrorMessage('Dub command not found');
-        return;
-    }
+    let packageNames = ['dmd', 'ldc', 'gdc', 'dub'];
+    let packagesData = packageNames
+        .map((packageName) => path.join(__dirname, '..', '..', 'packages', packageName + '.json'))
+        .map((p) => new Promise((resolve) => fs.readFile(p, (err, data) => resolve(data.toString()))));
 
+    Promise.all(packagesData)
+        .then((packagesStrings: string[]) => packagesStrings.map(JSON.parse.bind(JSON)))
+        .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage.bind(mpkg)))
+        .then(() => packageNames.map(mpkg.getInstallers.bind(mpkg)))
+        .then(Promise.all.bind(Promise))
+        .then((allInstallers: mpkg.Installer[][]) => {
+            allInstallers.forEach((installers, i) => {
+                if (installers.length) {
+                    packageInstallers.set(packageNames[i], installers);
+                }
+            });
+
+            toolsInstaller = vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Right);
+            toolsInstaller.text = '$(tools) Install tools';
+            toolsInstaller.command = 'dlang.install';
+
+            return mpkg.isInstalled('dub')
+                .then((dubInstalled) => {
+                    if (!dubInstalled) {
+                        return vsc.window.showInformationMessage('Dub is not installed',
+                            ...packageInstallers.get('dub')
+                                .map((installer) => ({ title: 'install with ' + installer.prettyName, installer: installer })))
+                            .then((choice) => {
+                                if (choice) {
+                                    return choice.installer.install(output.append.bind(output));
+                                }
+                            });
+                    }
+
+                    return true;
+                });
+        }).then((result) => {
+            if (result !== undefined) {
+                start(context)
+            }
+        });
+
+    Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        .then((installed: boolean[]) => packageNames
+            .map((name, i) => installed[i] ? mpkg.isUpgradable(name) : false))
+        .then(Promise.all.bind(Promise))
+        .then((upgrades: boolean[]) => packageNames.filter((name, i) => upgrades[i]))
+        .then((upgradablePackages: string[]) => upgradablePackages
+            .map((name) => vsc.window.showInformationMessage(name + ' can be upgraded',
+                { title: 'upgrade', name: name }))
+            .map((message) => message.then((choice) => choice
+                ? packageInstallers.get(choice.name)
+                : Promise.resolve(<mpkg.Installer[]>[])))
+            .map((installersPromise) => installersPromise.then((installers) => {
+                let fallbackInstaller = installers.find((installer) => installer.name === 'fallback');
+
+                if (fallbackInstaller) {
+                    fallbackInstaller.install(output.append.bind(output));
+                }
+            })));
+};
+
+export function deactivate() {
+    if (server) {
+        server.stop();
+    }
+};
+
+export function start(context: vsc.ExtensionContext) {
     tasks = new Tasks();
 
     let dub = new Dub(output);
@@ -225,14 +292,7 @@ export function activate(context: vsc.ExtensionContext) {
             tasks.showChoosers();
 
             context.subscriptions.push(tasksWatcher);
-        })
-        .then(output.hide.bind(output));
-};
-
-export function deactivate() {
-    if (server) {
-        server.stop();
-    }
+        });
 };
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
@@ -276,24 +336,22 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         };
     };
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.dub.fetch', () => {
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.fetch', () =>
         vsc.window.showInputBox({
             prompt: 'The package to search for',
             placeHolder: 'Package name'
-        }).then((packageName) => {
-            return dub.search(packageName);
-        }).then((packages: any[]) => {
-            return vsc.window.showQuickPick(packages.map(packageToQuickPickItem),
-                { matchOnDescription: true });
-        }).then((result: any) => {
-            if (result) {
-                dub.fetch(result.label);
-            }
-        });
-    }));
+        }).then((packageName) => dub.search(packageName))
+            .then((packages: any[]) => vsc.window.showQuickPick(packages
+                .map(packageToQuickPickItem),
+                { matchOnDescription: true }))
+            .then((result: any) => {
+                if (result) {
+                    dub.fetch(result.label);
+                }
+            })));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.dub.remove', () => {
-        dub.list().then((packages) => {
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.remove', () =>
+        dub.list().then((packages) =>
             vsc.window.showQuickPick(packages.sort((p1, p2) => {
                 return p1.name > p2.name ? 1
                     : p1.name < p2.name ? -1
@@ -304,37 +362,76 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 if (result) {
                     dub.remove(result.label, result.description);
                 }
-            });
-        });
-    }));
+            }))));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', dub.upgrade.bind(dub)));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () => {
-        vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' }).then((format) => {
-            if (format) {
-                dub.convert(format);
-            }
-        });
-    }));
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () =>
+        vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' })
+            .then((format) => {
+                if (format) {
+                    dub.convert(format);
+                }
+            })));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.dustmite', dub.dustmite.bind(dub)));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () => {
+    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () =>
         vsc.window.showQuickPick(Tasks.compilers).then((compiler) => {
             if (compiler) {
                 tasks.compiler = compiler;
             }
-        });
-    }));
+        })));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.build', () => {
+    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.build', () =>
         vsc.window.showQuickPick(Tasks.builds).then((build) => {
             if (build) {
                 tasks.build = build;
             }
-        });
+        })));
+
+    let packageNames = Array.from(packageInstallers.keys());
+
+    subscriptions.push(vsc.commands.registerCommand('dlang.install', () => {
+        let installedPackageName: string;
+        let size: number;
+
+        Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+            .then((installed) => packageNames.filter((name, i) => !installed[i]))
+            .then((names: string[]) => {
+                size = names.length;
+                return vsc.window.showQuickPick(names);
+            }).then((packageName) => {
+                installedPackageName = packageName;
+
+                if (packageInstallers.get(packageName).length > 1) {
+                    return vsc.window.showInformationMessage(`Install ${packageName} using...`,
+                        ...packageInstallers.get(packageName).map((installer) => installer.prettyName))
+                        .then((choice) => packageInstallers.get(packageName)
+                            .find((installer) => installer.prettyName === choice));
+                }
+
+                return packageInstallers.get(packageName)[0];
+            }).then((installer) => {
+                if (installer) {
+                    installer.install(output.append.bind(output));
+                    return size <= 1;
+                }
+
+                return false;
+            }).then((hideToolsInstaller) => {
+                if (hideToolsInstaller) {
+                    toolsInstaller.hide();
+                }
+            });
     }));
+
+    Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        .then((installed) => {
+            if (installed.indexOf(false) !== -1) {
+                toolsInstaller.show();
+            }
+        });
 
     let dfixTool = new Tool('dfix');
     let dProfileViewerTool = new Tool('d-profile-viewer', { configName: 'dProfileViewer' });
@@ -378,13 +475,13 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         DProfileViewer.toolDirectory = dProfileViewerTool.toolDirectory;
         DProfileViewer.toolFile = dProfileViewerTool.toolFile || 'd-profile-viewer';
 
-        subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () => {
-            return new Promise((resolve) => {
+        subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () =>
+            new Promise((resolve) => {
                 new DProfileViewer(vsc.workspace.rootPath, resolve);
             }).then(() => {
-                vsc.commands.executeCommand('vscode.previewHtml', vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
-            });
-        }));
+                vsc.commands.executeCommand('vscode.previewHtml',
+                    vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
+            })));
     };
 
     return dfixTool.setup().then(dProfileViewerTool.setup.bind(dProfileViewerTool));

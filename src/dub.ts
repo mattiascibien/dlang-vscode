@@ -13,10 +13,6 @@ export default class Dub extends vsc.Disposable {
     public static executable = vsc.workspace.getConfiguration().get('d.tools.dub', 'dub');
     private _tmp: tmp.SynchrounousResult;
 
-    public static check() {
-        return cp.spawnSync(Dub.executable, ['--help']).error;
-    }
-
     public constructor(private _output: vsc.OutputChannel) {
         super(null);
         this._tmp = tmp.dirSync();

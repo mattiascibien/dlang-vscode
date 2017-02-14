@@ -1,0 +1,11 @@
+{
+    "name": "dub",
+    "targets": [
+        "dub"
+    ],
+    "backends": {
+        "packagekit": "dub",
+        "brew": "dub",
+        "chocolatey": "dub"
+    }
+}

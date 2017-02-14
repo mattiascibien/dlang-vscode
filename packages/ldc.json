@@ -1,0 +1,23 @@
+{
+    "name": "ldc",
+    "targets": [
+        "ldc2",
+        "ldmd2"
+    ],
+    "backends": {
+        "packagekit": "ldc",
+        "brew": "ldc",
+        "fallback": {
+            "name": "ldc",
+            "version": {
+                "feed": "https://github.com/ldc-developers/ldc/releases.atom",
+                "regexp": "LDC ([\\d.]+)$"
+            },
+            "win32": {
+                "source": "https://github.com/ldc-developers/ldc/releases/download/v%VERSION%/ldc2-%VERSION%-win64-msvc.zip",
+                "strip": 1,
+                "bin": "bin"
+            }
+        }
+    }
+}
