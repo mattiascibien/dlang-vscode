@@ -67,7 +67,7 @@ export default class Dscanner {
 
         this._dscanner.stdout.on('close', () => {
             try {
-                let report: rep.Report = JSON.parse(output);
+                let report: rep.Report = JSON.parse(output.replace(/\\\\"/g, '\\"'));
                 let diagnostics = report.issues.map((issue) => {
                     let position = new vsc.Position(issue.line - 1, issue.column - 1);
                     let range = this._document.getWordRangeAtPosition(position);
