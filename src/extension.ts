@@ -8,12 +8,12 @@ import Tasks from './tasks';
 import Dub from './dub';
 import Provider from './provider';
 import Dfix from './dfix';
-import DProfileViewer from './dProfileViewer';
+import DProfileViewer from './d-profile-viewer';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
 import Dscanner from './dscanner/dscanner';
-import * as util from './dscanner/util';
+import * as dscannerUtil from './dscanner/util';
 import { D_MODE } from './mode';
 
 let toolsInstaller: vsc.StatusBarItem;
@@ -135,7 +135,7 @@ export function activate(context: vsc.ExtensionContext) {
         .map((packageName) => path.join(__dirname, '..', '..', 'packages', packageName + '.json'))
         .map((p) => new Promise((resolve) => fs.readFile(p, (err, data) => resolve(data.toString()))));
 
-    Promise.all(packagePromises)
+    return Promise.all(packagePromises)
         .then((packagesStrings: string[]) => packagesStrings.map(JSON.parse.bind(JSON)))
         .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage.bind(mpkg)))
         .then(() => packageNames.map(mpkg.getInstallers.bind(mpkg)))
@@ -262,10 +262,11 @@ export function start(context: vsc.ExtensionContext) {
 
         let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(D_MODE, provider);
         let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
+        let codeActionsProvider = vsc.languages.registerCodeActionsProvider(D_MODE, provider);
         let diagnosticCollection = vsc.languages.createDiagnosticCollection();
         let lintDocument = (document: vsc.TextDocument) => {
             if (document.languageId === D_MODE.language) {
-                new Dscanner(document, null, util.Operation.Lint);
+                new Dscanner(document, null, dscannerUtil.Operation.Lint);
             }
         };
 
@@ -278,7 +279,7 @@ export function start(context: vsc.ExtensionContext) {
             diagnosticCollection.delete(document.uri);
         });
 
-        context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, diagnosticCollection);
+        context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
 
     registerCommands(context.subscriptions, dub)
@@ -300,6 +301,58 @@ export function start(context: vsc.ExtensionContext) {
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks', tasks.createFile.bind(tasks)));
+
+    let packageNames = Array.from(packageInstallers.keys());
+
+    subscriptions.push(vsc.commands.registerCommand('dlang.install', () => {
+        let installedPackageName: string;
+        let size: number;
+
+        Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+            .then((installed) => packageNames.filter((name, i) => !installed[i]))
+            .then((names: string[]) => {
+                size = names.length;
+                return vsc.window.showQuickPick(names);
+            }).then((packageName) => {
+                if (!packageName) {
+                    throw new Error('No tool selected');
+                }
+
+                installedPackageName = packageName;
+
+                if (packageInstallers.get(packageName).length > 1) {
+                    return vsc.window.showInformationMessage(`Install ${packageName} using...`,
+                        ...packageInstallers.get(packageName).map((installer) => installer.prettyName))
+                        .then((choice) => ({
+                            name: packageName,
+                            installer: packageInstallers.get(packageName)
+                                .find((installer) => installer.prettyName === choice)
+                        }));
+                }
+
+                return { name: packageName, installer: packageInstallers.get(packageName)[0] };
+            }).then((result) => {
+                if (result) {
+                    result.installer.install(output.append.bind(output))
+                        .then(vsc.window.showInformationMessage.bind(vsc.window, result.name + ' is now installed'));
+
+                    return size <= 1;
+                }
+
+                return false;
+            }).then((hideToolsInstaller) => {
+                if (hideToolsInstaller) {
+                    toolsInstaller.hide();
+                }
+            }).catch(console.log.bind(console));
+    }));
+
+    Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        .then((installed) => {
+            if (installed.indexOf(false) !== -1) {
+                toolsInstaller.show();
+            }
+        });
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dcd.import', (uri: vsc.Uri) => {
         if (uri) {
@@ -393,57 +446,11 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
             }
         })));
 
-    let packageNames = Array.from(packageInstallers.keys());
-
-    subscriptions.push(vsc.commands.registerCommand('dlang.install', () => {
-        let installedPackageName: string;
-        let size: number;
-
-        Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
-            .then((installed) => packageNames.filter((name, i) => !installed[i]))
-            .then((names: string[]) => {
-                size = names.length;
-                return vsc.window.showQuickPick(names);
-            }).then((packageName) => {
-                if (!packageName) {
-                    throw new Error('No tool selected');
-                }
-
-                installedPackageName = packageName;
-
-                if (packageInstallers.get(packageName).length > 1) {
-                    return vsc.window.showInformationMessage(`Install ${packageName} using...`,
-                        ...packageInstallers.get(packageName).map((installer) => installer.prettyName))
-                        .then((choice) => ({
-                            name: packageName,
-                            installer: packageInstallers.get(packageName)
-                                .find((installer) => installer.prettyName === choice)
-                        }));
-                }
-
-                return { name: packageName, installer: packageInstallers.get(packageName)[0] };
-            }).then((result) => {
-                if (result) {
-                    result.installer.install(output.append.bind(output))
-                        .then(vsc.window.showInformationMessage.bind(vsc.window, result.name + ' is now installed'));
-
-                    return size <= 1;
-                }
-
-                return false;
-            }).then((hideToolsInstaller) => {
-                if (hideToolsInstaller) {
-                    toolsInstaller.hide();
-                }
-            }).catch(console.log.bind(console));
-    }));
-
-    Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
-        .then((installed) => {
-            if (installed.indexOf(false) !== -1) {
-                toolsInstaller.show();
-            }
-        });
+    dscannerUtil.fixes.forEach((fix, issue) => {
+        if (fix.action) {
+            subscriptions.push(vsc.commands.registerTextEditorCommand(fix.command.command, fix.action));
+        }
+    });
 
     let dfixTool = new Tool('dfix');
     let dProfileViewerTool = new Tool('d-profile-viewer', { configName: 'dProfileViewer' });
@@ -452,21 +459,21 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         Dfix.toolDirectory = dfixTool.toolDirectory;
         Dfix.toolFile = dfixTool.toolFile || 'dfix';
 
-        subscriptions.push(vsc.commands.registerCommand('dlang.dfix', (uri: vsc.Uri) => {
-            let applyDfix = (document: vsc.TextDocument) => {
-                document.save().then(() => {
+        subscriptions.push(vsc.commands.registerCommand('dlang.actions.dfix', (diagnostic: vsc.Diagnostic, uri: vsc.Uri) => {
+            let applyDfix = (document: vsc.TextDocument) => document
+                .save()
+                .then(() => {
                     let changeDisposable = vsc.workspace.onDidChangeTextDocument((event) => {
-                        new Dscanner(event.document, null, util.Operation.Lint);
+                        new Dscanner(event.document, null, dscannerUtil.Operation.Lint);
                         changeDisposable.dispose();
                     });
 
-                    new Dfix(document.fileName);
+                    let dfix = new Dfix(document.fileName);
+                    return new Promise(dfix.execute.bind(dfix));
                 });
-            };
 
             if (uri) {
-                vsc.workspace.openTextDocument(uri).then(applyDfix);
-                return;
+                return vsc.workspace.openTextDocument(uri).then(applyDfix);
             }
 
             let choices = ['Run on open file(s)', 'Run on workspace'];

@@ -16,7 +16,8 @@ export default class Provider extends ev.EventEmitter implements
     vsc.HoverProvider,
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
-    vsc.WorkspaceSymbolProvider {
+    vsc.WorkspaceSymbolProvider,
+    vsc.CodeActionProvider {
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
@@ -88,6 +89,21 @@ export default class Provider extends ev.EventEmitter implements
                 });
             });
         });
+    }
+
+    public provideCodeActions(
+        document: vsc.TextDocument,
+        range: vsc.Range,
+        context: vsc.CodeActionContext,
+        token: vsc.CancellationToken
+    ) {
+        return context.diagnostics
+            .filter((d) => d.range.isEqual(range))
+            .map((d) => {
+                let fix = dscannerUtil.fixes.get(Dscanner.collectionKeys.get(d));
+                fix.action
+                return Object.assign({ arguments: [d, ...fix.getArgs(document, range)] }, fix.command);
+            });
     }
 
     private provide(

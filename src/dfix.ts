@@ -7,7 +7,9 @@ export default class Dfix {
     public static toolDirectory = '';
     public static toolFile = '';
 
-    public constructor(fileOrDir: string) {
-        cp.spawn(path.join(Dfix.toolDirectory, Dfix.toolFile), [fileOrDir]);
+    public constructor(private _fileOrDir: string) { }
+
+    public execute(resolve: Function, reject: Function) {
+        cp.spawn(path.join(Dfix.toolDirectory, Dfix.toolFile), [this._fileOrDir], resolve);
     }
 };

@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.0.0"
+        "vscode": "^1.1.0"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -40,7 +40,7 @@
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
         "onCommand:dlang.default-tasks",
-        "onCommand:dlang.dfix",
+        "onCommand:dlang.install",
         "onCommand:dlang.d-profile-viewer",
         "onCommand:dlang.dcd.import",
         "onCommand:dlang.dub.init",
@@ -51,7 +51,7 @@
         "onCommand:dlang.dub.dustmite",
         "onCommand:dlang.tasks.compiler",
         "onCommand:dlang.tasks.build",
-        "onCommand:dlang.install"
+        "onCommand:dlang.action.dfix"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -299,9 +299,9 @@
                 "command": "dlang.default-tasks"
             },
             {
-                "title": "Run Dfix",
+                "title": "Install Tools",
                 "category": "Dlang",
-                "command": "dlang.dfix"
+                "command": "dlang.install"
             },
             {
                 "title": "See Program Profile",
@@ -354,16 +354,26 @@
                 "command": "dlang.tasks.build"
             },
             {
-                "title": "Install Tools",
-                "category": "Dlang",
-                "command": "dlang.install"
+                "title": "Run Dfix",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.dfix"
+            },
+            {
+                "title": "Replace `delete` With `destroy()`",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.replaceDeletes"
+            },
+            {
+                "title": "Sort Imports",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.sortImports"
             }
         ],
         "menus": {
             "editor/title": [
                 {
                     "group": "dlang",
-                    "command": "dlang.dfix",
+                    "command": "dlang.actions.dfix",
                     "when": "resourceLangId == d"
                 }
             ],

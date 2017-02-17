@@ -12,7 +12,12 @@ export default class Dscanner {
     public static toolDirtory = '';
     public static toolFile = '';
     public static collection: vsc.DiagnosticCollection;
+    private static _collectionKeys = new Map<vsc.Diagnostic, string>();
     private _dscanner: cp.ChildProcess;
+
+    public static get collectionKeys() {
+        return Dscanner._collectionKeys;
+    }
 
     public constructor(
         private _document: vsc.TextDocument,
@@ -77,7 +82,10 @@ export default class Dscanner {
                             new vsc.Position(issue.line - 1, issue.column));
                     }
 
-                    return new vsc.Diagnostic(range, issue.message, rep.getSeverity(issue.key));
+                    let diagnostic = new vsc.Diagnostic(range, issue.message, rep.getSeverity(issue.key));
+
+                    Dscanner._collectionKeys.set(diagnostic, issue.key);
+                    return diagnostic;
                 });
 
                 Dscanner.collection.set(this._document.uri, diagnostics);
