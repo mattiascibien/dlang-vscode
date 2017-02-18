@@ -39,7 +39,7 @@
         "onLanguage:d",
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
-        "onCommand:dlang.default-tasks",
+        "onCommand:dlang.defaultTasks",
         "onCommand:dlang.install",
         "onCommand:dlang.d-profile-viewer",
         "onCommand:dlang.dcd.import",
@@ -296,7 +296,7 @@
             {
                 "title": "Create Default Tasks",
                 "category": "Dlang",
-                "command": "dlang.default-tasks"
+                "command": "dlang.defaultTasks"
             },
             {
                 "title": "Install Tools",

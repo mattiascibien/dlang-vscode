@@ -18,6 +18,7 @@ import * as dscannerConfig from './dscanner/config';
 import { D_MODE } from './mode';
 
 let toolsInstaller: vsc.StatusBarItem;
+let tasksGenerator: vsc.StatusBarItem;
 let packageInstallers = new Map<string, mpkg.Installer[]>();
 let server: Server;
 let tasks: Tasks;
@@ -278,13 +279,15 @@ export function start(context: vsc.ExtensionContext) {
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
 
+    let tasksFile = path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json');
+
     registerCommands(context.subscriptions, dub)
         .then(dcdClientTool.setup.bind(dcdClientTool))
         .then(dcdServerTool.setup.bind(dcdServerTool))
         .then(dfmtTool.setup.bind(dfmtTool))
         .then(dscannerTool.setup.bind(dscannerTool))
         .then(() => {
-            let tasksWatcher = vsc.workspace.createFileSystemWatcher(path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'));
+            let tasksWatcher = vsc.workspace.createFileSystemWatcher(tasksFile);
 
             tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks), null, context.subscriptions);
             tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks), null, context.subscriptions);
@@ -293,10 +296,29 @@ export function start(context: vsc.ExtensionContext) {
 
             context.subscriptions.push(tasksWatcher);
         });
+
+    if (vsc.workspace.rootPath) {
+        fs.stat(tasksFile, (err) => {
+            if (err) {
+                tasksGenerator = vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Right);
+                tasksGenerator.command = 'dlang.defaultTasks';
+                tasksGenerator.text = '$(list-unordered) Generate default tasks';
+                tasksGenerator.tooltip = 'Generate default tasks in .vscode for building with dub';
+                tasksGenerator.color = 'yellow';
+                tasksGenerator.show();
+            }
+        });
+    }
 };
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
-    subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks', tasks.createFile.bind(tasks)));
+    subscriptions.push(vsc.commands.registerCommand('dlang.defaultTasks', () => {
+        tasks.createFile();
+
+        if (tasksGenerator) {
+            tasksGenerator.dispose();
+        }
+    }));
 
     let packageNames = Array.from(packageInstallers.keys());
 
@@ -338,7 +360,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 return false;
             }).then((hideToolsInstaller) => {
                 if (hideToolsInstaller) {
-                    toolsInstaller.hide();
+                    toolsInstaller.dispose();
                 }
             }).catch(console.log.bind(console));
     }));
