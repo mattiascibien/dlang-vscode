@@ -97,13 +97,24 @@ export default class Provider extends ev.EventEmitter implements
         context: vsc.CodeActionContext,
         token: vsc.CancellationToken
     ) {
-        return context.diagnostics
+        let filteredDiagnostics = context.diagnostics
             .filter((d) => d.range.isEqual(range))
+            .filter((d) => dscannerUtil.fixes.get(<string>d.code));
+        let actions = filteredDiagnostics
+            .filter((d) => dscannerUtil.fixes.get(<string>d.code).command)
             .map((d) => {
-                let fix = dscannerUtil.fixes.get(Dscanner.collectionKeys.get(d));
-                fix.action
+                let fix = dscannerUtil.fixes.get(<string>d.code);
                 return Object.assign({ arguments: [d, ...fix.getArgs(document, range)] }, fix.command);
             });
+        let disablers = filteredDiagnostics
+            .filter((d) => dscannerUtil.fixes.get(<string>d.code).checkName)
+            .map((d) => ({
+                title: 'Disable Check: ' + d.code,
+                command: 'dlang.actions.config',
+                arguments: [d.code]
+            }));
+
+        return actions.concat(disablers);
     }
 
     private provide(

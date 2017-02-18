@@ -14,6 +14,7 @@ import Client from './dcd/client';
 import Dfmt from './dfmt';
 import Dscanner from './dscanner/dscanner';
 import * as dscannerUtil from './dscanner/util';
+import * as dscannerConfig from './dscanner/config';
 import { D_MODE } from './mode';
 
 let toolsInstaller: vsc.StatusBarItem;
@@ -264,17 +265,12 @@ export function start(context: vsc.ExtensionContext) {
         let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
         let codeActionsProvider = vsc.languages.registerCodeActionsProvider(D_MODE, provider);
         let diagnosticCollection = vsc.languages.createDiagnosticCollection();
-        let lintDocument = (document: vsc.TextDocument) => {
-            if (document.languageId === D_MODE.language) {
-                new Dscanner(document, null, dscannerUtil.Operation.Lint);
-            }
-        };
 
         Dscanner.collection = diagnosticCollection;
 
-        vsc.workspace.onDidSaveTextDocument(lintDocument);
-        vsc.workspace.onDidOpenTextDocument(lintDocument);
-        vsc.workspace.textDocuments.forEach(lintDocument);
+        vsc.workspace.onDidSaveTextDocument(dscannerUtil.lintDocument.bind(dscannerUtil));
+        vsc.workspace.onDidOpenTextDocument(dscannerUtil.lintDocument.bind(dscannerUtil));
+        vsc.workspace.textDocuments.forEach(dscannerUtil.lintDocument.bind(dscannerUtil));
         vsc.workspace.onDidCloseTextDocument((document) => {
             diagnosticCollection.delete(document.uri);
         });
@@ -445,6 +441,10 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 tasks.build = build;
             }
         })));
+
+    subscriptions.push(vsc.commands.registerCommand('dlang.actions.config', (code: string) => {
+        dscannerConfig.mute(code);
+    }));
 
     dscannerUtil.fixes.forEach((fix, issue) => {
         if (fix.action) {
