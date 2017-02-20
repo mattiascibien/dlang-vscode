@@ -21,11 +21,13 @@ export function mute(check: string) {
             let lines = [util.fixes.get(check).checkName + '="disabled"' + os.EOL];
 
             reader.on('line', (line: string) => {
-                if (line === header) {
-                    hasHeader = true;
-                }
+                if (!line.match(util.fixes.get(check).checkName)) {
+                    lines.push(line + os.EOL);
 
-                lines.push(line + os.EOL);
+                    if (line === header) {
+                        hasHeader = true;
+                    }
+                }
             });
 
             return new Promise((resolve) => reader
