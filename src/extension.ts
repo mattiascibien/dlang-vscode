@@ -29,7 +29,7 @@ class Tool {
     public activate: Function;
     private _name: string;
     private _configName: string;
-    private _buildConfig: string; i
+    private _buildConfig: string;
     private _isSystemTool = false;
     private _toolDirectory: string;
     private _toolFile: string;
@@ -193,9 +193,9 @@ export function activate(context: vsc.ExtensionContext) {
                             results.name + ' was upgraded'));
                 }
             })))
-        .then(Promise.all.bind(Promise)).then(() => {
-            start(context)
-        }).catch(console.log.bind(console));
+        .then(Promise.all.bind(Promise))
+        .then(start.bind(null, context))
+        .catch(console.log.bind(console));
 };
 
 export function deactivate() {
