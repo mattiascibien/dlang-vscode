@@ -4,7 +4,6 @@ import * as path from 'path';
 import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
-import * as ast from './ast';
 import * as rep from './report';
 import * as util from './util';
 
@@ -22,33 +21,32 @@ export default class Dscanner {
         if (this._operation === util.Operation.Lint) {
             this.lint();
         } else {
-            this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), ['--ast']);
+            this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), ['--ctags', _document.fileName]);
         }
     }
 
     public execute(resolve: Function, reject: Function) {
-        let output = '';
+        let reader = rl.createInterface(this._dscanner.stdout, null);
+        let declarations: vsc.SymbolInformation[] = [];
 
         this._token.onCancellationRequested(() => {
             this._dscanner.kill();
             reject();
         });
 
-        this._dscanner.stdout.on('data', (data) => {
-            output += data.toString();
+        reader.on('line', (line: string) => {
+            let match = line.match(/([^\t]+)\t[^\t]+\t\d+;"\t(.)\tline:(\d+)/);
+
+            if (match) {
+                let name = match[1];
+                let kind = util.symbolKind.get(match[2]);
+                let range = this._document.lineAt(Number(match[3]) - 1).range;
+
+                declarations.push(new vsc.SymbolInformation(match[1], kind, range, this._document.uri));
+            }
         });
 
-        this._dscanner.stdout.on('close', () => {
-            ast.parse(output).then((declarations) => {
-                resolve(declarations.map((d) => {
-                    let line = this._document.lineAt(d.line - 1);
-                    return new vsc.SymbolInformation(d.name, d.kind, line.range, this._document.uri,
-                        path.relative(vsc.workspace.rootPath, this._document.fileName))
-                }));
-            });
-        });
-
-        this._dscanner.stdin.end(this._document.getText());
+        reader.on('close', resolve.bind(null, declarations));
     }
 
     public lint() {
