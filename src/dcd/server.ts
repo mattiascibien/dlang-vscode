@@ -142,7 +142,7 @@ export default class Server {
 
                 allPackages.forEach((p) => {
                     if (p instanceof String) {
-                        let impAdded = this.getImportDirs(path.join(dubPath, p));
+                        let impAdded = this.getImportDirs(path.join(dubPath, <string>p));
                         impAdded.forEach((newP) => {
                             imp.add(newP);
                         });
