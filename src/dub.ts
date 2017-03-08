@@ -277,7 +277,7 @@ export class Package {
 };
 
 function isVersionSuperior(first: string, second: string) {
-    return second === '~master' || first > second;
+    return second === '~master' || (first !== '~master' && first > second);
 }
 
 function del(pathOrPaths: string | string[], callback: Function) {
