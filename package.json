@@ -190,6 +190,11 @@
                     "default": 9166,
                     "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
                 },
+                "d.dcd.imports": {
+                    "type": "array",
+                    "default": [],
+                    "description": "An array of paths that DCD should import on launch."
+                },
                 "d.dfmt.compiler": {
                     "type": "string",
                     "default": null,

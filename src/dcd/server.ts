@@ -24,7 +24,10 @@ export default class Server {
     }
 
     public start() {
-        let additionsImports: string[] = [];
+        let additionsImports = vsc.workspace.getConfiguration().get<Array<string>>('d.dcd.imports', [])
+            .map((i) => '-I' + (path.isAbsolute(i) || !vsc.workspace.rootPath
+                ? i
+                : path.join(vsc.workspace.rootPath, i)));
 
         if (vsc.workspace.rootPath) {
             this.getImportDirs(vsc.workspace.rootPath).forEach((dir) => {
