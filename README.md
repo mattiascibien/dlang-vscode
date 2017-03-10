@@ -50,6 +50,7 @@ After creating a debug configuration and the default dub tasks, simply change th
   * `gdc`
 * `d.dcd.tcp`: Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows. Default value: `false`
 * `d.dcd.port`: Listens on this port instead of the default port 9166 when TCP sockets are used. Default value: `9166`
+* `d.dcd.imports`: An array of paths that DCD should import on launch. Default value: `[]`
 * `d.dfmt.compiler`: The compiler used by dub when compiling DFMT. Possible values:
   * `dmd`
   * `ldc2`
