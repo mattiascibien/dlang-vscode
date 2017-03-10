@@ -50,7 +50,8 @@
         "onCommand:dlang.dub.convert",
         "onCommand:dlang.dub.dustmite",
         "onCommand:dlang.tasks.compiler",
-        "onCommand:dlang.tasks.build"
+        "onCommand:dlang.tasks.build",
+        "onCommand:dlang.install"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -84,11 +85,6 @@
         "configuration": {
             "title": "D configuration",
             "properties": {
-                "d.dub": {
-                    "type": "string",
-                    "default": "dub",
-                    "description": "Path to the dub executable."
-                },
                 "d.dmdConf.linux": {
                     "type": "string",
                     "default": "/etc/dmd.conf",
@@ -129,6 +125,11 @@
                     "default": true,
                     "description": "Whether F Profile Viewer is used or not."
                 },
+                "d.tools.dub": {
+                    "type": "string",
+                    "default": "dub",
+                    "description": "Path to the dub executable."
+                },
                 "d.tools.dcd.client": {
                     "type": "string",
                     "default": "dcd-client",
@@ -159,6 +160,26 @@
                     "default": "d-profile-viewer",
                     "description": "Path to the system D Profile Viewer executable (optional)."
                 },
+                "d.dub.compiler": {
+                    "type": "string",
+                    "default": "dmd",
+                    "description": "The compiler used by dub when compiling other tools.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
+                "d.dcd.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling DCD.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
                 "d.dcd.tcp": {
                     "type": "boolean",
                     "default": false,
@@ -168,6 +189,16 @@
                     "type": "number",
                     "default": 9166,
                     "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
+                },
+                "d.dfmt.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling DFMT.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
                 },
                 "d.dfmt.alignSwitchStatements": {
                     "type": "boolean",
@@ -228,6 +259,36 @@
                     "type": "boolean",
                     "default": true,
                     "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement."
+                },
+                "d.dscanner.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling Dscanner.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
+                "d.dfix.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling Dfix.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
+                },
+                "d.dProfileViewer.compiler": {
+                    "type": "string",
+                    "default": null,
+                    "description": "The compiler used by dub when compiling D Profile Viewer.",
+                    "enum": [
+                        "dmd",
+                        "ldc2",
+                        "gdc"
+                    ]
                 }
             }
         },
@@ -291,6 +352,11 @@
                 "title": "Change Build Type",
                 "category": "Dlang",
                 "command": "dlang.tasks.build"
+            },
+            {
+                "title": "Install Tools",
+                "category": "Dlang",
+                "command": "dlang.install"
             }
         ],
         "menus": {
@@ -310,19 +376,20 @@
         }
     },
     "scripts": {
-        "vscode:prepublish": "tsc -p ./",
-        "compile": "tsc -watch -p ./",
+        "vscode:prepublish": "node ./node_modules/.bin/tsc -p ./",
+        "compile": "node ./node_modules/.bin/tsc -watch -p ./",
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.1.4",
+        "typescript": "^2.1.6",
         "vscode": "^1.0.3",
-        "@types/node": "^6.0.52",
+        "@types/node": "^7.0.5",
         "@types/tmp": "^0.0.32",
         "@types/xml2js": "^0.0.32",
         "@types/escape-string-regexp": "^0.0.30"
     },
     "dependencies": {
+        "meta-pkg": "^0.6.4",
         "tmp": "^0.0.31",
         "xml2js": "^0.4.17",
         "escape-string-regexp": "^1.0.5"

@@ -1,0 +1,9 @@
+{
+    "name": "gdc",
+    "targets": [
+        "gdc"
+    ],
+    "backends": {
+        "packagekit": "gdc"
+    }
+}

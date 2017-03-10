@@ -55,7 +55,7 @@ export default class Dfmt {
             output += data;
         });
 
-        this._dfmt.on('exit', () => {
+        this._dfmt.stdout.on('close', () => {
             let lastLine = this._document.lineCount - 1;
             let lastCol = this._document.lineAt(lastLine).text.length;
             let range = new vsc.Range(0, 0, lastLine, lastCol);
