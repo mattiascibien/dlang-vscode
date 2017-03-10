@@ -2,7 +2,7 @@
 
 import * as vsc from 'vscode';
 
-let types = new Map<string, vsc.CompletionItemKind>();
+const types = new Map<string, vsc.CompletionItemKind>();
 
 types.set('c', vsc.CompletionItemKind.Class);
 types.set('i', vsc.CompletionItemKind.Interface);
@@ -22,7 +22,7 @@ types.set('I', vsc.CompletionItemKind.Reference);
 types.set('t', vsc.CompletionItemKind.Function);
 types.set('T', vsc.CompletionItemKind.Snippet);
 
-export {types};
+export { types };
 
 export enum Operation {
     Completion,
