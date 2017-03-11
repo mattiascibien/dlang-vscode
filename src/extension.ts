@@ -158,7 +158,10 @@ export function activate(context: vsc.ExtensionContext) {
                     if (!dubInstalled) {
                         return vsc.window.showInformationMessage('Dub is not installed',
                             ...packageInstallers.get('dub')
-                                .map((installer) => ({ title: 'install with ' + installer.prettyName, installer: installer })))
+                                .map((installer) => ({
+                                    title: 'install with ' + installer.prettyName,
+                                    installer: installer
+                                })))
                             .then((choice) => {
                                 if (!choice) {
                                     throw new Error('Dub is not going to be installed');
@@ -490,8 +493,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                         changeDisposable.dispose();
                     });
 
-                    let dfix = new Dfix(document.fileName);
-                    return new Promise(dfix.execute.bind(dfix));
+                    return new Promise((resolve) => new Dfix(document.fileName, resolve));
                 });
 
             if (uri) {
@@ -505,7 +507,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                     vsc.workspace.textDocuments.forEach(applyDfix);
                 } else {
                     vsc.workspace.saveAll(false).then(() => {
-                        new Dfix(vsc.workspace.rootPath);
+                        new Dfix(vsc.workspace.rootPath, null);
                     });
                 }
             });
