@@ -2,7 +2,7 @@
 
 [![Build Status (Linux)](https://img.shields.io/travis/dlang-vscode/dlang-vscode.svg?style=flat-square)](https://travis-ci.org/dlang-vscode/dlang-vscode)
 [![Build Status (Windows)](https://ci.appveyor.com/api/projects/status/github/dlang-vscode/dlang-vscode?branch=master&svg=true)](https://ci.appveyor.com/project/mattiascibien/dlang-vscode)
-[![Dependency Status](https://www.versioneye.com/user/projects/57168066fcd19a0051855e77/badge.svg?style=flat)](https://www.versioneye.com/user/projects/57168066fcd19a0051855e77)
+[![Dependency Status](https://www.versioneye.com/user/projects/58c669be01c96a0052f17bdf/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/58c669be01c96a0052f17bdf)
 
 D Language Page: https://dlang.org/
 
