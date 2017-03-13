@@ -5,11 +5,16 @@ init:
 install:
   - ps: Install-Product node ''
   - npm install
+  - npm install -g vsce
 
 build_script:
   - node --version
   - npm --version
   - npm run vscode:prepublish
+  - vsce package
 
 test_script:
   - npm test --silent
+
+artifacts:
+  - path: *.vsix
