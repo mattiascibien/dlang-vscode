@@ -383,7 +383,7 @@
     "scripts": {
         "vscode:prepublish": "./node_modules/.bin/tsc -p ./",
         "compile": "./node_modules/.bin/tsc -watch -p ./",
-        "postinstall": "./node_modules/vscode/bin/install"
+        "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
         "typescript": "^2.1.6",
