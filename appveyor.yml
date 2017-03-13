@@ -1,0 +1,15 @@
+
+init:
+  - git config --global core.autocrlf true
+
+install:
+  - ps: Install-Product node ''
+  - npm install
+
+build_script:
+  - node --version
+  - npm --version
+  - npm run vscode:prepublish
+
+test_script:
+  - npm test --silent
