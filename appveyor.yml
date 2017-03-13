@@ -17,4 +17,4 @@ test_script:
   - npm test --silent
 
 artifacts:
-  - path: *.vsix
+  - path: '*.vsix'
