@@ -16,7 +16,8 @@ export default class Provider extends ev.EventEmitter implements
     vsc.HoverProvider,
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
-    vsc.WorkspaceSymbolProvider {
+    vsc.WorkspaceSymbolProvider,
+    vsc.CodeActionProvider {
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
@@ -88,6 +89,32 @@ export default class Provider extends ev.EventEmitter implements
                 });
             });
         });
+    }
+
+    public provideCodeActions(
+        document: vsc.TextDocument,
+        range: vsc.Range,
+        context: vsc.CodeActionContext,
+        token: vsc.CancellationToken
+    ) {
+        let filteredDiagnostics = context.diagnostics
+            .filter((d) => d.range.isEqual(range))
+            .filter((d) => dscannerUtil.fixes.get(<string>d.code));
+        let actions = filteredDiagnostics
+            .filter((d) => dscannerUtil.fixes.get(<string>d.code).command)
+            .map((d) => {
+                let fix = dscannerUtil.fixes.get(<string>d.code);
+                return Object.assign({ arguments: [d, ...fix.getArgs(document, range)] }, fix.command);
+            });
+        let disablers = filteredDiagnostics
+            .filter((d) => dscannerUtil.fixes.get(<string>d.code).checkName)
+            .map((d) => ({
+                title: 'Disable Check: ' + d.code,
+                command: 'dlang.actions.config',
+                arguments: [d.code]
+            }));
+
+        return actions.concat(disablers);
     }
 
     private provide(

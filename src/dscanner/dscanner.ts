@@ -75,7 +75,12 @@ export default class Dscanner {
                             new vsc.Position(issue.line - 1, issue.column));
                     }
 
-                    return new vsc.Diagnostic(range, issue.message, rep.getSeverity(issue.key));
+                    let diagnostic = new vsc.Diagnostic(range, issue.message, rep.getSeverity(issue.key));
+
+                    diagnostic.code = issue.key;
+                    diagnostic.source = 'Dscanner';
+
+                    return diagnostic;
                 });
 
                 Dscanner.collection.set(this._document.uri, diagnostics);

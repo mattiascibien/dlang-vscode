@@ -12,7 +12,10 @@ D Language Page: https://dlang.org/
 * Snippets
 * Autocompletion and code navigation using [DCD](https://github.com/Hackerpilot/dcd)
 * Formatting using [DFMT](https://github.com/Hackerpilot/dfmt)
-* Linting using [Dscanner](https://github.com/Hackerpilot/dscanner)
+* Linting using [Dscanner](https://github.com/Hackerpilot/dscanner) with code actions for quick check disabling and automatic fixing for :
+  * Deprecated alias syntax
+  * Deprecated use of `delete`
+  * Imports not being sorted
 * Code upgrade using [Dfix](https://github.com/Hackerpilot/dfix)
 * Profiling using [D Profile Viewer](https://bitbucket.org/andrewtrotman/d-profile-viewer)
 * Integration with Dub using VSCode commands and tasks
@@ -102,6 +105,8 @@ Note: these dfmt formatting options have yet to be implemented in dfmt itself an
 * `Dustmite`: tries to build the project and sends the compiler output to Dustmite
 * `Install Tools`: shows tools that can be installed automatically
 
+Commands in the `Dlang Actions` group are meant for automatic problem fixing.
+
 ## Manual installation
 
 You have to install [the SDLang extension](https://marketplace.visualstudio.com/items?itemName=LaurentTreguier.sdlang) in order to get dlang-vscode to work (it is an extension depency).
@@ -120,6 +125,7 @@ code dlang-<version>.vsix
 * Error when building tools at extension startup: some tools don't compile with the latest DMD versions. Solutions:
   * Setting the `d.*.compiler` user options to `ldc2` or `gdc`
   * Downgrading your version of DMD to 2.071.x
+  * Disabling the tool that doesn't compile with `d.tools.enabled.*`
 * Currently, the latest stable versions of some tools used are quite old and may have some bugs that have only been fixed in the git HEAD version.
 
 ## TODO
@@ -127,7 +133,6 @@ code dlang-<version>.vsix
 * Code coverage
 * GC profiling
 * Range formatting
-* Code actions for fixing problems from linter
 * Symbol highlighting/renaming
 
 ## Original code

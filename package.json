@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.0.0"
+        "vscode": "^1.1.0"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -39,8 +39,8 @@
         "onLanguage:d",
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
-        "onCommand:dlang.default-tasks",
-        "onCommand:dlang.dfix",
+        "onCommand:dlang.defaultTasks",
+        "onCommand:dlang.install",
         "onCommand:dlang.d-profile-viewer",
         "onCommand:dlang.dcd.import",
         "onCommand:dlang.dub.init",
@@ -51,7 +51,7 @@
         "onCommand:dlang.dub.dustmite",
         "onCommand:dlang.tasks.compiler",
         "onCommand:dlang.tasks.build",
-        "onCommand:dlang.install"
+        "onCommand:dlang.action.dfix"
     ],
     "main": "./out/src/extension",
     "contributes": {
@@ -301,12 +301,12 @@
             {
                 "title": "Create Default Tasks",
                 "category": "Dlang",
-                "command": "dlang.default-tasks"
+                "command": "dlang.defaultTasks"
             },
             {
-                "title": "Run Dfix",
+                "title": "Install Tools",
                 "category": "Dlang",
-                "command": "dlang.dfix"
+                "command": "dlang.install"
             },
             {
                 "title": "See Program Profile",
@@ -359,16 +359,31 @@
                 "command": "dlang.tasks.build"
             },
             {
-                "title": "Install Tools",
-                "category": "Dlang",
-                "command": "dlang.install"
+                "title": "Disable Check",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.config"
+            },
+            {
+                "title": "Run Dfix",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.dfix"
+            },
+            {
+                "title": "Replace `delete` With `destroy()`",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.replaceDeletes"
+            },
+            {
+                "title": "Sort Imports",
+                "category": "Dlang Actions",
+                "command": "dlang.actions.sortImports"
             }
         ],
         "menus": {
             "editor/title": [
                 {
                     "group": "dlang",
-                    "command": "dlang.dfix",
+                    "command": "dlang.actions.dfix",
                     "when": "resourceLangId == d"
                 }
             ],
@@ -386,18 +401,20 @@
         "postinstall": "node ./node_modules/vscode/bin/install"
     },
     "devDependencies": {
-        "typescript": "^2.1.6",
-        "vscode": "^1.0.3",
-        "@types/node": "^7.0.5",
+        "@types/escape-string-regexp": "^0.0.30",
+        "@types/fs-extra": "^0.0.37",
+        "@types/node": "^7.0.8",
         "@types/tmp": "^0.0.32",
-        "@types/xml2js": "^0.0.32",
-        "@types/escape-string-regexp": "^0.0.30"
+        "@types/xml2js": "^0.0.33",
+        "typescript": "^2.2.1",
+        "vscode": "^1.1.0"
     },
     "dependencies": {
+        "escape-string-regexp": "^1.0.5",
+        "fs-extra": "^2.0.0",
         "meta-pkg": "^0.6.4",
         "tmp": "^0.0.31",
-        "xml2js": "^0.4.17",
-        "escape-string-regexp": "^1.0.5"
+        "xml2js": "^0.4.17"
     },
     "extensionDependencies": [
         "LaurentTreguier.sdlang"
