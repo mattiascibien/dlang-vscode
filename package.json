@@ -1,422 +1,422 @@
 {
-    "name": "dlang",
-    "displayName": "D Language",
-    "description": "Support for the D Programming Language (https://dlang.org/)",
-    "version": "0.10.0",
-    "publisher": "dlang-vscode",
-    "license": "SEE LICENSE IN LICENSE.md",
-    "icon": "images/dlogo.png",
-    "homepage": "https://dlang-vscode.github.io/",
-    "galleryBanner": {
-        "color": "#B03931",
-        "theme": "dark"
-    },
-    "engines": {
-        "vscode": "^1.1.0"
-    },
-    "bugs": {
-        "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/dlang-vscode/dlang-vscode.git"
-    },
-    "categories": [
-        "Languages",
-        "Snippets",
-        "Formatters",
-        "Linters",
-        "Other"
-    ],
-    "keywords": [
-        "dub",
-        "dcd",
-        "dfmt",
-        "dscanner",
-        "dfix"
-    ],
-    "activationEvents": [
-        "onLanguage:d",
-        "workspaceContains:dub.json",
-        "workspaceContains:dub.sdl",
-        "onCommand:dlang.defaultTasks",
-        "onCommand:dlang.install",
-        "onCommand:dlang.d-profile-viewer",
-        "onCommand:dlang.dcd.import",
-        "onCommand:dlang.dub.init",
-        "onCommand:dlang.dub.fetch",
-        "onCommand:dlang.dub.remove",
-        "onCommand:dlang.dub.upgrade",
-        "onCommand:dlang.dub.convert",
-        "onCommand:dlang.dub.dustmite",
-        "onCommand:dlang.tasks.compiler",
-        "onCommand:dlang.tasks.build",
-        "onCommand:dlang.action.dfix"
-    ],
-    "main": "./out/src/extension",
-    "contributes": {
-        "languages": [
-            {
-                "id": "d",
-                "aliases": [
-                    "D",
-                    "d"
-                ],
-                "extensions": [
-                    ".d",
-                    ".di"
-                ],
-                "configuration": "./d.configuration.json"
-            }
+  "name": "dlang",
+  "displayName": "D Language",
+  "description": "Support for the D Programming Language (https://dlang.org/)",
+  "version": "0.10.0",
+  "publisher": "dlang-vscode",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "icon": "images/dlogo.png",
+  "homepage": "https://dlang-vscode.github.io/",
+  "galleryBanner": {
+    "color": "#B03931",
+    "theme": "dark"
+  },
+  "engines": {
+    "vscode": "^1.1.0"
+  },
+  "bugs": {
+    "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dlang-vscode/dlang-vscode.git"
+  },
+  "categories": [
+    "Languages",
+    "Snippets",
+    "Formatters",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "dub",
+    "dcd",
+    "dfmt",
+    "dscanner",
+    "dfix"
+  ],
+  "activationEvents": [
+    "onLanguage:d",
+    "workspaceContains:dub.json",
+    "workspaceContains:dub.sdl",
+    "onCommand:dlang.defaultTasks",
+    "onCommand:dlang.install",
+    "onCommand:dlang.d-profile-viewer",
+    "onCommand:dlang.dcd.import",
+    "onCommand:dlang.dub.init",
+    "onCommand:dlang.dub.fetch",
+    "onCommand:dlang.dub.remove",
+    "onCommand:dlang.dub.upgrade",
+    "onCommand:dlang.dub.convert",
+    "onCommand:dlang.dub.dustmite",
+    "onCommand:dlang.tasks.compiler",
+    "onCommand:dlang.tasks.build",
+    "onCommand:dlang.action.dfix"
+  ],
+  "main": "./out/src/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "d",
+        "aliases": [
+          "D",
+          "d"
         ],
-        "grammars": [
-            {
-                "language": "d",
-                "scopeName": "source.d",
-                "path": "./syntaxes/d.tmLanguage"
-            }
+        "extensions": [
+          ".d",
+          ".di"
         ],
-        "snippets": [
-            {
-                "language": "d",
-                "path": "./snippets/snippets.json"
-            }
-        ],
-        "configuration": {
-            "title": "D configuration",
-            "properties": {
-                "d.dmdConf.linux": {
-                    "type": "string",
-                    "default": "/etc/dmd.conf",
-                    "description": "Path to the DMD configuration file on Linux."
-                },
-                "d.dmdConf.osx": {
-                    "type": "string",
-                    "default": "/usr/local/etc/dmd.conf",
-                    "description": "Path to the DMD configuration file on OS X."
-                },
-                "d.dmdConf.windows": {
-                    "type": "string",
-                    "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
-                    "description": "Path to the DMD configuration file on Windows."
-                },
-                "d.tools.enabled.dcd": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether DCD is used or not."
-                },
-                "d.tools.enabled.dfmt": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether DFMT is used or not."
-                },
-                "d.tools.enabled.dscanner": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether Dscanner is used or not."
-                },
-                "d.tools.enabled.dfix": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether Dfix is used or not."
-                },
-                "d.tools.enabled.dProfileViewer": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Whether F Profile Viewer is used or not."
-                },
-                "d.tools.dub": {
-                    "type": "string",
-                    "default": "dub",
-                    "description": "Path to the dub executable."
-                },
-                "d.tools.dcd.client": {
-                    "type": "string",
-                    "default": "dcd-client",
-                    "description": "Path to the system DCD client executable (optional)."
-                },
-                "d.tools.dcd.server": {
-                    "type": "string",
-                    "default": "dcd-server",
-                    "description": "Path to the system DCD server executable (optional)."
-                },
-                "d.tools.dfmt": {
-                    "type": "string",
-                    "default": "dfmt",
-                    "description": "Path to the system DFMT executable (optional)."
-                },
-                "d.tools.dscanner": {
-                    "type": "string",
-                    "default": "dscanner",
-                    "description": "Path to the system Dscanner executable (optional)."
-                },
-                "d.tools.dfix": {
-                    "type": "string",
-                    "default": "dfix",
-                    "description": "Path to the system Dfix executable (optional)."
-                },
-                "d.tools.dProfileViewer": {
-                    "type": "string",
-                    "default": "d-profile-viewer",
-                    "description": "Path to the system D Profile Viewer executable (optional)."
-                },
-                "d.dub.compiler": {
-                    "type": "string",
-                    "default": "dmd",
-                    "description": "The compiler used by dub when compiling other tools.",
-                    "enum": [
-                        "dmd",
-                        "ldc2",
-                        "gdc"
-                    ]
-                },
-                "d.dcd.compiler": {
-                    "type": "string",
-                    "default": null,
-                    "description": "The compiler used by dub when compiling DCD.",
-                    "enum": [
-                        "dmd",
-                        "ldc2",
-                        "gdc"
-                    ]
-                },
-                "d.dcd.tcp": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows."
-                },
-                "d.dcd.port": {
-                    "type": "number",
-                    "default": 9166,
-                    "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
-                },
-                "d.dcd.imports": {
-                    "type": "array",
-                    "default": [],
-                    "description": "An array of paths that DCD should import on launch."
-                },
-                "d.dfmt.compiler": {
-                    "type": "string",
-                    "default": null,
-                    "description": "The compiler used by dub when compiling DFMT.",
-                    "enum": [
-                        "dmd",
-                        "ldc2",
-                        "gdc"
-                    ]
-                },
-                "d.dfmt.alignSwitchStatements": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Align labels, cases, and defaults with their enclosing switch."
-                },
-                "d.dfmt.braceStyle": {
-                    "type": "string",
-                    "default": "allman",
-                    "description": "Denotes the style for using curly braces in code blocks.",
-                    "enum": [
-                        "allman",
-                        "otbs",
-                        "stroustrup"
-                    ]
-                },
-                "d.dfmt.endOfLine": {
-                    "type": "string",
-                    "default": "lf",
-                    "description": "Line ending file format.",
-                    "enum": [
-                        "lf",
-                        "cr",
-                        "crlf"
-                    ]
-                },
-                "d.dfmt.softMaxLineLength": {
-                    "type": "number",
-                    "default": 80,
-                    "description": "The formatting process will usually keep lines below this length."
-                },
-                "d.dfmt.maxLineLength": {
-                    "type": "number",
-                    "default": 120,
-                    "description": "Forces hard line wrapping after the amount of characters specified."
-                },
-                "d.dfmt.outdentAttributes": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Decrease the indentation level of attributes."
-                },
-                "d.dfmt.spaceAfterCast": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Insert space after the closing parenthesis of a cast expression."
-                },
-                "d.dfmt.selectiveImportSpace": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Insert space after the module name and before the ':' for selective imports."
-                },
-                "d.dfmt.splitOperatorAtLineEnd": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Place operators on the end of the previous line when splitting lines."
-                },
-                "d.dfmt.compactLabeledStatements": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement."
-                },
-                "d.dscanner.compiler": {
-                    "type": "string",
-                    "default": null,
-                    "description": "The compiler used by dub when compiling Dscanner.",
-                    "enum": [
-                        "dmd",
-                        "ldc2",
-                        "gdc"
-                    ]
-                },
-                "d.dfix.compiler": {
-                    "type": "string",
-                    "default": null,
-                    "description": "The compiler used by dub when compiling Dfix.",
-                    "enum": [
-                        "dmd",
-                        "ldc2",
-                        "gdc"
-                    ]
-                },
-                "d.dProfileViewer.compiler": {
-                    "type": "string",
-                    "default": null,
-                    "description": "The compiler used by dub when compiling D Profile Viewer.",
-                    "enum": [
-                        "dmd",
-                        "ldc2",
-                        "gdc"
-                    ]
-                }
-            }
+        "configuration": "./d.configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "d",
+        "scopeName": "source.d",
+        "path": "./syntaxes/d.tmLanguage"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "d",
+        "path": "./snippets/snippets.json"
+      }
+    ],
+    "configuration": {
+      "title": "D configuration",
+      "properties": {
+        "d.dmdConf.linux": {
+          "type": "string",
+          "default": "/etc/dmd.conf",
+          "description": "Path to the DMD configuration file on Linux."
         },
-        "commands": [
-            {
-                "title": "Create Default Tasks",
-                "category": "Dlang",
-                "command": "dlang.defaultTasks"
-            },
-            {
-                "title": "Install Tools",
-                "category": "Dlang",
-                "command": "dlang.install"
-            },
-            {
-                "title": "See Program Profile",
-                "category": "Dlang",
-                "command": "dlang.d-profile-viewer"
-            },
-            {
-                "title": "Add Import Path To DCD",
-                "category": "DCD",
-                "command": "dlang.dcd.import"
-            },
-            {
-                "title": "Init Package",
-                "category": "Dub",
-                "command": "dlang.dub.init"
-            },
-            {
-                "title": "Fetch Package",
-                "category": "Dub",
-                "command": "dlang.dub.fetch"
-            },
-            {
-                "title": "Remove Package",
-                "category": "Dub",
-                "command": "dlang.dub.remove"
-            },
-            {
-                "title": "Upgrade Package Dependencies",
-                "category": "Dub",
-                "command": "dlang.dub.upgrade"
-            },
-            {
-                "title": "Convert Dub File Format",
-                "category": "Dub",
-                "command": "dlang.dub.convert"
-            },
-            {
-                "title": "Dustmite",
-                "category": "Dub",
-                "command": "dlang.dub.dustmite"
-            },
-            {
-                "title": "Change Compiler",
-                "category": "Dlang",
-                "command": "dlang.tasks.compiler"
-            },
-            {
-                "title": "Change Build Type",
-                "category": "Dlang",
-                "command": "dlang.tasks.build"
-            },
-            {
-                "title": "Disable Check",
-                "category": "Dlang Actions",
-                "command": "dlang.actions.config"
-            },
-            {
-                "title": "Run Dfix",
-                "category": "Dlang Actions",
-                "command": "dlang.actions.dfix"
-            },
-            {
-                "title": "Replace `delete` With `destroy()`",
-                "category": "Dlang Actions",
-                "command": "dlang.actions.replaceDeletes"
-            },
-            {
-                "title": "Sort Imports",
-                "category": "Dlang Actions",
-                "command": "dlang.actions.sortImports"
-            }
-        ],
-        "menus": {
-            "editor/title": [
-                {
-                    "group": "dlang",
-                    "command": "dlang.actions.dfix",
-                    "when": "resourceLangId == d"
-                }
-            ],
-            "explorer/context": [
-                {
-                    "group": "dlang",
-                    "command": "dlang.dcd.import"
-                }
-            ]
+        "d.dmdConf.osx": {
+          "type": "string",
+          "default": "/usr/local/etc/dmd.conf",
+          "description": "Path to the DMD configuration file on OS X."
+        },
+        "d.dmdConf.windows": {
+          "type": "string",
+          "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
+          "description": "Path to the DMD configuration file on Windows."
+        },
+        "d.tools.enabled.dcd": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether DCD is used or not."
+        },
+        "d.tools.enabled.dfmt": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether DFMT is used or not."
+        },
+        "d.tools.enabled.dscanner": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether Dscanner is used or not."
+        },
+        "d.tools.enabled.dfix": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether Dfix is used or not."
+        },
+        "d.tools.enabled.dProfileViewer": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether F Profile Viewer is used or not."
+        },
+        "d.tools.dub": {
+          "type": "string",
+          "default": "dub",
+          "description": "Path to the dub executable."
+        },
+        "d.tools.dcd.client": {
+          "type": "string",
+          "default": "dcd-client",
+          "description": "Path to the system DCD client executable (optional)."
+        },
+        "d.tools.dcd.server": {
+          "type": "string",
+          "default": "dcd-server",
+          "description": "Path to the system DCD server executable (optional)."
+        },
+        "d.tools.dfmt": {
+          "type": "string",
+          "default": "dfmt",
+          "description": "Path to the system DFMT executable (optional)."
+        },
+        "d.tools.dscanner": {
+          "type": "string",
+          "default": "dscanner",
+          "description": "Path to the system Dscanner executable (optional)."
+        },
+        "d.tools.dfix": {
+          "type": "string",
+          "default": "dfix",
+          "description": "Path to the system Dfix executable (optional)."
+        },
+        "d.tools.dProfileViewer": {
+          "type": "string",
+          "default": "d-profile-viewer",
+          "description": "Path to the system D Profile Viewer executable (optional)."
+        },
+        "d.dub.compiler": {
+          "type": "string",
+          "default": "dmd",
+          "description": "The compiler used by dub when compiling other tools.",
+          "enum": [
+            "dmd",
+            "ldc2",
+            "gdc"
+          ]
+        },
+        "d.dcd.compiler": {
+          "type": "string",
+          "default": null,
+          "description": "The compiler used by dub when compiling DCD.",
+          "enum": [
+            "dmd",
+            "ldc2",
+            "gdc"
+          ]
+        },
+        "d.dcd.tcp": {
+          "type": "boolean",
+          "default": false,
+          "description": "Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows."
+        },
+        "d.dcd.port": {
+          "type": "number",
+          "default": 9166,
+          "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
+        },
+        "d.dcd.imports": {
+          "type": "array",
+          "default": [],
+          "description": "An array of paths that DCD should import on launch."
+        },
+        "d.dfmt.compiler": {
+          "type": "string",
+          "default": null,
+          "description": "The compiler used by dub when compiling DFMT.",
+          "enum": [
+            "dmd",
+            "ldc2",
+            "gdc"
+          ]
+        },
+        "d.dfmt.alignSwitchStatements": {
+          "type": "boolean",
+          "default": true,
+          "description": "Align labels, cases, and defaults with their enclosing switch."
+        },
+        "d.dfmt.braceStyle": {
+          "type": "string",
+          "default": "allman",
+          "description": "Denotes the style for using curly braces in code blocks.",
+          "enum": [
+            "allman",
+            "otbs",
+            "stroustrup"
+          ]
+        },
+        "d.dfmt.endOfLine": {
+          "type": "string",
+          "default": "lf",
+          "description": "Line ending file format.",
+          "enum": [
+            "lf",
+            "cr",
+            "crlf"
+          ]
+        },
+        "d.dfmt.softMaxLineLength": {
+          "type": "number",
+          "default": 80,
+          "description": "The formatting process will usually keep lines below this length."
+        },
+        "d.dfmt.maxLineLength": {
+          "type": "number",
+          "default": 120,
+          "description": "Forces hard line wrapping after the amount of characters specified."
+        },
+        "d.dfmt.outdentAttributes": {
+          "type": "boolean",
+          "default": true,
+          "description": "Decrease the indentation level of attributes."
+        },
+        "d.dfmt.spaceAfterCast": {
+          "type": "boolean",
+          "default": true,
+          "description": "Insert space after the closing parenthesis of a cast expression."
+        },
+        "d.dfmt.selectiveImportSpace": {
+          "type": "boolean",
+          "default": true,
+          "description": "Insert space after the module name and before the ':' for selective imports."
+        },
+        "d.dfmt.splitOperatorAtLineEnd": {
+          "type": "boolean",
+          "default": false,
+          "description": "Place operators on the end of the previous line when splitting lines."
+        },
+        "d.dfmt.compactLabeledStatements": {
+          "type": "boolean",
+          "default": true,
+          "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement."
+        },
+        "d.dscanner.compiler": {
+          "type": "string",
+          "default": null,
+          "description": "The compiler used by dub when compiling Dscanner.",
+          "enum": [
+            "dmd",
+            "ldc2",
+            "gdc"
+          ]
+        },
+        "d.dfix.compiler": {
+          "type": "string",
+          "default": null,
+          "description": "The compiler used by dub when compiling Dfix.",
+          "enum": [
+            "dmd",
+            "ldc2",
+            "gdc"
+          ]
+        },
+        "d.dProfileViewer.compiler": {
+          "type": "string",
+          "default": null,
+          "description": "The compiler used by dub when compiling D Profile Viewer.",
+          "enum": [
+            "dmd",
+            "ldc2",
+            "gdc"
+          ]
         }
+      }
     },
-    "scripts": {
-        "vscode:prepublish": "./node_modules/.bin/tsc -p ./",
-        "compile": "./node_modules/.bin/tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
-    },
-    "devDependencies": {
-        "@types/escape-string-regexp": "^0.0.30",
-        "@types/fs-extra": "^0.0.37",
-        "@types/node": "^7.0.8",
-        "@types/tmp": "^0.0.32",
-        "@types/xml2js": "^0.0.33",
-        "typescript": "^2.2.1",
-        "vscode": "^1.1.0"
-    },
-    "dependencies": {
-        "escape-string-regexp": "^1.0.5",
-        "fs-extra": "^2.0.0",
-        "meta-pkg": "^0.6.4",
-        "tmp": "^0.0.31",
-        "xml2js": "^0.4.17"
-    },
-    "extensionDependencies": [
-        "LaurentTreguier.sdlang"
-    ]
+    "commands": [
+      {
+        "title": "Create Default Tasks",
+        "category": "Dlang",
+        "command": "dlang.defaultTasks"
+      },
+      {
+        "title": "Install Tools",
+        "category": "Dlang",
+        "command": "dlang.install"
+      },
+      {
+        "title": "See Program Profile",
+        "category": "Dlang",
+        "command": "dlang.d-profile-viewer"
+      },
+      {
+        "title": "Add Import Path To DCD",
+        "category": "DCD",
+        "command": "dlang.dcd.import"
+      },
+      {
+        "title": "Init Package",
+        "category": "Dub",
+        "command": "dlang.dub.init"
+      },
+      {
+        "title": "Fetch Package",
+        "category": "Dub",
+        "command": "dlang.dub.fetch"
+      },
+      {
+        "title": "Remove Package",
+        "category": "Dub",
+        "command": "dlang.dub.remove"
+      },
+      {
+        "title": "Upgrade Package Dependencies",
+        "category": "Dub",
+        "command": "dlang.dub.upgrade"
+      },
+      {
+        "title": "Convert Dub File Format",
+        "category": "Dub",
+        "command": "dlang.dub.convert"
+      },
+      {
+        "title": "Dustmite",
+        "category": "Dub",
+        "command": "dlang.dub.dustmite"
+      },
+      {
+        "title": "Change Compiler",
+        "category": "Dlang",
+        "command": "dlang.tasks.compiler"
+      },
+      {
+        "title": "Change Build Type",
+        "category": "Dlang",
+        "command": "dlang.tasks.build"
+      },
+      {
+        "title": "Disable Check",
+        "category": "Dlang Actions",
+        "command": "dlang.actions.config"
+      },
+      {
+        "title": "Run Dfix",
+        "category": "Dlang Actions",
+        "command": "dlang.actions.dfix"
+      },
+      {
+        "title": "Replace `delete` With `destroy()`",
+        "category": "Dlang Actions",
+        "command": "dlang.actions.replaceDeletes"
+      },
+      {
+        "title": "Sort Imports",
+        "category": "Dlang Actions",
+        "command": "dlang.actions.sortImports"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "group": "dlang",
+          "command": "dlang.actions.dfix",
+          "when": "resourceLangId == d"
+        }
+      ],
+      "explorer/context": [
+        {
+          "group": "dlang",
+          "command": "dlang.dcd.import"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "./node_modules/.bin/tsc -p ./",
+    "compile": "./node_modules/.bin/tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/escape-string-regexp": "^0.0.30",
+    "@types/fs-extra": "^2.0.0",
+    "@types/node": "^7.0.10",
+    "@types/tmp": "^0.0.32",
+    "@types/xml2js": "^0.0.33",
+    "typescript": "^2.2.1",
+    "vscode": "^1.1.0"
+  },
+  "dependencies": {
+    "escape-string-regexp": "^1.0.5",
+    "fs-extra": "^2.1.2",
+    "meta-pkg": "^0.6.4",
+    "tmp": "^0.0.31",
+    "xml2js": "^0.4.17"
+  },
+  "extensionDependencies": [
+    "LaurentTreguier.sdlang"
+  ]
 }
