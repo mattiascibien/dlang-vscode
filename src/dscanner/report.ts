@@ -21,15 +21,7 @@ export interface Report {
 };
 
 export function getSeverity(key: string) {
-    switch (key.split('.')[1]) {
-        case 'syntax':
-            return vsc.DiagnosticSeverity.Error;
-
-        case 'bugs':
-        case 'deprecated':
-            return vsc.DiagnosticSeverity.Warning;
-
-        default:
-            return vsc.DiagnosticSeverity.Information;
-    }
+    return key.split('.')[1] === 'syntax'
+        ? vsc.DiagnosticSeverity.Error
+        : vsc.DiagnosticSeverity.Warning;
 };
