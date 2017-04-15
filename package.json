@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.1.0"
+        "vscode": "^1.11.0"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -402,16 +402,16 @@
     },
     "devDependencies": {
         "@types/escape-string-regexp": "^0.0.30",
-        "@types/fs-extra": "^0.0.37",
-        "@types/node": "^7.0.8",
+        "@types/fs-extra": "^2.0.0",
+        "@types/node": "^7.0.12",
         "@types/tmp": "^0.0.32",
         "@types/xml2js": "^0.0.33",
-        "typescript": "^2.2.1",
+        "typescript": "^2.2.2",
         "vscode": "^1.1.0"
     },
     "dependencies": {
         "escape-string-regexp": "^1.0.5",
-        "fs-extra": "^2.0.0",
+        "fs-extra": "^2.1.2",
         "meta-pkg": "^0.6.4",
         "tmp": "^0.0.31",
         "xml2js": "^0.4.17"
