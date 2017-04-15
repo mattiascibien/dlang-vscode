@@ -26,8 +26,14 @@ export default class Dub extends vsc.Disposable {
         return this.launchCommand('init', [], vsc.workspace.rootPath, { stdin: entries.join(os.EOL) });
     }
 
-    public fetch(packageName: string) {
-        return this.launchCommand('fetch', [packageName]);
+    public fetch(packageName: string, version?: string) {
+        let args = [packageName];
+
+        if (version) {
+            args.push('--version=' + version);
+        }
+
+        return this.launchCommand('fetch', args);
     }
 
     public remove(packageName: string, version?: string) {

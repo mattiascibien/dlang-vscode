@@ -50,7 +50,9 @@ class Tool {
     }
 
     public fetch() {
-        return Tool.dub.fetch(this._name);
+        return Tool.dub.search(this._name)
+            .then((packages) => packages.find((pkg) => pkg.name === this._name))
+            .then((pkg) => Tool.dub.fetch(this._name, pkg ? pkg.version : undefined));
     }
 
     public build() {
