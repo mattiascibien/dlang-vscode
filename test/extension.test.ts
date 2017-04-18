@@ -12,7 +12,6 @@ import * as vscode from 'vscode';
 
 // Defines a Mocha test suite to group tests of similar kind together
 suite("Extension Tests", () => {
-
     // Defines a Mocha unit test
     test("Pass through", () => {
         assert(true);

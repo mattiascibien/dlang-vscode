@@ -70,11 +70,11 @@ function run(testsRoot, clb): any {
 
             mocha.run()
                 .on("fail", (test, err): void => {
-                failureCount++;
-            })
-            .on("end", (): void => {
-                clb(undefined, failureCount);
-            });
+                    failureCount++;
+                })
+                .on("end", (): void => {
+                    clb(undefined, failureCount);
+                });
         } catch (error) {
             return clb(error);
         }
@@ -121,7 +121,7 @@ class CoverageRunner {
         // Create a match function - taken from the run-with-cover.js in istanbul.
         let decache = require("decache");
         let fileMap = {};
-        srcFiles.forEach( (file) => {
+        srcFiles.forEach((file) => {
             let fullPath = paths.join(sourceRoot, file);
             fileMap[fullPath] = true;
 
@@ -141,7 +141,7 @@ class CoverageRunner {
         // are required, the instrumented version is pulled in instead. These instrumented versions
         // write to a global coverage variable with hit counts whenever they are accessed
         self.transformer = self.instrumenter.instrumentSync.bind(self.instrumenter);
-        let hookOpts = { verbose: false, extensions: [".js"]};
+        let hookOpts = { verbose: false, extensions: [".js"] };
         istanbul.hook.hookRequire(self.matchFn, self.transformer, hookOpts);
 
         // initialize the global variable to stop mocha from complaining about leaks
@@ -175,14 +175,14 @@ class CoverageRunner {
         // TODO consider putting this under a conditional flag
         // Files that are not touched by code ran by the test runner is manually instrumented, to
         // illustrate the missing coverage.
-        self.matchFn.files.forEach( (file) => {
+        self.matchFn.files.forEach((file) => {
             if (!cov[file]) {
                 self.transformer(fs.readFileSync(file, "utf-8"), file);
 
                 // When instrumenting the code, istanbul will give each FunctionDeclaration a value of 1 in coverState.s,
                 // presumably to compensate for function hoisting. We need to reset this, as the function was not hoisted,
                 // as it was never loaded.
-                Object.keys(self.instrumenter.coverState.s).forEach( (key) => {
+                Object.keys(self.instrumenter.coverState.s).forEach((key) => {
                     self.instrumenter.coverState.s[key] = 0;
                 });
 
@@ -200,13 +200,15 @@ class CoverageRunner {
 
         fs.writeFileSync(coverageFile, JSON.stringify(cov), "utf8");
 
-        let remappedCollector = remapIstanbul.remap(cov, {warn: warning => {
-            // We expect some warnings as any JS file without a typescript mapping will cause this.
-            // By default, we"ll skip printing these to the console as it clutters it up
-            if (self.options.verbose) {
-                console.warn(warning);
+        let remappedCollector = remapIstanbul.remap(cov, {
+            warn: warning => {
+                // We expect some warnings as any JS file without a typescript mapping will cause this.
+                // By default, we"ll skip printing these to the console as it clutters it up
+                if (self.options.verbose) {
+                    console.warn(warning);
+                }
             }
-        }});
+        });
 
         let reporter = new istanbul.Reporter(undefined, reportingDir);
         let reportTypes = (self.options.reports instanceof Array) ? self.options.reports : ["lcov"];
