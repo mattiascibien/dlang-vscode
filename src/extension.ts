@@ -143,7 +143,7 @@ export function activate(context: vsc.ExtensionContext) {
         .then((packagesStrings: string[]) => packagesStrings.map(JSON.parse.bind(JSON)))
         .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage.bind(mpkg)))
         .then(() => packageNames.map(mpkg.getInstallers.bind(mpkg)))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then((allInstallers: mpkg.Installer[][]) => {
             allInstallers.forEach((installers, i) => {
                 if (installers.length) {
@@ -175,10 +175,10 @@ export function activate(context: vsc.ExtensionContext) {
                     }
                 });
         }).then(() => packageNames.map(mpkg.isInstalled.bind(mpkg)))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then((installed: boolean[]) => packageNames
             .map((name, i) => installed[i] ? mpkg.isUpgradable(name) : false))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then((upgrades: boolean[]) => packageNames.filter((name, i) => upgrades[i]))
         .then((upgradablePackages: string[]) => upgradablePackages
             .map((name) => vsc.window.showInformationMessage(name + ' can be upgraded',
@@ -198,7 +198,7 @@ export function activate(context: vsc.ExtensionContext) {
                             results.name + ' was upgraded'));
                 }
             })))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then(start.bind(null, context))
         .catch(console.log.bind(console));
 };
@@ -209,7 +209,7 @@ export function deactivate() {
     }
 };
 
-export function start(context: vsc.ExtensionContext) {
+function start(context: vsc.ExtensionContext) {
     tasks = new Tasks();
 
     let dub = new Dub(output);
