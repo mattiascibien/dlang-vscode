@@ -1,13 +1,10 @@
 'use strict';
 
 import * as ev from 'events';
-import * as os from 'os';
-import * as fs from 'fs';
 import * as path from 'path';
 import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
-import Server from './server';
 import * as util from './util';
 
 export default class Client extends ev.EventEmitter {
@@ -90,16 +87,13 @@ export default class Client extends ev.EventEmitter {
                     let filename = parts[0];
 
                     if (filename === 'stdin') {
-                        documentThenable = new Promise((res) => {
-                            res(this._document);
-                        });
+                        documentThenable = new Promise((res) => res(this._document));
                     } else {
                         documentThenable = vsc.workspace.openTextDocument(filename);
                     }
 
-                    documentThenable.then((document) => {
-                        resolve(new vsc.Location(document.uri, document.positionAt(Number(parts[1]))));
-                    });
+                    documentThenable.then((document) =>
+                        resolve(new vsc.Location(document.uri, document.positionAt(Number(parts[1])))));
 
                     break;
 
@@ -162,9 +156,8 @@ export default class Client extends ev.EventEmitter {
         let lineArgs = line.substring(line.lastIndexOf('(') + 1, line.lastIndexOf(')')).split(/\s*,\s*/);
         let information = new vsc.SignatureInformation(line);
 
-        lineArgs.forEach((arg) => {
-            information.parameters.push(new vsc.ParameterInformation(arg));
-        });
+        information.parameters = information.parameters
+            .concat(lineArgs.map((arg) => new vsc.ParameterInformation(arg)));
 
         return information;
     }

@@ -277,9 +277,7 @@ function start(context: vsc.ExtensionContext) {
         vsc.workspace.onDidSaveTextDocument(dscannerUtil.lintDocument.bind(dscannerUtil));
         vsc.workspace.onDidOpenTextDocument(dscannerUtil.lintDocument.bind(dscannerUtil));
         vsc.workspace.textDocuments.forEach(dscannerUtil.lintDocument.bind(dscannerUtil));
-        vsc.workspace.onDidCloseTextDocument((document) => {
-            diagnosticCollection.delete(document.uri);
-        });
+        vsc.workspace.onDidCloseTextDocument((document) => diagnosticCollection.delete(document.uri));
 
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
@@ -431,17 +429,13 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.remove', () =>
         dub.list().then((packages) =>
-            vsc.window.showQuickPick(packages.sort((p1, p2) => {
-                return p1.name > p2.name ? 1
-                    : p1.name < p2.name ? -1
-                        : p1.version > p2.version ? 1
-                            : p1.version < p2.version ? -1
-                                : 0;
-            }).map(packageToQuickPickItem), { matchOnDescription: true }).then((result) => {
-                if (result) {
-                    dub.remove(result.label, result.description);
-                }
-            }))));
+            vsc.window.showQuickPick(packages
+                .sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version))
+                .map(packageToQuickPickItem), { matchOnDescription: true }).then((result) => {
+                    if (result) {
+                        dub.remove(result.label, result.description);
+                    }
+                }))));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', dub.upgrade.bind(dub)));
 
@@ -469,9 +463,8 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
             }
         })));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.actions.config', (code: string) => {
-        dscannerConfig.mute(code);
-    }));
+    subscriptions.push(vsc.commands.registerCommand('dlang.actions.config',
+        (code: string) => dscannerConfig.mute(code)));
 
     dscannerUtil.fixes.forEach((fix, issue) => {
         if (fix.action) {
@@ -508,9 +501,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 if (value === choices[0]) {
                     vsc.workspace.textDocuments.forEach(applyDfix);
                 } else {
-                    vsc.workspace.saveAll(false).then(() => {
-                        new Dfix(vsc.workspace.rootPath, null);
-                    });
+                    vsc.workspace.saveAll(false).then(() => new Dfix(vsc.workspace.rootPath, null));
                 }
             });
         }));
@@ -521,12 +512,9 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         DProfileViewer.toolFile = dProfileViewerTool.toolFile || 'd-profile-viewer';
 
         subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () =>
-            new Promise((resolve) => {
-                new DProfileViewer(vsc.workspace.rootPath, resolve);
-            }).then(() => {
-                vsc.commands.executeCommand('vscode.previewHtml',
-                    vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
-            })));
+            new Promise((resolve) => new DProfileViewer(vsc.workspace.rootPath, resolve))
+                .then(() => vsc.commands.executeCommand('vscode.previewHtml',
+                    vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html'))))));
     };
 
     return dfixTool.setup().then(dProfileViewerTool.setup.bind(dProfileViewerTool));

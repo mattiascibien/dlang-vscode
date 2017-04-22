@@ -1,7 +1,7 @@
 'use strict';
 
 import * as os from 'os';
-import * as fs from 'fs';
+import * as fs from 'fs-extra';
 import * as p from 'path';
 import * as cp from 'child_process';
 import * as rl from 'readline';
@@ -27,23 +27,11 @@ export default class Dub extends vsc.Disposable {
     }
 
     public fetch(packageName: string, version?: string) {
-        let args = [packageName];
-
-        if (version) {
-            args.push('--version=' + version);
-        }
-
-        return this.launchCommand('fetch', args);
+        return this.launchCommand('fetch', [packageName].concat(version ? ['--version', version] : []));
     }
 
     public remove(packageName: string, version?: string) {
-        let args = [packageName];
-
-        if (version) {
-            args.push('--version=' + version);
-        }
-
-        return this.launchCommand('remove', args);
+        return this.launchCommand('remove', [packageName].concat(version ? ['--version', version] : []));
     }
 
     public upgrade() {
@@ -114,7 +102,8 @@ export default class Dub extends vsc.Disposable {
         let dustmitePath = p.join(this._tmp.name, p.basename(vsc.workspace.rootPath));
         let args: string[];
 
-        return new Promise(del.bind(null, [dustmitePath, dustmitePath + '.reduced']))
+        return Promise.all([dustmitePath, dustmitePath + '.reduced']
+            .map((path) => new Promise(fs.remove.bind(fs, path))))
             .then(() => new Promise((resolve) => {
                 fs.readFile(p.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'), (err, data) => {
                     if (err) {
@@ -148,7 +137,8 @@ export default class Dub extends vsc.Disposable {
                 }
             }).then((dustmiteResult: any) => {
                 if (dustmiteResult && !dustmiteResult.code) {
-                    vsc.commands.executeCommand('vscode.openFolder', vsc.Uri.file(dustmitePath + '.reduced'), true);
+                    vsc.commands.executeCommand('vscode.openFolder',
+                        vsc.Uri.file(dustmitePath + '.reduced'), true);
                 }
             });
     }
@@ -173,29 +163,10 @@ export default class Dub extends vsc.Disposable {
     }
 
     public getLatestVersion(packageName: string) {
-        return this.list().then((packages) => {
-            return packages.reduce((previous, next) => {
-                if (!previous) {
-                    return next;
-                }
-
-                if (!next) {
-                    return previous;
-                }
-
-                if (next.name === packageName) {
-                    return previous && previous.name !== packageName
-                        ? next : isVersionSuperior(next.version, previous.version)
-                            ? next : previous;
-                }
-
-                if (previous.name === packageName) {
-                    return previous;
-                }
-
-                return null;
-            });
-        });
+        return this.list().then((packages) => packages
+            .filter((pkg) => pkg.name === packageName)
+            .sort((a, b) => a.version.localeCompare(b.version))
+            .pop());
     }
 
     private launchCommand(command: string,
@@ -278,37 +249,3 @@ export class Package {
         return this._description;
     }
 };
-
-function isVersionSuperior(first: string, second: string) {
-    return second === '~master' || (first !== '~master' && first > second);
-}
-
-function del(pathOrPaths: string | string[], callback: Function) {
-    let paths = pathOrPaths instanceof Array ? pathOrPaths : [pathOrPaths];
-    let path = paths.pop();
-
-    if (path) {
-        fs.stat(path, (err, stats) => {
-            if (err) {
-                new Promise(del.bind(null, paths));
-                callback();
-                return;
-            }
-
-            if (stats.isFile()) {
-                fs.unlink(path, callback.bind(null));
-            } else if (stats.isDirectory()) {
-                fs.readdir(path, (err, files) => {
-                    Promise.all(files.map((file) => {
-                        paths.push(p.join(path, file));
-                        return new Promise(del.bind(null, paths));
-                    })).then(fs.rmdir.bind(null, path, callback));
-                });
-            } else {
-                callback();
-            }
-        });
-    } else {
-        callback();
-    }
-}

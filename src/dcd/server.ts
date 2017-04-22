@@ -30,9 +30,8 @@ export default class Server {
                 : path.join(vsc.workspace.rootPath, i)));
 
         if (vsc.workspace.rootPath) {
-            this.getImportDirs(vsc.workspace.rootPath).forEach((dir) => {
-                additionsImports.push('-I' + dir);
-            });
+            this.getImportDirs(vsc.workspace.rootPath)
+                .forEach((dir) => additionsImports.push('-I' + dir));
         }
 
         try {
@@ -48,18 +47,15 @@ export default class Server {
             let conf = fs.readFileSync(configFile).toString();
             let result = conf.match(/-I[^\s"]+/g);
 
-            result.forEach((match) => {
-                additionsImports.push(match.replace('%@P%', path.dirname(configFile)));
-            });
+            additionsImports = additionsImports
+                .concat(result.map((match) => match.replace('%@P%', path.dirname(configFile))));
         } catch (e) { }
 
         let args = ['--logLevel', 'off'].concat(util.getTcpArgs());
         let server = cp.spawn(path.join(Server.toolDirectory, Server.toolFile), additionsImports.concat(args), { stdio: 'ignore' });
         Server._instanceLaunched = true;
 
-        server.on('exit', () => {
-            Server._instanceLaunched = false;
-        });
+        server.on('exit', () => Server._instanceLaunched = false);
     }
 
     public stop() {
@@ -108,17 +104,14 @@ export default class Server {
                         });
 
                         if (importPath) {
-                            this.getImportDirs(importPath).forEach((dir) => {
-                                clients.push(this.importPath(dir));
-                            });
+                            this.getImportDirs(importPath)
+                                .forEach((dir) => clients.push(this.importPath(dir)));
                         }
                     }
 
-                    Promise.all(clients.map((client) => {
-                        return new Promise((res) => {
-                            client.on('exit', res);
-                        });
-                    })).then(resolve);
+                    Promise.all(clients
+                        .map((client) => new Promise((res) => client
+                            .on('exit', res)))).then(resolve);
                 });
             });
         });
@@ -146,9 +139,7 @@ export default class Server {
                 allPackages.forEach((p) => {
                     if (p instanceof String) {
                         let impAdded = this.getImportDirs(path.join(dubPath, <string>p));
-                        impAdded.forEach((newP) => {
-                            imp.add(newP);
-                        });
+                        impAdded.forEach((newP) => imp.add(newP));
                     } else {
                         [
                             p.sourcePaths,
@@ -169,7 +160,7 @@ export default class Server {
                     } catch (e) { }
                 });
             } catch (e) { }
-        })
+        });
 
         return imp;
     }

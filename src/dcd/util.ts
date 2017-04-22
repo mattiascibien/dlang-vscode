@@ -35,4 +35,4 @@ export function getTcpArgs() {
     return vsc.workspace.getConfiguration().get('d.dcd.tcp')
         ? ['--tcp', '--port', String(vsc.workspace.getConfiguration().get('d.dcd.port'))]
         : [];
-}
+};

@@ -82,11 +82,9 @@ export default class Provider extends ev.EventEmitter implements
                     });
                 });
 
-                Promise.all(promises).then((symbolInformationLists) => {
-                    resolve(symbolInformationLists.reduce((previous, current) => {
-                        return current ? (previous || []).concat(current) : previous;
-                    }));
-                });
+                Promise.all(promises).then((symbolInformationLists) =>
+                    resolve(symbolInformationLists.reduce((previous, current) =>
+                        current ? (previous || []).concat(current) : previous)));
             });
         });
     }
