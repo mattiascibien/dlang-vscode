@@ -307,7 +307,7 @@ export function start(context: vsc.ExtensionContext) {
         });
     }
 
-    registerCommands(context.subscriptions, dub)
+    return registerCommands(context.subscriptions, dub)
         .then(dcdClientTool.setup.bind(dcdClientTool))
         .then(dcdServerTool.setup.bind(dcdServerTool))
         .then(dfmtTool.setup.bind(dfmtTool))
