@@ -106,13 +106,15 @@ export default class Provider extends ev.EventEmitter implements
                 let fix = dscannerUtil.fixes.get(<string>d.code);
                 return Object.assign({ arguments: [d, ...fix.getArgs(document, range)] }, fix.command);
             });
-        let disablers = filteredDiagnostics
-            .filter((d) => dscannerUtil.fixes.get(<string>d.code).checkName)
-            .map((d) => ({
-                title: 'Disable Check: ' + d.code,
-                command: 'dlang.actions.config',
-                arguments: [d.code]
-            }));
+        let disablers = vsc.workspace.rootPath
+            ? filteredDiagnostics
+                .filter((d) => dscannerUtil.fixes.get(<string>d.code).checkName)
+                .map((d) => ({
+                    title: 'Disable Check: ' + d.code,
+                    command: 'dlang.actions.config',
+                    arguments: [d.code]
+                }))
+            : [];
 
         return actions.concat(disablers);
     }

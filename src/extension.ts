@@ -110,7 +110,7 @@ const initOptions = [
     {
         prompt: 'The name of the package',
         placeHolder: 'Name',
-        value: path.basename(vsc.workspace.rootPath)
+        value: vsc.workspace.rootPath ? path.basename(vsc.workspace.rootPath) : ''
     },
     {
         prompt: 'Brief description of the package',
@@ -208,13 +208,16 @@ export function deactivate() {
 };
 
 export function start(context: vsc.ExtensionContext) {
-    tasks = new Tasks();
+    if (vsc.workspace.rootPath) {
+        tasks = new Tasks();
+        context.subscriptions.push(tasks);
+    }
 
     let dub = new Dub(output);
     let provider = new Provider();
 
     output.show(true);
-    context.subscriptions.push(tasks, output, dub);
+    context.subscriptions.push(output, dub);
 
     let dcdClientTool = new Tool('dcd', { buildConfig: 'client' });
     let dcdServerTool = new Tool('dcd', { buildConfig: 'server' });
@@ -244,12 +247,17 @@ export function start(context: vsc.ExtensionContext) {
         provider.on('restart', () => {
             output.appendLine('DCD : restarting server...');
             server.start();
-            server.importSelections(context.subscriptions);
+
+            if (vsc.workspace.rootPath) {
+                server.importSelections(context.subscriptions);
+            }
         });
 
         context.subscriptions.push(completionProvider, signatureProvider, definitionProvider, hoverProvider);
 
-        return server.importSelections(context.subscriptions);
+        if (vsc.workspace.rootPath) {
+            return server.importSelections(context.subscriptions);
+        }
     };
 
     dfmtTool.activate = () => {
@@ -282,25 +290,11 @@ export function start(context: vsc.ExtensionContext) {
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
 
-    let tasksFile = path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json');
-
-    registerCommands(context.subscriptions, dub)
-        .then(dcdClientTool.setup.bind(dcdClientTool))
-        .then(dcdServerTool.setup.bind(dcdServerTool))
-        .then(dfmtTool.setup.bind(dfmtTool))
-        .then(dscannerTool.setup.bind(dscannerTool))
-        .then(() => {
-            let tasksWatcher = vsc.workspace.createFileSystemWatcher(tasksFile);
-
-            tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks), null, context.subscriptions);
-            tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks), null, context.subscriptions);
-            tasksWatcher.onDidDelete(tasks.hideChoosers.bind(tasks), null, context.subscriptions);
-            tasks.showChoosers();
-
-            context.subscriptions.push(tasksWatcher);
-        });
+    let tasksFile: string;
 
     if (vsc.workspace.rootPath) {
+        tasksFile = path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json')
+
         fs.stat(tasksFile, (err) => {
             if (err) {
                 tasksGenerator = vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Right);
@@ -312,6 +306,24 @@ export function start(context: vsc.ExtensionContext) {
             }
         });
     }
+
+    registerCommands(context.subscriptions, dub)
+        .then(dcdClientTool.setup.bind(dcdClientTool))
+        .then(dcdServerTool.setup.bind(dcdServerTool))
+        .then(dfmtTool.setup.bind(dfmtTool))
+        .then(dscannerTool.setup.bind(dscannerTool))
+        .then(() => {
+            if (vsc.workspace.rootPath) {
+                let tasksWatcher = vsc.workspace.createFileSystemWatcher(tasksFile);
+
+                tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks), null, context.subscriptions);
+                tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks), null, context.subscriptions);
+                tasksWatcher.onDidDelete(tasks.hideChoosers.bind(tasks), null, context.subscriptions);
+                tasks.showChoosers();
+
+                context.subscriptions.push(tasksWatcher);
+            }
+        });
 };
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
