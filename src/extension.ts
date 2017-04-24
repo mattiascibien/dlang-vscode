@@ -198,6 +198,14 @@ export function activate(context: vsc.ExtensionContext) {
             })))
         .then(Promise.all.bind(Promise))
         .then(start.bind(null, context))
+        .then(() => ({
+            dcd: {
+                server: {
+                    start: () => server.start(),
+                    stop: () => server.stop()
+                }
+            }
+        }))
         .catch(console.log.bind(console));
 };
 
