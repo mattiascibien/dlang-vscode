@@ -1,19 +1,23 @@
-//
-// Note: This example test is leveraging the Mocha test framework.
-// Please refer to their documentation on https://mochajs.org/ for help.
-//
-
-// The module 'assert' provides assertion methods from node
-import * as assert from 'assert';
-
-// You can import and use all API from the 'vscode' module
-// as well as import your extension to test it
+import * as fs from 'fs';
 import * as vscode from 'vscode';
+import * as tmp from 'tmp';
+import * as util from './util';
 
-// Defines a Mocha test suite to group tests of similar kind together
-suite("Extension Tests", () => {
-    // Defines a Mocha unit test
-    test("Pass through", () => {
-        assert(true);
-    });
+const extension = vscode.extensions.getExtension('dlang-vscode.dlang');
+
+before(function (done) {
+    this.timeout(0);
+    extension.activate()
+        .then(() => new Promise((resolve) =>
+            tmp.tmpName({ postfix: '.d' }, (err, path) => {
+                util.setTmpUri(path);
+                resolve();
+            })))
+        .then(() => done());
+});
+
+after(function (done) {
+    this.timeout(0);
+    extension.exports.dcd.server.stop();
+    fs.unlink(util.tmpUri.fsPath, done);
 });
