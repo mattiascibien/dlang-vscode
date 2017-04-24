@@ -19,5 +19,6 @@ before(function (done) {
 after(function (done) {
     this.timeout(0);
     extension.exports.dcd.server.stop();
-    fs.unlink(util.tmpUri.fsPath, done);
+    vscode.commands.executeCommand('workbench.action.closeActiveEditor')
+        .then(() => fs.unlink(util.tmpUri.fsPath, done));
 });
