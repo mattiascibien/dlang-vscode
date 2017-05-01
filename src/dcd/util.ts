@@ -6,14 +6,14 @@ const types = new Map<string, vsc.CompletionItemKind>();
 
 types.set('c', vsc.CompletionItemKind.Class);
 types.set('i', vsc.CompletionItemKind.Interface);
-types.set('s', vsc.CompletionItemKind.Class);
+types.set('s', vsc.CompletionItemKind.Struct);
 types.set('u', vsc.CompletionItemKind.Enum);
 types.set('v', vsc.CompletionItemKind.Variable);
 types.set('m', vsc.CompletionItemKind.Field);
 types.set('k', vsc.CompletionItemKind.Keyword);
 types.set('f', vsc.CompletionItemKind.Function);
 types.set('g', vsc.CompletionItemKind.Enum);
-types.set('e', vsc.CompletionItemKind.Field);
+types.set('e', vsc.CompletionItemKind.EnumMember);
 types.set('P', vsc.CompletionItemKind.Module);
 types.set('M', vsc.CompletionItemKind.Module);
 types.set('a', vsc.CompletionItemKind.Value);
@@ -35,4 +35,4 @@ export function getTcpArgs() {
     return vsc.workspace.getConfiguration().get('d.dcd.tcp')
         ? ['--tcp', '--port', String(vsc.workspace.getConfiguration().get('d.dcd.port'))]
         : [];
-}
+};

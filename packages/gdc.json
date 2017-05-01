@@ -1,7 +1,8 @@
 {
     "name": "gdc",
     "targets": [
-        "gdc"
+        "gdc",
+        "gdmd"
     ],
     "backends": {
         "packagekit": "gdc"
