@@ -50,7 +50,9 @@ class Tool {
     }
 
     public fetch() {
-        return Tool.dub.fetch(this._name);
+        return Tool.dub.search(this._name)
+            .then((packages) => packages.find((pkg) => pkg.name === this._name))
+            .then((pkg) => Tool.dub.fetch(this._name, pkg ? pkg.version : undefined));
     }
 
     public build() {
@@ -141,7 +143,7 @@ export function activate(context: vsc.ExtensionContext) {
         .then((packagesStrings: string[]) => packagesStrings.map(JSON.parse.bind(JSON)))
         .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage.bind(mpkg)))
         .then(() => packageNames.map(mpkg.getInstallers.bind(mpkg)))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then((allInstallers: mpkg.Installer[][]) => {
             allInstallers.forEach((installers, i) => {
                 if (installers.length) {
@@ -173,10 +175,10 @@ export function activate(context: vsc.ExtensionContext) {
                     }
                 });
         }).then(() => packageNames.map(mpkg.isInstalled.bind(mpkg)))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then((installed: boolean[]) => packageNames
             .map((name, i) => installed[i] ? mpkg.isUpgradable(name) : false))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then((upgrades: boolean[]) => packageNames.filter((name, i) => upgrades[i]))
         .then((upgradablePackages: string[]) => upgradablePackages
             .map((name) => vsc.window.showInformationMessage(name + ' can be upgraded',
@@ -196,7 +198,7 @@ export function activate(context: vsc.ExtensionContext) {
                             results.name + ' was upgraded'));
                 }
             })))
-        .then(Promise.all.bind(Promise))
+        .then((promises) => Promise.all(promises))
         .then(start.bind(null, context))
         .then(() => ({
             dcd: {
@@ -215,7 +217,7 @@ export function deactivate() {
     }
 };
 
-export function start(context: vsc.ExtensionContext) {
+function start(context: vsc.ExtensionContext) {
     if (vsc.workspace.rootPath) {
         tasks = new Tasks();
         context.subscriptions.push(tasks);
@@ -291,9 +293,7 @@ export function start(context: vsc.ExtensionContext) {
         vsc.workspace.onDidSaveTextDocument(dscannerUtil.lintDocument.bind(dscannerUtil));
         vsc.workspace.onDidOpenTextDocument(dscannerUtil.lintDocument.bind(dscannerUtil));
         vsc.workspace.textDocuments.forEach(dscannerUtil.lintDocument.bind(dscannerUtil));
-        vsc.workspace.onDidCloseTextDocument((document) => {
-            diagnosticCollection.delete(document.uri);
-        });
+        vsc.workspace.onDidCloseTextDocument((document) => diagnosticCollection.delete(document.uri));
 
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
@@ -449,17 +449,13 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.remove', () =>
         dub.list().then((packages) =>
-            vsc.window.showQuickPick(packages.sort((p1, p2) => {
-                return p1.name > p2.name ? 1
-                    : p1.name < p2.name ? -1
-                        : p1.version > p2.version ? 1
-                            : p1.version < p2.version ? -1
-                                : 0;
-            }).map(packageToQuickPickItem), { matchOnDescription: true }).then((result) => {
-                if (result) {
-                    dub.remove(result.label, result.description);
-                }
-            }))));
+            vsc.window.showQuickPick(packages
+                .sort((a, b) => a.name.localeCompare(b.name) || a.version.localeCompare(b.version))
+                .map(packageToQuickPickItem), { matchOnDescription: true }).then((result) => {
+                    if (result) {
+                        dub.remove(result.label, result.description);
+                    }
+                }))));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', dub.upgrade.bind(dub)));
 
@@ -487,9 +483,8 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
             }
         })));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.actions.config', (code: string) => {
-        dscannerConfig.mute(code);
-    }));
+    subscriptions.push(vsc.commands.registerCommand('dlang.actions.config',
+        (code: string) => dscannerConfig.mute(code)));
 
     dscannerUtil.fixes.forEach((fix, issue) => {
         if (fix.action) {
@@ -526,9 +521,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 if (value === choices[0]) {
                     vsc.workspace.textDocuments.forEach(applyDfix);
                 } else {
-                    vsc.workspace.saveAll(false).then(() => {
-                        new Dfix(vsc.workspace.rootPath, null);
-                    });
+                    vsc.workspace.saveAll(false).then(() => new Dfix(vsc.workspace.rootPath, null));
                 }
             });
         }));
@@ -539,12 +532,9 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         DProfileViewer.toolFile = dProfileViewerTool.toolFile || 'd-profile-viewer';
 
         subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () =>
-            new Promise((resolve) => {
-                new DProfileViewer(vsc.workspace.rootPath, resolve);
-            }).then(() => {
-                vsc.commands.executeCommand('vscode.previewHtml',
-                    vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html')));
-            })));
+            new Promise((resolve) => new DProfileViewer(vsc.workspace.rootPath, resolve))
+                .then(() => vsc.commands.executeCommand('vscode.previewHtml',
+                    vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html'))))));
     };
 
     return dfixTool.setup().then(dProfileViewerTool.setup.bind(dProfileViewerTool));

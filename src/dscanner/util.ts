@@ -119,7 +119,7 @@ fixes.set('dscanner.style.imports_sortedness', {
             for (let i = 1; linesAdded; ++i) {
                 linesAdded = false;
 
-                for (let sign = -1; sign <= 1; sign += 2) {
+                [-1, 1].forEach((sign) => {
                     if (startLineNum + sign * i >= 0
                         && startLineNum + sign * i < editor.document.lineCount) {
                         line = editor.document.lineAt(startLineNum + sign * i);
@@ -130,7 +130,7 @@ fixes.set('dscanner.style.imports_sortedness', {
                             linesAdded = true;
                         }
                     }
-                }
+                });
             }
 
             let numbers = Array.from(numberedLines.keys()).sort();

@@ -58,11 +58,7 @@ export default class Dscanner {
         }
 
         this._dscanner = cp.spawn(path.join(Dscanner.toolDirtory, Dscanner.toolFile), args);
-
-        this._dscanner.stdout.on('data', (data) => {
-            output += data.toString();
-        });
-
+        this._dscanner.stdout.on('data', (data) => output += data.toString());
         this._dscanner.stdout.on('close', () => {
             try {
                 let report: rep.Report = JSON.parse(output.replace(/\\\\"/g, '\\"'));

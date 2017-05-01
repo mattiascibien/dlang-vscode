@@ -34,11 +34,9 @@ export default class Dfmt {
             'selectiveImportSpace',
             'splitOperatorAtLineEnd',
             'compactLabeledStatements'
-        ].forEach((attr) => {
-            args.push('--' + attr.replace(/[A-Z]/g, (found) => {
-                return '_' + found.toLowerCase();
-            }), String(vsc.workspace.getConfiguration().get('d.dfmt.' + attr)));
-        });
+        ].forEach((attr) =>
+            args.push('--' + attr.replace(/[A-Z]/g, (found) => '_' + found.toLowerCase()),
+                String(vsc.workspace.getConfiguration().get('d.dfmt.' + attr))));
 
         this._dfmt = cp.spawn(path.join(Dfmt.toolDirectory, Dfmt.toolFile), args);
     }
@@ -51,10 +49,7 @@ export default class Dfmt {
             reject();
         });
 
-        this._dfmt.stdout.on('data', (data) => {
-            output += data;
-        });
-
+        this._dfmt.stdout.on('data', (data) => output += data);
         this._dfmt.stdout.on('close', () => {
             let lastLine = this._document.lineCount - 1;
             let lastCol = this._document.lineAt(lastLine).text.length;

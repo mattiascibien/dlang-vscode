@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.1.0"
+        "vscode": "^1.11.0"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -80,6 +80,42 @@
             {
                 "language": "d",
                 "path": "./snippets/snippets.json"
+            }
+        ],
+        "problemMatchers": [
+            {
+                "name": "dub-build",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": "$dub-build"
+            },
+            {
+                "name": "dub-test",
+                "fileLocation": [
+                    "relative",
+                    "${workspaceRoot}"
+                ],
+                "pattern": "$dub-test"
+            }
+        ],
+        "problemPatterns": [
+            {
+                "name": "dub-build",
+                "regexp": "^(.+\\.di?)\\D(\\d+)(?:,|:)?(\\d+)?\\S+\\s+([Ee]rror|[Ww]arning):\\s+(.+)$",
+                "file": 1,
+                "line": 2,
+                "column": 3,
+                "severity": 4,
+                "message": 5
+            },
+            {
+                "name": "dub-test",
+                "regexp": "^.+@(.+\\.di?)\\((\\d+)\\S+\\s+(.+)$",
+                "file": 1,
+                "location": 2,
+                "message": 3
             }
         ],
         "configuration": {
