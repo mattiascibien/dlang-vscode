@@ -826,6 +826,12 @@
 		</dict>
 		<dict>
 			<key>match</key>
+			<string>(\.\.\.)</string>
+			<key>name</key>
+			<string>keyword.operator.variadic.d</string>
+		</dict>
+		<dict>
+			<key>match</key>
 			<string>(\.\.)</string>
 			<key>name</key>
 			<string>keyword.operator.slice.d</string>
