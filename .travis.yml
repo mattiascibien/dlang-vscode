@@ -10,7 +10,7 @@ os:
 
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
-      export CXX="g++-4.9" CC="gcc-4.9" DISPLAY=:99.0;
+      export DISPLAY=:99.0;
       sh -e /etc/init.d/xvfb start;
       sleep 3;
     fi
@@ -30,7 +30,7 @@ before_script:
   - sudo apt-get update -qq
   - sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
   - sudo apt-get update -qq
-  - sudo apt-get install dmd-bin dub
+  - sudo apt-get -y install dmd-bin dub
 
 script:
   - npm test --silent
