@@ -4,6 +4,11 @@ init:
 
 install:
   - ps: Install-Product node ''
+  - ps: Add-Type -assembly "system.io.compression.filesystem"
+  - ps: (new-object net.webclient).DownloadFile("https://github.com/LaurentTreguier/sdlang-vscode/archive/master.zip", "sdlang.zip")
+  - ps: '[io.compression.zipfile]::ExtractToDirectory(".\sdlang.zip", "$Env:HOME\.vscode\extensions")'
+  - cinst dmd
+  - cinst dub
   - npm install
   - npm install -g vsce
 
