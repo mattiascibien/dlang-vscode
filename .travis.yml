@@ -1,12 +1,18 @@
-sudo: false
+sudo: true
 
 language: node_js
 node_js:
   - "6"
 
 os:
-  - osx
   - linux
+
+before_script:
+  - sudo wget http://master.dl.sourceforge.net/project/d-apt/files/d-apt.list -O /etc/apt/sources.list.d/d-apt.list
+  - sudo apt-get update -qq
+  - sudo apt-get -y --allow-unauthenticated install --reinstall d-apt-keyring
+  - sudo apt-get update -qq
+  - sudo apt-get install dmd-bin dub unzip
 
 before_install:
   - if [ $TRAVIS_OS_NAME == "linux" ]; then
@@ -14,6 +20,12 @@ before_install:
       sh -e /etc/init.d/xvfb start;
       sleep 3;
     fi
+  - pushd /tmp
+  - wget https://github.com/LaurentTreguier/sdlang-vscode/archive/master.zip -O sdlang.zip
+  - unzip sdlang.zip
+  - mkdir -p ~/.vscode/extensions
+  - mv sdlang-vscode-master ~/.vscode/extensions
+  - popd
 
 install:
   - npm install
