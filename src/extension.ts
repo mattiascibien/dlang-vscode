@@ -210,13 +210,13 @@ export function deactivate() {
 };
 
 function start(context: vsc.ExtensionContext) {
-    if (vsc.workspace.rootPath) {
-        tasks = new Tasks();
-        context.subscriptions.push(tasks);
-    }
-
     let dub = new Dub(output);
     let provider = new Provider();
+
+    if (vsc.workspace.rootPath) {
+        tasks = new Tasks(dub);
+        context.subscriptions.push(tasks);
+    }
 
     output.show(true);
     context.subscriptions.push(output, dub);
@@ -462,16 +462,23 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.dustmite', dub.dustmite.bind(dub)));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () =>
-        vsc.window.showQuickPick(Tasks.compilers).then((compiler) => {
+        vsc.window.showQuickPick(tasks.compilers).then((compiler) => {
             if (compiler) {
                 tasks.compiler = compiler;
             }
         })));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.tasks.build', () =>
-        vsc.window.showQuickPick(Tasks.builds).then((build) => {
+        vsc.window.showQuickPick(tasks.builds).then((build) => {
             if (build) {
                 tasks.build = build;
+            }
+        })));
+
+    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.config', () =>
+        vsc.window.showQuickPick(tasks.configs).then((config) => {
+            if (config) {
+                tasks.config = config;
             }
         })));
 
