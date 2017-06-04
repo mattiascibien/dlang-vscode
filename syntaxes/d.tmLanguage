@@ -207,61 +207,59 @@
 		<dict>
 			<key>begin</key>
 			<string>(?x)(?&lt;=^|\}|;)\s*
-					(?&lt;meta_modifier&gt;
-						(?:
-							(?:
-								(?:(?:\b(?:public|private|protected|static|final|synchronized|abstract|export|shared)\b)) |
-								(?:\b(?:extern)\b(?:\s*\(\s*(?:(?:(?:C\+\+)(?:\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|\b(?:C|D|Windows|Pascal|System|Objective-C)\b)\s*\))?)
-							)\s*
-						)*
-					)
-					(?&lt;structure&gt;class|interface)\s+
-					(?&lt;identifier&gt;\w+)\s* # identifier
-					(?:\(\s*(?&lt;template_params&gt;[^\)]+)\s*\)|)\s* # Template type
+					((?:\b(public|private|protected|static|final|synchronized|abstract|export|shared)\b\s*)*) # modifier
+					(class|interface)\s+
+					(\w+)\s* # identifier
+					(?:\(\s*([^\)]+)\s*\)|)\s* # Template type
 					(?:
-					  \s*(?&lt;inheritance_separator&gt;:)\s*
-					  (?&lt;inherited&gt;\w+)
-					  (?:\s*,\s*(?&lt;inherited&gt;\w+))?
-					  (?:\s*,\s*(?&lt;inherited&gt;\w+))?
-					  (?:\s*,\s*(?&lt;inherited&gt;\w+))?
-					  (?:\s*,\s*(?&lt;inherited&gt;\w+))?
-					  (?:\s*,\s*(?&lt;inherited&gt;\w+))?
-					  (?:\s*,\s*(?&lt;inherited&gt;\w+))?
+					  \s*(:)\s*
+					  (\w+)
+					  (?:\s*,\s*(\w+))?
+					  (?:\s*,\s*(\w+))?
+					  (?:\s*,\s*(\w+))?
+					  (?:\s*,\s*(\w+))?
+					  (?:\s*,\s*(\w+))?
+					  (?:\s*,\s*(\w+))?
 					)? # super class
 					</string>
 			<key>beginCaptures</key>
 			<dict>
-				<key>identifier</key>
+				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.type.class.d</string>
+					<string>storage.modifier.d</string>
 				</dict>
-				<key>inheritance_separator</key>
-				<dict>
-					<key>name</key>
-					<string>punctuation.separator.inheritance.d</string>
-				</dict>
-				<key>inherited</key>
+				<key>10</key>
 				<dict>
 					<key>name</key>
 					<string>entity.other.inherited-class.d</string>
 				</dict>
-				<key>meta_modifier</key>
+				<key>11</key>
 				<dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#meta-modifier</string>
-						</dict>
-					</array>
+					<key>name</key>
+					<string>entity.other.inherited-class.d</string>
 				</dict>
-				<key>structure</key>
+				<key>12</key>
+				<dict>
+					<key>name</key>
+					<string>entity.other.inherited-class.d</string>
+				</dict>
+				<key>13</key>
+				<dict>
+					<key>name</key>
+					<string>entity.other.inherited-class.d</string>
+				</dict>
+				<key>3</key>
 				<dict>
 					<key>name</key>
 					<string>storage.type.structure.d</string>
 				</dict>
-				<key>template_params</key>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.type.class.d</string>
+				</dict>
+				<key>5</key>
 				<dict>
 					<key>patterns</key>
 					<array>
@@ -270,6 +268,26 @@
 							<string>$base</string>
 						</dict>
 					</array>
+				</dict>
+				<key>6</key>
+				<dict>
+					<key>name</key>
+					<string>punctuation.separator.inheritance.d</string>
+				</dict>
+				<key>7</key>
+				<dict>
+					<key>name</key>
+					<string>entity.other.inherited-class.d</string>
+				</dict>
+				<key>8</key>
+				<dict>
+					<key>name</key>
+					<string>entity.other.inherited-class.d</string>
+				</dict>
+				<key>9</key>
+				<dict>
+					<key>name</key>
+					<string>entity.other.inherited-class.d</string>
 				</dict>
 			</dict>
 			<key>end</key>
@@ -310,41 +328,29 @@
 		<dict>
 			<key>begin</key>
 			<string>(?x)(?&lt;=^|\}|;)\s*
-					(?&lt;meta_modifier&gt;
-						(?:
-							(?:
-								(?:(?:\b(?:public|private|protected|static|final|synchronized|abstract|export|shared)\b)) |
-								(?:\b(?:extern)\b(?:\s*\(\s*(?:(?:(?:C\+\+)(?:\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|\b(?:C|D|Windows|Pascal|System|Objective-C)\b)\s*\))?)
-							)\s*
-						)*
-					)
-					(?&lt;structure&gt;struct)\s+
-					(?&lt;identifier&gt;\w+)\s*
-					(?:\(\s*(?&lt;template_params&gt;[^\)]+)\s*\)|)\s*
+					((?:\b(public|private|protected|static|final|synchronized|abstract|export|shared)\b\s*)*) # modifier
+					(struct)\s+
+					(\w+)\s* # identifier
+					(?:\(\s*([^\)]+)\s*\)|)\s* # Template type
 					</string>
 			<key>beginCaptures</key>
 			<dict>
-				<key>identifier</key>
+				<key>1</key>
 				<dict>
 					<key>name</key>
-					<string>entity.name.type.struct.d</string>
+					<string>storage.modifier.d</string>
 				</dict>
-				<key>meta_modifier</key>
-				<dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#meta-modifier</string>
-						</dict>
-					</array>
-				</dict>
-				<key>structure</key>
+				<key>3</key>
 				<dict>
 					<key>name</key>
 					<string>storage.type.structure.d</string>
 				</dict>
-				<key>template_params</key>
+				<key>4</key>
+				<dict>
+					<key>name</key>
+					<string>entity.name.type.struct.d</string>
+				</dict>
+				<key>5</key>
 				<dict>
 					<key>patterns</key>
 					<array>
@@ -585,17 +591,22 @@
 			<dict>
 				<key>1</key>
 				<dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#meta-external</string>
-						</dict>
-					</array>
+					<key>name</key>
+					<string>keyword.other.external.d</string>
+				</dict>
+				<key>5</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language.external.d</string>
+				</dict>
+				<key>7</key>
+				<dict>
+					<key>name</key>
+					<string>constant.language.external.d</string>
 				</dict>
 			</dict>
 			<key>match</key>
-			<string>(\b(?:extern)\b(?:\s*\(\s*(?:(?:(?:C\+\+)(?:\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|\b(?:C|D|Windows|Pascal|System|Objective-C)\b)\s*\))?)</string>
+			<string>\b(extern)\b(\s*\(\s*(((C\+\+)(\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|(C|D|Windows|Pascal|System))\s*\))?</string>
 			<key>name</key>
 			<string>meta.external.d</string>
 		</dict>
@@ -1172,56 +1183,6 @@
 			<string>(?i:%(\([a-z_]+\))?#?0?\-?[ ]?\+?([0-9]*|\*)(\.([0-9]*|\*))?[hL]?[a-z%])</string>
 			<key>name</key>
 			<string>constant.other.placeholder.d</string>
-		</dict>
-		<key>meta-external</key>
-		<dict>
-			<key>captures</key>
-			<dict>
-				<key>identifier</key>
-				<dict>
-					<key>name</key>
-					<string>constant.language.external.d</string>
-				</dict>
-				<key>keyword</key>
-				<dict>
-					<key>name</key>
-					<string>keyword.other.external.d</string>
-				</dict>
-			</dict>
-			<key>match</key>
-			<string>\b(?&lt;keyword&gt;extern)\b(\s*\(\s*(?:(?:(?&lt;identifier&gt;C\+\+)(?:\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|(?&lt;identifier&gt;C|D|Windows|Pascal|System|Objective-C))\s*\))?</string>
-			<key>name</key>
-			<string>meta.external.d</string>
-		</dict>
-		<key>meta-modifier</key>
-		<dict>
-			<key>captures</key>
-			<dict>
-				<key>meta_external</key>
-				<dict>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>#meta-external</string>
-						</dict>
-					</array>
-				</dict>
-				<key>modifier</key>
-				<dict>
-					<key>name</key>
-					<string>storage.modifier.d</string>
-				</dict>
-			</dict>
-			<key>match</key>
-			<string>(?x)
-				(?:
-					(?&lt;modifier&gt;\b(?:public|private|protected|static|final|synchronized|abstract|export|shared)\b) |
-					(?&lt;meta_external&gt;\b(?:extern)\b(?:\s*\(\s*(?:(?:(?:C\+\+)(?:\s*,\s*[A-Za-z_][A-Za-z0-9._]*)?)|\b(?:C|D|Windows|Pascal|System|Objective-C)\b)\s*\))?)
-				)\s*
-			</string>
-			<key>name</key>
-			<string>meta.modifier.d</string>
 		</dict>
 		<key>regular_expressions</key>
 		<dict>

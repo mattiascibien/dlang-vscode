@@ -4,6 +4,7 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as vsc from 'vscode';
+import Dub from './dub';
 
 export default class Tasks implements vsc.Disposable {
     private static _builds = [
@@ -20,13 +21,19 @@ export default class Tasks implements vsc.Disposable {
         'cov',
         'unittest-cov'
     ];
+    private static _configs = ['<none>'];
+    private _dub: Dub;
+    private _watcher: vsc.FileSystemWatcher;
+    private _builds: string[] = [];
+    private _configs: string[] = [];
     private _tasksFile: string;
     private _choosers: {
         compiler: vsc.StatusBarItem,
-        build: vsc.StatusBarItem
+        build: vsc.StatusBarItem,
+        config: vsc.StatusBarItem
     };
 
-    public static get compilers() {
+    public get compilers() {
         let installedCompilers = new Set<string>();
         let isWin = process.platform === 'win32';
 
@@ -41,15 +48,62 @@ export default class Tasks implements vsc.Disposable {
         return Array.from(installedCompilers);
     }
 
-    public static get builds() {
-        return Tasks._builds;
+    public get builds() {
+        return Tasks._builds.concat(this._builds);
     }
 
-    public constructor() {
+    public get configs() {
+        return Tasks._configs.concat(this._configs);
+    }
+
+    public set compiler(compiler: string) {
+        this.apply(this.changeArgument.bind(this, 'compiler', compiler), true);
+    }
+
+    public set build(build: string) {
+        this.apply(this.changeArgument.bind(this, 'build', build), true);
+    }
+
+    public set config(config: string) {
+        this.apply(this.changeArgument.bind(this, 'config', config), true);
+    }
+
+    public constructor(dub: Dub) {
+        this._dub = dub;
+
+        if (vsc.workspace.rootPath) {
+            let extensions = ['json', 'sdl'];
+            let filePath = path.join(vsc.workspace.rootPath, 'dub.*');
+            let listener = (e: vsc.Uri) => {
+                if (path.extname(e.path).match(extensions.join('|'))) {
+                    this.updateInfo(e.fsPath);
+                }
+            };
+
+            this._watcher = vsc.workspace.createFileSystemWatcher(filePath);
+            this._watcher.onDidCreate(listener);
+            this._watcher.onDidChange(listener);
+            this._watcher.onDidDelete(() => {
+                this._builds = [];
+                this._configs = [];
+            });
+
+            extensions.forEach((ext) => {
+                let filePath = path.join(vsc.workspace.rootPath, 'dub.' + ext);
+
+                fs.access(filePath, fs.constants.R_OK, (err) => {
+                    if (!err) {
+                        this.updateInfo(filePath);
+                    }
+                });
+            });
+        }
+
         this._tasksFile = path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json');
         this._choosers = {
-            compiler: vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Left, 10),
-            build: vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Left, 11)
+            compiler: vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Left, 12),
+            build: vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Left, 11),
+            config: vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Left, 10)
         };
 
         this._choosers.compiler.command = 'dlang.tasks.compiler';
@@ -57,9 +111,13 @@ export default class Tasks implements vsc.Disposable {
 
         this._choosers.build.command = 'dlang.tasks.build';
         this._choosers.build.tooltip = 'Build target';
+
+        this._choosers.config.command = 'dlang.tasks.config';
+        this._choosers.config.tooltip = 'Build configuration';
     }
 
     public dispose() {
+        this._watcher.dispose();
         this.hideChoosers();
 
         for (let chooser in this._choosers) {
@@ -106,8 +164,9 @@ export default class Tasks implements vsc.Disposable {
     }
 
     public updateChoosers() {
-        this._choosers.compiler.text = '$(tools) ' + Tasks.compilers[0];
-        this._choosers.build.text = '$(gear) ' + Tasks.builds[0];
+        this._choosers.compiler.text = '$(tools) ' + this.compilers[0];
+        this._choosers.build.text = '$(gear) ' + this.builds[0];
+        this._choosers.config.text = '$(settings) ' + this.configs[0];
 
         this.apply((args) => args.forEach((arg) => {
             let map = {
@@ -118,14 +177,18 @@ export default class Tasks implements vsc.Disposable {
                 build: {
                     chooser: this._choosers.build,
                     icon: '$(gear)'
+                },
+                config: {
+                    chooser: this._choosers.config,
+                    icon: '$(settings)'
                 }
             };
 
-            for (let regexp in map) {
-                let match = arg.match(new RegExp(`--${regexp}=(.*)`));
+            for (let item in map) {
+                let match = arg.match(new RegExp(`--${item}=(.*)`));
 
                 if (match) {
-                    map[regexp].chooser.text = map[regexp].icon + ' ' + match[1];
+                    map[item].chooser.text = map[item].icon + ' ' + match[1];
                 }
             }
         }));
@@ -137,12 +200,28 @@ export default class Tasks implements vsc.Disposable {
         }
     }
 
-    public set compiler(compiler: string) {
-        this.apply(this.changeArgument.bind(this, 'compiler', compiler), true);
-    }
+    private updateInfo(dubPath: string) {
+        if (path.extname(dubPath) == 'sdl') {
+            dubPath = this._dub.getJSONFromSDL(dubPath);
+        }
 
-    public set build(build: string) {
-        this.apply(this.changeArgument.bind(this, 'build', build), true);
+        fs.readFile(dubPath, (err, data) => {
+            try {
+                let json = JSON.parse(data.toString());
+
+                if (json.buildTypes) {
+                    this._builds = [];
+
+                    for (let type in json.buildTypes) {
+                        this._builds.push(type);
+                    }
+                }
+
+                if (json.configurations) {
+                    this._configs = json.configurations.map((config) => config.name);
+                }
+            } catch (err) { }
+        });
     }
 
     private apply(predicate: (args: string[]) => (string[] | void), write?: boolean) {
@@ -164,7 +243,11 @@ export default class Tasks implements vsc.Disposable {
 
     private changeArgument(argument: string, value: string, args: string[]) {
         let compilerArg = args.find((arg) => !!arg.match(new RegExp(`--${argument}=.*`)));
-        args.push(`--${argument}=` + value);
+
+        if (value && value !== Tasks._configs[0]) {
+            args.push(`--${argument}=` + value);
+        }
+
         return args.filter((arg) => arg !== compilerArg);
     }
 };

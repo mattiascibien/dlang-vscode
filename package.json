@@ -395,6 +395,11 @@
                 "command": "dlang.tasks.build"
             },
             {
+                "title": "Change Build Configuration",
+                "category": "Dlang",
+                "command": "dlang.tasks.config"
+            },
+            {
                 "title": "Disable Check",
                 "category": "Dlang Actions",
                 "command": "dlang.actions.config"
@@ -439,23 +444,23 @@
     },
     "devDependencies": {
         "@types/escape-string-regexp": "^0.0.30",
-        "@types/fs-extra": "^2.1.0",
+        "@types/fs-extra": "^3.0.3",
         "@types/glob": "^5.0.30",
         "@types/mocha": "^2.2.41",
-        "@types/node": "^7.0.13",
-        "@types/tmp": "^0.0.32",
+        "@types/node": "^7.0.27",
+        "@types/tmp": "^0.0.33",
         "@types/xml2js": "^0.0.33",
         "decache": "^4.1.0",
-        "glob": "^7.1.1",
+        "glob": "^7.1.2",
         "istanbul": "^0.4.5",
-        "mocha": "^3.2.0",
+        "mocha": "^3.4.2",
         "remap-istanbul": "^0.9.5",
-        "typescript": "^2.2.2",
+        "typescript": "^2.3.4",
         "vscode": "^1.1.0"
     },
     "dependencies": {
         "escape-string-regexp": "^1.0.5",
-        "fs-extra": "^2.1.2",
+        "fs-extra": "^3.0.1",
         "meta-pkg": "^0.6.4",
         "tmp": "^0.0.31",
         "xml2js": "^0.4.17"
