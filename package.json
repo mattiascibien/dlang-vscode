@@ -39,7 +39,7 @@
         "onLanguage:d",
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
-        "onCommand:dlang.defaultTasks",
+        "onCommand:dlang.default-tasks",
         "onCommand:dlang.install",
         "onCommand:dlang.d-profile-viewer",
         "onCommand:dlang.dcd.import",
@@ -337,7 +337,7 @@
             {
                 "title": "Create Default Tasks",
                 "category": "Dlang",
-                "command": "dlang.defaultTasks"
+                "command": "dlang.default-tasks"
             },
             {
                 "title": "Install Tools",
@@ -439,14 +439,22 @@
     "scripts": {
         "vscode:prepublish": "./node_modules/.bin/tsc -p ./",
         "compile": "./node_modules/.bin/tsc -watch -p ./",
-        "postinstall": "node ./node_modules/vscode/bin/install"
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
     },
     "devDependencies": {
         "@types/escape-string-regexp": "^0.0.30",
         "@types/fs-extra": "^3.0.3",
+        "@types/glob": "^5.0.30",
+        "@types/mocha": "^2.2.41",
         "@types/node": "^7.0.27",
         "@types/tmp": "^0.0.33",
         "@types/xml2js": "^0.0.33",
+        "decache": "^4.1.0",
+        "glob": "^7.1.2",
+        "istanbul": "^0.4.5",
+        "mocha": "^3.4.2",
+        "remap-istanbul": "^0.9.5",
         "typescript": "^2.3.4",
         "vscode": "^1.1.0"
     },

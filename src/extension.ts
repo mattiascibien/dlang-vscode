@@ -200,6 +200,14 @@ export function activate(context: vsc.ExtensionContext) {
             })))
         .then((promises) => Promise.all(promises))
         .then(start.bind(null, context))
+        .then(() => ({
+            dcd: {
+                server: {
+                    start: () => server.start(),
+                    stop: () => server.stop()
+                }
+            }
+        }))
         .catch(console.log.bind(console));
 };
 
@@ -298,7 +306,7 @@ function start(context: vsc.ExtensionContext) {
         fs.stat(tasksFile, (err) => {
             if (err) {
                 tasksGenerator = vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Right);
-                tasksGenerator.command = 'dlang.defaultTasks';
+                tasksGenerator.command = 'dlang.default-tasks';
                 tasksGenerator.text = '$(list-unordered) Generate default tasks';
                 tasksGenerator.tooltip = 'Generate default tasks in .vscode for building with dub';
                 tasksGenerator.color = 'yellow';
@@ -307,7 +315,7 @@ function start(context: vsc.ExtensionContext) {
         });
     }
 
-    registerCommands(context.subscriptions, dub)
+    return registerCommands(context.subscriptions, dub)
         .then(dcdClientTool.setup.bind(dcdClientTool))
         .then(dcdServerTool.setup.bind(dcdServerTool))
         .then(dfmtTool.setup.bind(dfmtTool))
@@ -327,7 +335,7 @@ function start(context: vsc.ExtensionContext) {
 };
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
-    subscriptions.push(vsc.commands.registerCommand('dlang.defaultTasks', () => {
+    subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks', () => {
         tasks.createFile();
 
         if (tasksGenerator) {

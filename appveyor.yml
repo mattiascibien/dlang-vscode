@@ -3,7 +3,13 @@ init:
   - git config --global core.autocrlf true
 
 install:
+  - mkdir %HOMEPATH%\.vscode\extensions
   - ps: Install-Product node ''
+  - ps: Add-Type -assembly "system.io.compression.filesystem"
+  - ps: (new-object net.webclient).DownloadFile("https://github.com/LaurentTreguier/sdlang-vscode/archive/master.zip", "sdlang.zip")
+  - ps: '[io.compression.zipfile]::ExtractToDirectory(".\sdlang.zip", "$Env:HOMEPATH\.vscode\extensions")'
+  - cinst -y dmd
+  - cinst -y dub
   - npm install
   - npm install -g vsce
 
