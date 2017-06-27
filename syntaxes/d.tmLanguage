@@ -654,7 +654,7 @@
 					pure
 				)
 				\b|
-				(@)([A-Za-z][A-Za-z0-9_]+)\b</string>
+				(@)([A-Za-z][A-Za-z0-9_]*)\b</string>
 			<key>name</key>
 			<string>storage.modifier.d</string>
 		</dict>
