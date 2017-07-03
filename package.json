@@ -447,16 +447,16 @@
         "@types/fs-extra": "^3.0.3",
         "@types/glob": "^5.0.30",
         "@types/mocha": "^2.2.41",
-        "@types/node": "^7.0.27",
+        "@types/node": "^8.0.7",
         "@types/tmp": "^0.0.33",
-        "@types/xml2js": "^0.0.33",
+        "@types/xml2js": "^0.4.0",
         "decache": "^4.1.0",
         "glob": "^7.1.2",
         "istanbul": "^0.4.5",
         "mocha": "^3.4.2",
         "remap-istanbul": "^0.9.5",
-        "typescript": "^2.3.4",
-        "vscode": "^1.1.0"
+        "typescript": "^2.4.1",
+        "vscode": "^1.1.2"
     },
     "dependencies": {
         "escape-string-regexp": "^1.0.5",

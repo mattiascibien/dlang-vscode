@@ -10,6 +10,6 @@ export default class DProfileViewer {
     public constructor(directory: string, resolve: Function) {
         cp.spawn(path.join(DProfileViewer.toolDirectory, DProfileViewer.toolFile), [], {
             cwd: directory
-        }).on('exit', resolve);
+        }).on('exit', () => resolve());
     }
 };

@@ -10,6 +10,6 @@ export default class Dfix {
     public constructor(fileOrDir: string, resolve: Function) {
         cp.spawn(path.join(Dfix.toolDirectory, Dfix.toolFile), [fileOrDir], {
             cwd: fileOrDir
-        }).on('exit', resolve);
+        }).on('exit', () => resolve());
     }
 };

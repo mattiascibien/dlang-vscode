@@ -2,12 +2,12 @@
 
 import * as ev from 'events';
 import * as vsc from 'vscode';
+import * as dcdUtil from './dcd/util';
+import * as dscannerUtil from './dscanner/util';
 import Server from './dcd/server';
 import Client from './dcd/client';
-import * as dcdUtil from './dcd/util';
 import Dfmt from './dfmt';
 import Dscanner from './dscanner/dscanner';
-import * as dscannerUtil from './dscanner/util';
 
 export default class Provider extends ev.EventEmitter implements
     vsc.CompletionItemProvider,
@@ -22,7 +22,7 @@ export default class Provider extends ev.EventEmitter implements
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<any> {
         return this.provide(document, position, token, dcdUtil.Operation.Completion);
     }
 
@@ -30,7 +30,7 @@ export default class Provider extends ev.EventEmitter implements
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<any> {
         return this.provide(document, position, token, dcdUtil.Operation.Calltips);
     }
 
@@ -38,7 +38,7 @@ export default class Provider extends ev.EventEmitter implements
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<any> {
         return this.provide(document, position, token, dcdUtil.Operation.Definition);
     }
 
@@ -46,7 +46,7 @@ export default class Provider extends ev.EventEmitter implements
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<any> {
         return this.provide(document, position, token, dcdUtil.Operation.Documentation);
     }
 
@@ -54,7 +54,7 @@ export default class Provider extends ev.EventEmitter implements
         document: vsc.TextDocument,
         options: vsc.FormattingOptions,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<vsc.TextEdit[]> {
         let dfmt = new Dfmt(document, options, token);
         return new Promise(dfmt.execute.bind(dfmt));
     }
@@ -62,7 +62,7 @@ export default class Provider extends ev.EventEmitter implements
     public provideDocumentSymbols(
         document: vsc.TextDocument,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<vsc.SymbolInformation[]> {
         let dscanner = new Dscanner(document, token, dscannerUtil.Operation.DocumentSymbols);
         return new Promise(dscanner.execute.bind(dscanner));
     }
@@ -70,7 +70,7 @@ export default class Provider extends ev.EventEmitter implements
     public provideWorkspaceSymbols(
         query: string,
         token: vsc.CancellationToken
-    ) {
+    ): Promise<vsc.SymbolInformation[]> {
         return new Promise((resolve, reject) => {
             vsc.workspace.findFiles('**/*.d*', null).then((uris) => {
                 let promises: PromiseLike<vsc.SymbolInformation[]>[] = uris.map((uri) => {
