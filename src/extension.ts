@@ -146,8 +146,8 @@ export function activate(context: vsc.ExtensionContext) {
 
     return Promise.all(packagePromises)
         .then((packagesStrings: string[]) => packagesStrings.map(JSON.parse.bind(JSON)))
-        .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage.bind(mpkg)))
-        .then(() => packageNames.map(mpkg.getInstallers.bind(mpkg)))
+        .then((packages: mpkg.Package[]) => packages.forEach(mpkg.registerPackage))
+        .then(() => packageNames.map(mpkg.getInstallers))
         .then((promises) => Promise.all(promises))
         .then((allInstallers: mpkg.Installer[][]) => {
             allInstallers.forEach((installers, i) => {
@@ -179,7 +179,7 @@ export function activate(context: vsc.ExtensionContext) {
                             });
                     }
                 });
-        }).then(() => packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        }).then(() => packageNames.map(mpkg.isInstalled))
         .then((promises) => Promise.all(promises))
         .then((installed: boolean[]) => packageNames
             .map((name, i) => installed[i] ? mpkg.isUpgradable(name) : false))
@@ -354,7 +354,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         let installedPackageName: string;
         let size: number;
 
-        Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+        Promise.all(packageNames.map(mpkg.isInstalled))
             .then((installed) => packageNames.filter((name, i) => !installed[i]))
             .then((names: string[]) => {
                 size = names.length;
@@ -393,7 +393,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
             }).catch(console.log.bind(console));
     }));
 
-    Promise.all(packageNames.map(mpkg.isInstalled.bind(mpkg)))
+    Promise.all(packageNames.map(mpkg.isInstalled))
         .then((installed) => {
             if (installed.indexOf(false) !== -1) {
                 toolsInstaller.show();
