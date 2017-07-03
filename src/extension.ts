@@ -4,6 +4,9 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as vsc from 'vscode';
 import * as mpkg from 'meta-pkg';
+import * as dscannerUtil from './dscanner/util';
+import * as dscannerConfig from './dscanner/config';
+import { D_MODE } from './mode';
 import Tasks from './tasks';
 import Dub from './dub';
 import Provider from './provider';
@@ -13,9 +16,6 @@ import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
 import Dscanner from './dscanner/dscanner';
-import * as dscannerUtil from './dscanner/util';
-import * as dscannerConfig from './dscanner/config';
-import { D_MODE } from './mode';
 
 let toolsInstaller: vsc.StatusBarItem;
 let tasksGenerator: vsc.StatusBarItem;
@@ -28,6 +28,7 @@ class Tool {
     public static dub: Dub;
     public activate: Function;
     private _name: string;
+    private _version: string
     private _configName: string;
     private _buildConfig: string;
     private _isSystemTool = false;
@@ -52,14 +53,18 @@ class Tool {
     public fetch() {
         return Tool.dub.search(this._name)
             .then((packages) => packages.find((pkg) => pkg.name === this._name))
-            .then((pkg) => Tool.dub.fetch(this._name, pkg ? pkg.version : undefined));
+            .then((pkg) => {
+                this._version = pkg.version;
+                return Tool.dub.fetch(this._name, pkg ? pkg.version : undefined);
+            });
     }
 
     public build() {
-        return Tool.dub.getLatestVersion(this._name)
-            .then((p) => {
-                this._toolDirectory = p.path;
-                return Tool.dub.build(p, 'release', this._buildConfig);
+        return Tool.dub.list()
+            .then((packages) => packages.find((p) => p.name === this._name && p.version === this._version))
+            .then((pkg) => {
+                this._toolDirectory = pkg.path;
+                return Tool.dub.build(pkg, 'release', this._buildConfig);
             });
     }
 

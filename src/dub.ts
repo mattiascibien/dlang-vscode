@@ -162,12 +162,6 @@ export default class Dub extends vsc.Disposable {
         return dubJson;
     }
 
-    public getLatestVersion(packageName: string) {
-        return this.list().then((packages) => packages
-            .filter((pkg) => pkg.name === packageName)
-            .sort((a, b) => a.version.localeCompare(b.version))
-            .pop());
-    }
 
     private launchCommand(command: string,
         args: any,
