@@ -61,22 +61,12 @@
         {
             "name": "string.quoted.double.delimited.d",
             "begin": "q\"(\\w+)$",
-            "end": "^\\1\"",
-            "patterns": [
-                {
-                    "include": "#string-escaped-char"
-                }
-            ]
+            "end": "^\\1\""
         },
         {
             "name": "string.quoted.double.delimited.d",
             "begin": "q\"(?:\\[|\\(|<|\\{|(\\S))",
-            "end": "(?:\\]|\\)|>|\\}|\\1)\"",
-            "patterns": [
-                {
-                    "include": "#string-escaped-char"
-                }
-            ]
+            "end": "(?:\\]|\\)|>|\\}|\\1)\""
         },
         {
             "name": "string.quoted.double.hexadecimal.d",
