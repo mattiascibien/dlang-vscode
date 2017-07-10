@@ -37,7 +37,7 @@
         },
         {
             "name": "string.quoted.single.d",
-            "match": "'([^\\\\]|(?:\\\\.{1,10}))'",
+            "match": "'(?:[^\\\\]|(?:\\\\.{1,10}))'",
             "captures": {
                 "0": {
                     "patterns": [
@@ -60,8 +60,18 @@
         },
         {
             "name": "string.quoted.double.delimited.d",
+            "begin": "q\"(\\w+)$",
+            "end": "^\\1\"",
+            "patterns": [
+                {
+                    "include": "#string-escaped-char"
+                }
+            ]
+        },
+        {
+            "name": "string.quoted.double.delimited.d",
             "begin": "q\"(?:\\[|\\(|<|\\{|(\\S))",
-            "end": "(?:\\]|\\)|>|\\}|\\1)\"(c|d|w)?",
+            "end": "(?:\\]|\\)|>|\\}|\\1)\"",
             "patterns": [
                 {
                     "include": "#string-escaped-char"
@@ -145,7 +155,7 @@
         },
         {
             "name": "keyword.control.loop.d",
-            "match": "\\b(?:do|for|foreach(_reverse)?|while)\\b"
+            "match": "\\b(do|for|foreach(_reverse)?|while)\\b"
         },
         {
             "name": "keyword.operator.arithmetic.d",
