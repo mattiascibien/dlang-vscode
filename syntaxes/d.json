@@ -1,9 +1,48 @@
 {
     "scopeName": "source.d",
     "fileTypes": [
-        "d"
+        "d",
+        "di"
     ],
     "patterns": [
+        {
+            "name": "meta.section.module.d",
+            "match": "\\b(module)\\s+([\\w.]+)",
+            "captures": {
+                "1": {
+                    "name": "storage.type.d"
+                },
+                "2": {
+                    "name": "entity.name.section.module.d"
+                }
+            }
+        },
+        {
+            "name": "meta.import.d",
+            "match": "\\b((?:static|public)\\s+)?(import)\\s+([^;]+)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
+                },
+                "2": {
+                    "name": "keyword.control.d"
+                },
+                "3": {
+                    "patterns": [
+                        {
+                            "include": "#import-bindings"
+                        },
+                        {
+                            "include": "#import-aliases"
+                        }
+                    ]
+                }
+            }
+        },
         {
             "name": "comment.line.number-sign.shebang.d",
             "match": "\\A#!.+"
@@ -22,18 +61,6 @@
         },
         {
             "include": "#comment-block-nested"
-        },
-        {
-            "name": "meta.section.module.d",
-            "match": "(?:^|;)\\s*(module)\\s*([\\w.]+)",
-            "captures": {
-                "1": {
-                    "name": "storage.type.d"
-                },
-                "2": {
-                    "name": "entity.name.section.module.d"
-                }
-            }
         },
         {
             "name": "string.quoted.single.d",
@@ -133,7 +160,7 @@
         },
         {
             "name": "keyword.control.d",
-            "match": "\\b(asm|assert|body|cast|debug|import|invariant|return|synchronized|with)\\b"
+            "match": "\\b(asm|assert|body|cast|debug|invariant|return|synchronized|with)\\b"
         },
         {
             "name": "keyword.control.branch.d",
@@ -148,20 +175,24 @@
             "match": "\\b(do|for|foreach(_reverse)?|while)\\b"
         },
         {
+            "name": "keyword.operator.d",
+            "match": "\\b(delete|in|new)\\b"
+        },
+        {
             "name": "keyword.operator.arithmetic.d",
-            "match": "(\\+|-|\\*|/|~|\\^|\\^\\^)=?"
+            "match": "\\+|-|\\*|/|~|\\^|\\^\\^"
         },
         {
             "name": "keyword.operator.comparison.d",
             "match": "==|!=|(<|>)=?|<>"
         },
         {
-            "name": "keyword.operator.logical.d",
-            "match": "!|\\|\\||&&"
+            "name": "keyword.operator.assignment.d",
+            "match": "="
         },
         {
-            "name": "keyword.operator.memory.d",
-            "match": "\\b(delete|new)\\b"
+            "name": "keyword.operator.logical.d",
+            "match": "!|\\|\\||&&"
         },
         {
             "name": "keyword.operator.variadic.d",
@@ -177,7 +208,7 @@
         },
         {
             "name": "storage.modifier.d",
-            "match": "\\b(abstract|alias|align|auto|const|extern|final|immutable|in|inout|lazy|nothrow|out|override|pure|ref|scope|shared|static|typedef|volatile|__gshared)\\b"
+            "match": "\\b(abstract|alias|align|auto|const|extern|final|immutable|inout|lazy|nothrow|out|override|pure|ref|scope|shared|static|typedef|volatile|__gshared)\\b"
         },
         {
             "name": "storage.modifier.visibility.d",
@@ -209,11 +240,93 @@
         }
     ],
     "repository": {
-        "string-escaped-char": {
+        "import-bindings": {
             "patterns": [
                 {
-                    "name": "constant.character.escape.d",
-                    "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
+                    "match": "(?:(\\w+)\\s*(=)\\s*)?([\\w.]+)\\s*(:)\\s*([^;]+)",
+                    "captures": {
+                        "1": {
+                            "name": "entity.name.binding.d"
+                        },
+                        "2": {
+                            "patterns": [
+                                {
+                                    "include": "$self"
+                                }
+                            ]
+                        },
+                        "3": {
+                            "name": "entity.name.section.module.d"
+                        },
+                        "4": {
+                            "name": "keyword.operator.selection.d"
+                        },
+                        "5": {
+                            "patterns": [
+                                {
+                                    "include": "#import-bindings-list"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "import-bindings-list": {
+            "patterns": [
+                {
+                    "match": "(?:(\\w+)\\s*(=)\\s*)?(\\w+)(\\s*,[^;]+)?",
+                    "captures": {
+                        "1": {
+                            "name": "entity.name.binding.d"
+                        },
+                        "2": {
+                            "patterns": [
+                                {
+                                    "include": "$self"
+                                }
+                            ]
+                        },
+                        "3": {
+                            "name": "entity.name.d"
+                        },
+                        "4": {
+                            "patterns": [
+                                {
+                                    "include": "#import-bindings-list"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        "import-aliases": {
+            "patterns": [
+                {
+                    "match": "(?:\\s*,\\s*)?(?:(\\w+)\\s*(=)\\s*)?([\\w.]+)\\s*([^;]+)?",
+                    "captures": {
+                        "1": {
+                            "name": "entity.name.binding.d"
+                        },
+                        "2": {
+                            "patterns": [
+                                {
+                                    "include": "$self"
+                                }
+                            ]
+                        },
+                        "3": {
+                            "name": "entity.name.section.module.d"
+                        },
+                        "4": {
+                            "patterns": [
+                                {
+                                    "include": "#import-aliases"
+                                }
+                            ]
+                        }
+                    }
                 }
             ]
         },
@@ -228,6 +341,14 @@
                             "include": "#comment-block-nested"
                         }
                     ]
+                }
+            ]
+        },
+        "string-escaped-char": {
+            "patterns": [
+                {
+                    "name": "constant.character.escape.d",
+                    "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
                 }
             ]
         }
