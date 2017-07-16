@@ -278,7 +278,11 @@
                             ]
                         },
                         "3": {
-                            "name": "entity.name.section.module.d"
+                            "patterns": [
+                                {
+                                    "include": "#support-import"
+                                }
+                            ]
                         },
                         "4": {
                             "name": "keyword.operator.selection.d"
@@ -339,7 +343,11 @@
                             ]
                         },
                         "3": {
-                            "name": "entity.name.section.module.d"
+                            "patterns": [
+                                {
+                                    "include": "#support-import"
+                                }
+                            ]
                         },
                         "4": {
                             "patterns": [
@@ -371,6 +379,18 @@
                 {
                     "name": "constant.character.escape.d",
                     "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
+                }
+            ]
+        },
+        "support-import": {
+            "patterns": [
+                {
+                    "name": "support.type.module.d",
+                    "match": "\\b(etc\\.c\\.(curl|(odbc\\.(sql|sqlext|sqltypes|sqlucode)|sqlite3|zlib))|core\\.(atomic|attribute|bitop|checkint|cpuid|demangle|exception|math|memory|runtime|simd|stdc\\.(complex|ctype|errno|fenv|float_|inttypes|limits|locale|math|signal|stdarg|stdef|stdint|stdio|stdlib|string|tgmath|time|wchar_|wctype)|stdcpp\\.(exception|typeinfo)|sync\\.(barrier|condition|config|exception|mutex|rwmutex|semaphore)|thread|time|vararg)|std\\.(algorithm(\\.(comparison|iteration|mutation|searching|setops|sorting))?|array|ascii|base64|bigint|bitmanip|compiler|complex|concurrency|container(\\.(array|binaryheap|dlist|rbtree|slist|util))?|conv|csv|datetime|demangle|digest\\.(crc|digest|hmac|md|murmurhash|ripemd|sha)|encoding|exception|file|format|functional|getopt|json|math|mathspecial|meta|mmfile|net\\.(curl|isemail)|numeric|outbuffer|parallelism|path|process|random|range(\\.(interfaces|primitives))?|regex|signals|socket|stdint|stdio|string|system|traits|typecons|typetuple|uni|uri|utf|uuid|variant|windows\\.(charset|syserror)|xml|zip|zlib))\\b"
+                },
+                {
+                    "name": "entity.name.section.module.d",
+                    "match": "\\b[\\w.]+\\b"
                 }
             ]
         }
