@@ -44,6 +44,28 @@
             }
         },
         {
+            "name": "meta.linkage.d",
+            "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Windows|Pascal|System|Objective-C)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
+                },
+                "2": {
+                    "name": "constant.other.linkage.d"
+                },
+                "3": {
+                    "name": "constant.other.linkage.d"
+                },
+                "4": {
+                    "name": "entity.name.namespace.d"
+                }
+            }
+        },
+        {
             "name": "comment.line.number-sign.shebang.d",
             "match": "\\A#!.+"
         },
@@ -76,16 +98,6 @@
             }
         },
         {
-            "name": "string.quoted.double.d",
-            "begin": "\"",
-            "end": "\"(c|d|w)?",
-            "patterns": [
-                {
-                    "include": "#string-escaped-char"
-                }
-            ]
-        },
-        {
             "name": "string.quoted.double.delimited.d",
             "begin": "q\"(\\w+)$",
             "end": "^\\1\""
@@ -112,6 +124,16 @@
             "end": "\"(c|d|w)?"
         },
         {
+            "name": "string.quoted.double.d",
+            "begin": "\"",
+            "end": "\"(c|d|w)?",
+            "patterns": [
+                {
+                    "include": "#string-escaped-char"
+                }
+            ]
+        },
+        {
             "name": "string.quoted.other.backtick.raw.d",
             "begin": "`",
             "end": "`(c|d|w)?"
@@ -127,16 +149,16 @@
             ]
         },
         {
-            "name": "constant.language.d",
-            "match": "\\b__((FILE|FILE_FULL_PATH|MODULE|LINE|FUNCTION|PRETTY_FUNCTION)__|parameters)\\b"
-        },
-        {
             "name": "constant.language.boolean.d",
             "match": "\\b(true|false)\\b"
         },
         {
             "name": "constant.language.null.d",
             "match": "\\bnull\\b"
+        },
+        {
+            "name": "constant.language.d",
+            "match": "\\b__((FILE|FILE_FULL_PATH|MODULE|LINE|FUNCTION|PRETTY_FUNCTION)__|parameters)\\b"
         },
         {
             "name": "constant.numeric.float.decimal.d",
@@ -159,10 +181,6 @@
             "match": "\\b0[bB][01_]+i?\\b"
         },
         {
-            "name": "keyword.control.d",
-            "match": "\\b(asm|assert|body|cast|debug|invariant|return|synchronized|with)\\b"
-        },
-        {
             "name": "keyword.control.branch.d",
             "match": "\\b(break|case|continue|default|else|goto|if|switch|version)\\b"
         },
@@ -175,8 +193,8 @@
             "match": "\\b(do|for|foreach(_reverse)?|while)\\b"
         },
         {
-            "name": "keyword.operator.d",
-            "match": "\\b(delete|in|new)\\b"
+            "name": "keyword.control.d",
+            "match": "\\b(asm|assert|body|cast|debug|invariant|return|synchronized|with)\\b"
         },
         {
             "name": "keyword.operator.arithmetic.d",
@@ -203,20 +221,20 @@
             "match": "\\.\\."
         },
         {
-            "name": "keyword.other.d",
-            "match": "\\b(deprecated|is|macro|mixin|pragma|typeid|typeof|unittest|__traits)\\b"
+            "name": "keyword.operator.d",
+            "match": "\\b(delete|in|new)\\b"
         },
         {
-            "name": "storage.modifier.d",
-            "match": "\\b(abstract|alias|align|auto|const|extern|final|immutable|inout|lazy|nothrow|out|override|pure|ref|scope|shared|static|typedef|volatile|__gshared)\\b"
+            "name": "keyword.other.d",
+            "match": "\\b(deprecated|is|macro|mixin|pragma|typeid|typeof|unittest|__traits)\\b"
         },
         {
             "name": "storage.modifier.visibility.d",
             "match": "\\b(export|package|private|protcted|public)\\b"
         },
         {
-            "name": "storage.type.d",
-            "match": "\\b(bool|class|delegate|enum|function|interface|struct|template|union|void|__vector)\\b"
+            "name": "storage.modifier.d",
+            "match": "\\b(abstract|alias|align|auto|const|extern|final|immutable|inout|lazy|nothrow|out|override|pure|ref|scope|shared|static|typedef|volatile|__gshared)\\b"
         },
         {
             "name": "storage.type.character.d",
@@ -229,6 +247,10 @@
         {
             "name": "storage.type.float.d",
             "match": "\\b(cdouble|cfloat|creal|double|float|idouble|ifloat|ireal|real)\\b"
+        },
+        {
+            "name": "storage.type.d",
+            "match": "\\b(bool|class|delegate|enum|function|interface|struct|template|union|void|__vector)\\b"
         },
         {
             "name": "variable.language.d",
