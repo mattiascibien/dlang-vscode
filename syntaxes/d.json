@@ -44,6 +44,32 @@
             }
         },
         {
+            "name": "meta.pragma.d",
+            "begin": "\\b(pragma)\\s*\\(\\s*(\\w+)",
+            "end": "\\)",
+            "captures": {
+                "1": {
+                    "name": "keyword.other.d"
+                },
+                "2": {
+                    "patterns": [
+                        {
+                            "name": "support.constant.pragma.d",
+                            "match": "\\b(inline|lib|mangle|msg|startaddress)\\b"
+                        }
+                    ]
+                }
+            },
+            "patterns": [
+                {
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-parens"
+                }
+            ]
+        },
+        {
             "name": "meta.linkage.d",
             "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Objective-C|Pascal|System|Windows)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
             "captures": {
@@ -226,7 +252,7 @@
         },
         {
             "name": "keyword.other.d",
-            "match": "\\b(deprecated|is|macro|mixin|pragma|typeid|typeof|unittest|__traits)\\b"
+            "match": "\\b(deprecated|is|macro|mixin|typeid|typeof|unittest|__traits)\\b"
         },
         {
             "name": "storage.modifier.attribute.d",
@@ -234,10 +260,10 @@
             "end": "\\)",
             "patterns": [
                 {
-                    "include": "#.util-count-parens"
+                    "include": "$self"
                 },
                 {
-                    "include": "$self"
+                    "include": "#.util-count-parens"
                 }
             ]
         },
