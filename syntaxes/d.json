@@ -45,7 +45,7 @@
         },
         {
             "name": "meta.linkage.d",
-            "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Windows|Pascal|System|Objective-C)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
+            "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Objective-C|Pascal|System|Windows)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
             "captures": {
                 "1": {
                     "patterns": [
@@ -229,6 +229,28 @@
             "match": "\\b(deprecated|is|macro|mixin|pragma|typeid|typeof|unittest|__traits)\\b"
         },
         {
+            "name": "storage.modifier.attribute.d",
+            "begin": "@\\s*\\w*\\s*\\(",
+            "end": "\\)",
+            "patterns": [
+                {
+                    "include": "#.util-count-parens"
+                },
+                {
+                    "include": "$self"
+                }
+            ]
+        },
+        {
+            "name": "storage.modifier.attribute.d",
+            "match": "@(?:(disable|nogc|property|safe|system|trusted)|\\w+)\\b",
+            "captures": {
+                "1": {
+                    "name": "support.constant.attribute.d"
+                }
+            }
+        },
+        {
             "name": "storage.modifier.visibility.d",
             "match": "\\b(export|package|private|protcted|public)\\b"
         },
@@ -259,6 +281,14 @@
         {
             "name": "support.type.string.d",
             "match": "\\b(dstring|string|wstring)\\b"
+        },
+        {
+            "match": "\\S+\\.(alignof|classinfo|dig|epsilon|im|infinity|init|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|sizeof|stringof)\\b",
+            "captures": {
+                "1": {
+                    "name": "support.constant.property.d"
+                }
+            }
         }
     ],
     "repository": {
@@ -280,7 +310,7 @@
                         "3": {
                             "patterns": [
                                 {
-                                    "include": "#support-import"
+                                    "include": "#import-support"
                                 }
                             ]
                         },
@@ -345,7 +375,7 @@
                         "3": {
                             "patterns": [
                                 {
-                                    "include": "#support-import"
+                                    "include": "#import-support"
                                 }
                             ]
                         },
@@ -357,6 +387,18 @@
                             ]
                         }
                     }
+                }
+            ]
+        },
+        "import-support": {
+            "patterns": [
+                {
+                    "name": "support.type.module.d",
+                    "match": "\\b(etc\\.c\\.(curl|(odbc\\.(sql|sqlext|sqltypes|sqlucode)|sqlite3|zlib))|core\\.(atomic|attribute|bitop|checkint|cpuid|demangle|exception|math|memory|runtime|simd|stdc\\.(complex|ctype|errno|fenv|float_|inttypes|limits|locale|math|signal|stdarg|stdef|stdint|stdio|stdlib|string|tgmath|time|wchar_|wctype)|stdcpp\\.(exception|typeinfo)|sync\\.(barrier|condition|config|exception|mutex|rwmutex|semaphore)|thread|time|vararg)|std\\.(algorithm(\\.(comparison|iteration|mutation|searching|setops|sorting))?|array|ascii|base64|bigint|bitmanip|compiler|complex|concurrency|container(\\.(array|binaryheap|dlist|rbtree|slist|util))?|conv|csv|datetime|demangle|digest\\.(crc|digest|hmac|md|murmurhash|ripemd|sha)|encoding|exception|file|format|functional|getopt|json|math|mathspecial|meta|mmfile|net\\.(curl|isemail)|numeric|outbuffer|parallelism|path|process|random|range(\\.(interfaces|primitives))?|regex|signals|socket|stdint|stdio|string|system|traits|typecons|typetuple|uni|uri|utf|uuid|variant|windows\\.(charset|syserror)|xml|zip|zlib))\\b"
+                },
+                {
+                    "name": "entity.name.section.module.d",
+                    "match": "\\b[\\w.]+\\b"
                 }
             ]
         },
@@ -382,15 +424,16 @@
                 }
             ]
         },
-        "support-import": {
+        ".util-count-parens": {
             "patterns": [
                 {
-                    "name": "support.type.module.d",
-                    "match": "\\b(etc\\.c\\.(curl|(odbc\\.(sql|sqlext|sqltypes|sqlucode)|sqlite3|zlib))|core\\.(atomic|attribute|bitop|checkint|cpuid|demangle|exception|math|memory|runtime|simd|stdc\\.(complex|ctype|errno|fenv|float_|inttypes|limits|locale|math|signal|stdarg|stdef|stdint|stdio|stdlib|string|tgmath|time|wchar_|wctype)|stdcpp\\.(exception|typeinfo)|sync\\.(barrier|condition|config|exception|mutex|rwmutex|semaphore)|thread|time|vararg)|std\\.(algorithm(\\.(comparison|iteration|mutation|searching|setops|sorting))?|array|ascii|base64|bigint|bitmanip|compiler|complex|concurrency|container(\\.(array|binaryheap|dlist|rbtree|slist|util))?|conv|csv|datetime|demangle|digest\\.(crc|digest|hmac|md|murmurhash|ripemd|sha)|encoding|exception|file|format|functional|getopt|json|math|mathspecial|meta|mmfile|net\\.(curl|isemail)|numeric|outbuffer|parallelism|path|process|random|range(\\.(interfaces|primitives))?|regex|signals|socket|stdint|stdio|string|system|traits|typecons|typetuple|uni|uri|utf|uuid|variant|windows\\.(charset|syserror)|xml|zip|zlib))\\b"
-                },
-                {
-                    "name": "entity.name.section.module.d",
-                    "match": "\\b[\\w.]+\\b"
+                    "begin": "\\(",
+                    "end": "\\)",
+                    "patterns": [
+                        {
+                            "include": "#.util-count-parens"
+                        }
+                    ]
                 }
             ]
         }
