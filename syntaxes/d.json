@@ -19,7 +19,7 @@
         },
         {
             "name": "meta.import.d",
-            "match": "\\b((?:static|public)\\s+)?(import)\\s+([^;]+)",
+            "match": "\\b((?:(?:static|public)\\s+)?import)\\s+([^;]+)",
             "captures": {
                 "1": {
                     "patterns": [
@@ -29,9 +29,6 @@
                     ]
                 },
                 "2": {
-                    "name": "keyword.control.d"
-                },
-                "3": {
                     "patterns": [
                         {
                             "include": "#import-bindings"
@@ -184,7 +181,7 @@
         },
         {
             "name": "constant.language.d",
-            "match": "\\b__((FILE|FILE_FULL_PATH|MODULE|LINE|FUNCTION|PRETTY_FUNCTION)__|parameters)\\b"
+            "match": "\\b__(FILE|FILE_FULL_PATH|MODULE|LINE|FUNCTION|PRETTY_FUNCTION)__\\b"
         },
         {
             "name": "constant.numeric.float.decimal.d",
@@ -220,7 +217,7 @@
         },
         {
             "name": "keyword.control.d",
-            "match": "\\b(asm|assert|body|cast|debug|invariant|return|synchronized|with)\\b"
+            "match": "\\b(asm|assert|body|cast|debug|import|invariant|return|synchronized|with)\\b"
         },
         {
             "name": "keyword.operator.arithmetic.d",
@@ -236,7 +233,7 @@
         },
         {
             "name": "keyword.operator.logical.d",
-            "match": "!|\\|\\||&&"
+            "match": "!|&&|\\|\\|"
         },
         {
             "name": "keyword.operator.variadic.d",
@@ -248,7 +245,7 @@
         },
         {
             "name": "keyword.operator.d",
-            "match": "\\b(delete|in|new)\\b"
+            "match": "\\b(delete|in|new|\\$)\\b"
         },
         {
             "name": "keyword.other.d",
@@ -302,7 +299,7 @@
         },
         {
             "name": "variable.language.d",
-            "match": "\\b(super|this)\\b"
+            "match": "\\b(super|this|__parameters)\\b"
         },
         {
             "name": "support.type.string.d",
