@@ -89,6 +89,18 @@
             }
         },
         {
+            "name": "meta.scope.d",
+            "match": "\\b(scope)\\s*\\(\\s*(exit|failure|success)\\s*\\)",
+            "captures": {
+                "1": {
+                    "name": "keyword.control.d"
+                },
+                "2": {
+                    "name": "constant.language.scope.d"
+                }
+            }
+        },
+        {
             "name": "comment.line.number-sign.shebang.d",
             "match": "\\A#!.+"
         },
@@ -302,16 +314,16 @@
             "match": "\\b(super|this|__parameters)\\b"
         },
         {
-            "name": "support.type.string.d",
-            "match": "\\b(dstring|string|wstring)\\b"
-        },
-        {
-            "match": "\\S+\\.(alignof|classinfo|dig|epsilon|im|infinity|init|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|sizeof|stringof)\\b",
+            "match": "\\S+\\.(alignof|classinfo|dig|dup|epsilon|idup|im|infinity|init|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|reverse|sizeof|sort|stringof|ptr)\\b",
             "captures": {
                 "1": {
                     "name": "support.constant.property.d"
                 }
             }
+        },
+        {
+            "name": "support.type.string.d",
+            "match": "\\b(dstring|string|wstring|Error|Exception|Object|Throwable)\\b"
         }
     ],
     "repository": {
