@@ -67,6 +67,18 @@
             ]
         },
         {
+            "name": "meta.definition.d",
+            "match": "\\b(class|enum|interface|struct|union)\\s+(\\w+)",
+            "captures": {
+                "1": {
+                    "name": "storage.type.d"
+                },
+                "2": {
+                    "name": "entity.name.type.d"
+                }
+            }
+        },
+        {
             "name": "meta.linkage.d",
             "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Objective-C|Pascal|System|Windows)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
             "captures": {
@@ -307,14 +319,14 @@
         },
         {
             "name": "storage.type.d",
-            "match": "\\b(bool|class|delegate|enum|function|interface|struct|template|union|void|__vector)\\b"
+            "match": "\\b(bool|delegate|function|template|void|__vector)\\b"
         },
         {
             "name": "variable.language.d",
             "match": "\\b(super|this|__parameters)\\b"
         },
         {
-            "match": "\\S+\\.(alignof|classinfo|dig|dup|epsilon|idup|im|infinity|init|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|reverse|sizeof|sort|stringof|ptr)\\b",
+            "match": "\\S+\\.(alignof|classinfo|clear|dig|dup|epsilon|idup|im|infinity|init|keys|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|rehash|reverse|sizeof|sort|stringof|ptr|values)\\b",
             "captures": {
                 "1": {
                     "name": "support.constant.property.d"
