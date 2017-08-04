@@ -142,7 +142,7 @@ export default class Tasks implements vsc.Disposable {
     };
 
     public writeFile(json: any) {
-        fs.writeFile(this._tasksFile, JSON.stringify(json, null, vsc.workspace.getConfiguration().get('editor.tabSize', 4)));
+        fs.writeFile(this._tasksFile, JSON.stringify(json, null, vsc.workspace.getConfiguration().get('editor.tabSize', 4)), null);
     }
 
     public getFile() {
