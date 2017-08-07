@@ -85,7 +85,7 @@
             }
         },
         {
-            "name": "meta.definition.d",
+            "name": "meta.definition.type.d",
             "match": "\\b(class|interface)\\s+(\\w+)(?:\\s*:\\s*(\\w+))?",
             "captures": {
                 "1": {
@@ -100,7 +100,7 @@
             }
         },
         {
-            "name": "meta.definition.d",
+            "name": "meta.definition.type.d",
             "match": "\\b(enum|struct|union)\\s+(\\w+)",
             "captures": {
                 "1": {
@@ -110,6 +110,43 @@
                     "name": "entity.name.type.d"
                 }
             }
+        },
+        {
+            "name": "meta.definition.function.d",
+            "begin": "((?:[\\w\\(\\)\\[\\]]+\\s+)+)(\\w+)\\s*\\(",
+            "end": "\\)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
+                },
+                "2": {
+                    "name": "entity.name.function.d"
+                }
+            },
+            "patterns": [
+                {
+                    "name": "meta.definition.function.argument.d",
+                    "match": "(?!=\\()\\s*(\\w+)\\s*(?=\\))|(\\w+)\\s*(?=,)",
+                    "captures": {
+                        "1": {
+                            "name": "variable.parameter.d"
+                        },
+                        "2": {
+                            "name": "variable.parameter.d"
+                        }
+                    }
+                },
+                {
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-parens"
+                }
+            ]
         },
         {
             "name": "meta.linkage.d",
@@ -302,7 +339,7 @@
         },
         {
             "name": "keyword.operator.d",
-            "match": "\\b(delete|in|new|\\$)\\b"
+            "match": "\\b(delete|new|\\$)\\b"
         },
         {
             "name": "keyword.other.d",
@@ -336,7 +373,7 @@
         },
         {
             "name": "storage.modifier.d",
-            "match": "\\b(abstract|alias|align|auto|const|extern|final|immutable|inout|lazy|nothrow|out|override|pure|ref|scope|shared|static|typedef|volatile|__gshared)\\b"
+            "match": "\\b(abstract|alias|align|auto|const|extern|final|immutable|in|inout|lazy|nothrow|out|override|pure|ref|scope|shared|static|typedef|volatile|__gshared)\\b"
         },
         {
             "name": "storage.type.character.d",
@@ -510,6 +547,9 @@
                     "begin": "\\(",
                     "end": "\\)",
                     "patterns": [
+                        {
+                            "include": "$self"
+                        },
                         {
                             "include": "#.util-count-parens"
                         }

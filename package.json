@@ -73,7 +73,7 @@
             {
                 "language": "d",
                 "scopeName": "source.d",
-                "path": "./syntaxes/d.json"
+                "path": "./syntaxes/d.tmLanguage.json"
             }
         ],
         "snippets": [
