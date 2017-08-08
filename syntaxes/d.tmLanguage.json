@@ -129,24 +129,47 @@
             },
             "patterns": [
                 {
-                    "name": "meta.definition.function.argument.d",
-                    "match": "(?!=\\()\\s*(\\w+)\\s*(?=\\))|(\\w+)\\s*(?=,)",
-                    "captures": {
-                        "1": {
-                            "name": "variable.parameter.d"
-                        },
-                        "2": {
-                            "name": "variable.parameter.d"
-                        }
-                    }
-                },
-                {
-                    "include": "$self"
-                },
-                {
-                    "include": "#.util-count-parens"
+                    "include": "#function-arguments"
                 }
             ]
+        },
+        {
+            "name": "meta.definition.function.d",
+            "begin": "(\\bfunction)\\s*\\(",
+            "end": "\\)\\s*(=>)?",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
+                },
+                "2": {
+                    "name": "keyword.other.arrow.d"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "#function-arguments"
+                }
+            ]
+        },
+        {
+            "name": "meta.definition.function.d",
+            "match": "\\(([^\\)]*\\))\\s*(?:(=>)|(?=\\{))",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        {
+                            "include": "#function-arguments"
+                        }
+                    ]
+                },
+                "2": {
+                    "name": "keyword.other.arrow.d"
+                }
+            }
         },
         {
             "name": "meta.linkage.d",
@@ -516,6 +539,28 @@
                 {
                     "name": "entity.name.section.module.d",
                     "match": "\\b[\\w.]+\\b"
+                }
+            ]
+        },
+        "function-arguments": {
+            "patterns": [
+                {
+                    "name": "meta.definition.function.argument.d",
+                    "match": "(\\w+)\\s*(?=\\))|(\\w+)\\s*(?=,)",
+                    "captures": {
+                        "1": {
+                            "name": "variable.parameter.d"
+                        },
+                        "2": {
+                            "name": "variable.parameter.d"
+                        }
+                    }
+                },
+                {
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-parens"
                 }
             ]
         },
