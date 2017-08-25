@@ -140,6 +140,17 @@
             }
         },
         {
+            "match": "\\b(__traits)\\s*\\(\\s*(isAbstractClass|isArithmetic|isAssociativeArray|isFinalClass|isPOD|isNested|isFloating|isIntegral|isScalar|isStaticArray|isUnsigned|isVirtualFunction|isVirtualMethod|isAbstractFunction|isFinalFunction|isStaticFunction|isOverrideFunction|isTemplate|isRef|isOut|isLazy|hasMember|identifier|getAliasThis|getAttributes|getFunctionAttributes|getFunctionVariadicStyle|getLinkage|getMember|getOverloads|getParameterStorageClasses|getPointerBitmap|getProtection|getVirtualFunctions|getVirtualMethods|getUnitTests|parent|classInstanceSize|getVirtualIndex|allMembers|derivedMembers|isSame|compiles)",
+            "captures": {
+                "1": {
+                    "name": "keyword.other.d"
+                },
+                "2": {
+                    "name": "support.constant.trait.d"
+                }
+            }
+        },
+        {
             "name": "comment.line.number-sign.shebang.d",
             "match": "\\A(#!).+",
             "captures": {
@@ -324,7 +335,7 @@
         },
         {
             "name": "keyword.other.d",
-            "match": "\\b(deprecated|is|macro|mixin|typeid|typeof|unittest|__traits)\\b"
+            "match": "\\b(deprecated|is|macro|mixin|typeid|typeof|unittest)\\b"
         },
         {
             "name": "storage.modifier.attribute.d",
