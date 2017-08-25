@@ -6,27 +6,27 @@
     ],
     "patterns": [
         {
-            "name": "meta.section.module.d",
-            "match": "\\b(module)\\s+([\\w.]+)",
+            "name": "meta.namespace.d",
+            "begin": "\\b(module)\\s+([\\w.]+)",
             "captures": {
                 "1": {
                     "name": "storage.type.d"
                 },
                 "2": {
-                    "name": "entity.name.section.module.d"
+                    "name": "entity.name.namespace.d"
                 }
-            }
+            },
+            "patterns": [
+                {
+                    "include": "$self"
+                }
+            ]
         },
         {
-            "name": "meta.import.d",
             "match": "\\b((?:(?:static|public)\\s+)?import)\\s+([^;]+)",
             "captures": {
                 "1": {
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        }
-                    ]
+                    "name": "keyword.control.import.d"
                 },
                 "2": {
                     "patterns": [
@@ -41,7 +41,6 @@
             }
         },
         {
-            "name": "meta.pragma.d",
             "begin": "\\b(pragma)\\s*\\(\\s*(\\w+)",
             "end": "\\)",
             "captures": {
@@ -67,7 +66,6 @@
             ]
         },
         {
-            "name": "meta.version.d",
             "match": "\\b(version)\\s*\\((?:(DigitalMars|GNU|LDC|SDC|Windows|Win32|Win64|linux|OSX|FreeBSD|OpenBSD|NetBSD|DragonFlyBSD|BSD|Solaris|Posix|AIX|Haiku|SkyOS|SysV3|SysV4|Hurd|Android|Playstation|Playstation4|Cygwin|MinGW|FreeStanding|CRuntime_Bionic|CRuntime_DigitalMars|CRuntime_Glibc|CRuntime_Microsoft|CRuntime_Musl|CRuntime_UClibc|X86|X86_64|ARM|ARM_Thumb|ARM_SoftFloat|ARM_SoftFP|ARM_HardFloat|AArch64|Epiphany|PPC|PPC_SoftFloat|PPC_HardFloat|PPC64|IA64|MIPS32|MIPS64|MIPS_O32|MIPS_N32|MIPS_O64|MIPS_N64|MIPS_EABI|MIPS_SoftFloat|MIPS_HardFloat|NVPTX|NVPTX64|RISCV32|RISCV64|SPARC|SPARC_V8Plus|SPARC_SoftFloat|SPARC_HardFloat|SPARC64|S390|SystemZ|HPPA|HPPA64|SH|Alpha|Alpha_SoftFloat|Alpha_HardFloat|LittleEndian|BigEndian|ELFv1|ELFv2|D_Coverage|D_Ddoc|D_InlineAsm_X86|D_InlineAsm_X86_64|D_LP64|D_X32|D_HardFloat|D_SoftFloat|D_PIC|D_SIMD|D_AVX|D_AVX2|D_Version2|D_NoBoundsChecks|D_ObjectiveC|unittest|assert|none|all)|(darwin|Thumb|S390X)|(\\w+))\\)",
             "captures": {
                 "1": {
@@ -85,7 +83,6 @@
             }
         },
         {
-            "name": "meta.definition.type.d",
             "match": "\\b(class|interface)\\s+(\\w+)(?:\\s*:\\s*(\\w+))?",
             "captures": {
                 "1": {
@@ -100,7 +97,6 @@
             }
         },
         {
-            "name": "meta.definition.type.d",
             "match": "\\b(enum|struct|union)\\s+(\\w+)",
             "captures": {
                 "1": {
@@ -112,7 +108,6 @@
             }
         },
         {
-            "name": "meta.linkage.d",
             "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Objective-C|Pascal|System|Windows)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
             "captures": {
                 "1": {
@@ -134,7 +129,6 @@
             }
         },
         {
-            "name": "meta.scope.d",
             "match": "\\b(scope)\\s*\\(\\s*(exit|failure|success)\\s*\\)",
             "captures": {
                 "1": {
@@ -147,16 +141,36 @@
         },
         {
             "name": "comment.line.number-sign.shebang.d",
-            "match": "\\A#!.+"
+            "match": "\\A(#!).+",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.comment.d"
+                }
+            }
         },
         {
             "name": "comment.line.double-slash.d",
-            "match": "//.*"
+            "match": "(//).*",
+            "captures": {
+                "1": {
+                    "name": "punctuation.definition.comment.d"
+                }
+            }
         },
         {
             "name": "comment.block.d",
             "begin": "/\\*",
-            "end": "\\*/"
+            "end": "\\*/",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.d"
+                }
+            }
         },
         {
             "include": "text.html.javadoc"
@@ -188,7 +202,7 @@
             "end": "(?:\\]|\\)|>|\\}|\\1)\""
         },
         {
-            "name": "string.quoted.double.hexadecimal.d",
+            "name": "string.quoted.double.hex.d",
             "begin": "x\"",
             "end": "\"(c|d|w)?",
             "patterns": [
@@ -241,20 +255,20 @@
             "match": "\\b__(FILE|FILE_FULL_PATH|MODULE|LINE|FUNCTION|PRETTY_FUNCTION)__\\b"
         },
         {
-            "name": "constant.numeric.float.decimal.d",
-            "match": "\\b\\d[\\d_]*\\.\\d[\\d_]*([eE][+-]?\\d[\\d_]*)?[fFL]?i?\\b"
-        },
-        {
-            "name": "constant.numeric.float.hexadecimal.d",
+            "name": "constant.numeric.hex.d",
             "match": "\\b0[xX][\\da-fA-F_]+\\.[\\da-fA-F_]+([pP][+-]?\\d[\\d_]*)?i?\\b"
         },
         {
-            "name": "constant.numeric.integer.decimal.d",
-            "match": "\\b\\d[\\d_]*([eE][+-]?\\d[\\d_]*)?(L?[uU]?|[uU]L)?i?\\b"
+            "name": "constant.numeric.hex.d",
+            "match": "\\b0[xX][\\da-fA-F_]+([pP][+-]?\\d[\\d_]*)?i?\\b"
         },
         {
-            "name": "constant.numeric.integer.hexadecimal.d",
-            "match": "\\b0[xX][\\da-fA-F_]+([pP][+-]?\\d[\\d_]*)?i?\\b"
+            "name": "constant.numeric.float.d",
+            "match": "\\b\\d[\\d_]*\\.\\d[\\d_]*([eE][+-]?\\d[\\d_]*)?[fFL]?i?\\b"
+        },
+        {
+            "name": "constant.numeric.integer.d",
+            "match": "\\b\\d[\\d_]*([eE][+-]?\\d[\\d_]*)?(L?[uU]?|[uU]L)?i?\\b"
         },
         {
             "name": "constant.numeric.integer.binary.d",
@@ -262,7 +276,11 @@
         },
         {
             "name": "keyword.control.branch.d",
-            "match": "\\b(break|case|continue|default|else|goto|if|switch)\\b"
+            "match": "\\b(break|case|continue|default|goto|switch)\\b"
+        },
+        {
+            "name": "keyword.control.conditional.d",
+            "match": "\\b(else|if)\\b"
         },
         {
             "name": "keyword.control.exception.d",
@@ -274,19 +292,19 @@
         },
         {
             "name": "keyword.control.d",
-            "match": "\\b(asm|assert|body|cast|debug|import|invariant|return|synchronized|with)\\b"
+            "match": "\\b(asm|assert|body|cast|debug|invariant|return|synchronized|with)\\b"
         },
         {
             "name": "keyword.operator.arithmetic.d",
             "match": "\\+|-|\\*|/|~|\\^|\\^\\^"
         },
         {
-            "name": "keyword.operator.comparison.d",
-            "match": "==|!=|(<|>)=?|<>"
+            "name": "keyword.operator.assignment.d",
+            "match": "(?:\\+|-|\\*|/|~|\\^|\\^\\^)?="
         },
         {
-            "name": "keyword.operator.assignment.d",
-            "match": "="
+            "name": "keyword.operator.comparison.d",
+            "match": "==|!=|(<|>)=?|<>"
         },
         {
             "name": "keyword.operator.logical.d",
@@ -310,8 +328,13 @@
         },
         {
             "name": "storage.modifier.attribute.d",
-            "begin": "@\\s*\\w*\\s*\\(",
+            "begin": "(@)\\s*\\w*\\s*\\(",
             "end": "\\)",
+            "beginCaptures": {
+                "1": {
+                    "name": "punctuation.definition.keyword.d"
+                }
+            },
             "patterns": [
                 {
                     "include": "$self"
@@ -477,7 +500,7 @@
                     "match": "\\b(etc\\.c\\.(curl|(odbc\\.(sql|sqlext|sqltypes|sqlucode)|sqlite3|zlib))|core\\.(atomic|attribute|bitop|checkint|cpuid|demangle|exception|math|memory|runtime|simd|stdc\\.(complex|ctype|errno|fenv|float_|inttypes|limits|locale|math|signal|stdarg|stdef|stdint|stdio|stdlib|string|tgmath|time|wchar_|wctype)|stdcpp\\.(exception|typeinfo)|sync\\.(barrier|condition|config|exception|mutex|rwmutex|semaphore)|thread|time|vararg)|std\\.(algorithm(\\.(comparison|iteration|mutation|searching|setops|sorting))?|array|ascii|base64|bigint|bitmanip|compiler|complex|concurrency|container(\\.(array|binaryheap|dlist|rbtree|slist|util))?|conv|csv|datetime|demangle|digest\\.(crc|digest|hmac|md|murmurhash|ripemd|sha)|encoding|exception|file|format|functional|getopt|json|math|mathspecial|meta|mmfile|net\\.(curl|isemail)|numeric|outbuffer|parallelism|path|process|random|range(\\.(interfaces|primitives))?|regex|signals|socket|stdint|stdio|string|system|traits|typecons|typetuple|uni|uri|utf|uuid|variant|windows\\.(charset|syserror)|xml|zip|zlib))\\b"
                 },
                 {
-                    "name": "entity.name.section.module.d",
+                    "name": "entity.name.namespace.d",
                     "match": "\\b[\\w.]+\\b"
                 }
             ]
@@ -488,6 +511,16 @@
                     "name": "comment.block.nested.d",
                     "begin": "/\\+",
                     "end": "\\+/",
+                    "beginCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.comment.d"
+                        }
+                    },
+                    "endCaptures": {
+                        "0": {
+                            "name": "punctuation.definition.comment.d"
+                        }
+                    },
                     "patterns": [
                         {
                             "include": "#comment-block-nested"
