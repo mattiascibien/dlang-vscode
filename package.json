@@ -66,6 +66,7 @@
                     ".d",
                     ".di"
                 ],
+                "firstLine": "^#!.*rdmd",
                 "configuration": "./d.configuration.json"
             }
         ],
