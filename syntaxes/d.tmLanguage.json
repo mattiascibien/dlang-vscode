@@ -83,13 +83,13 @@
             }
         },
         {
-            "match": "\\b(class|interface)\\s+(\\w+)(?:\\s*:\\s*(\\w+))?",
+            "match": "\\b(class)\\s+(\\w+)(?:\\s*:\\s*(\\w+))?",
             "captures": {
                 "1": {
-                    "name": "storage.type.d"
+                    "name": "storage.type.class.d"
                 },
                 "2": {
-                    "name": "entity.name.type.d"
+                    "name": "entity.name.class.d"
                 },
                 "3": {
                     "name": "entity.other.inherited-class.d"
@@ -97,13 +97,49 @@
             }
         },
         {
-            "match": "\\b(enum|struct|union)\\s+(\\w+)",
+            "match": "\\b(interface)\\s+(\\w+)(?:\\s*:\\s*(\\w+))?",
             "captures": {
                 "1": {
-                    "name": "storage.type.d"
+                    "name": "storage.type.interface.d"
                 },
                 "2": {
-                    "name": "entity.name.type.d"
+                    "name": "entity.name.interface.d"
+                },
+                "3": {
+                    "name": "entity.other.inherited-class.d"
+                }
+            }
+        },
+        {
+            "match": "\\b(enum)\\s+(\\w+)",
+            "captures": {
+                "1": {
+                    "name": "storage.type.enum.d"
+                },
+                "2": {
+                    "name": "entity.name.enum.d"
+                }
+            }
+        },
+        {
+            "match": "\\b(struct)\\s+(\\w+)",
+            "captures": {
+                "1": {
+                    "name": "storage.type.struct.d"
+                },
+                "2": {
+                    "name": "entity.name.struct.d"
+                }
+            }
+        },
+        {
+            "match": "\\b(union)\\s+(\\w+)",
+            "captures": {
+                "1": {
+                    "name": "storage.type.union.d"
+                },
+                "2": {
+                    "name": "entity.name.union.d"
                 }
             }
         },
@@ -402,7 +438,11 @@
         },
         {
             "name": "support.type.string.d",
-            "match": "\\b(dstring|string|wstring|Error|Exception|Object|Throwable)\\b"
+            "match": "\\b(dstring|string|wstring)\\b"
+        },
+        {
+            "name": "support.type.object.d",
+            "match": "\\b(Error|Exception|Object|Throwable)\\b"
         },
         {
             "match": "\\b(\\w+)\\s*(!)?\\s*\\(",
