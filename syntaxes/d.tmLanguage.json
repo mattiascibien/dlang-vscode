@@ -23,6 +23,56 @@
             ]
         },
         {
+            "name": "meta.block.d",
+            "begin": "\\{",
+            "end": "\\}",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.block.begin.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.block.end.d"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-braces"
+                }
+            ]
+        },
+        {
+            "name": "meta.brackets.d",
+            "begin": "\\[",
+            "end": "\\]",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.brackets.begin.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.brackets.end.d"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-brackets"
+                },
+                {
+                    "name": "keyword.operator.length.d",
+                    "match": "\\$"
+                }
+            ]
+        },
+        {
             "match": "\\b((?:(?:static|public)\\s+)?import)\\s+([^;]+)",
             "captures": {
                 "1": {
@@ -596,6 +646,38 @@
                 {
                     "name": "constant.character.escape.d",
                     "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
+                }
+            ]
+        },
+        ".util-count-braces": {
+            "patterns": [
+                {
+                    "begin": "\\{",
+                    "end": "\\}",
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        },
+                        {
+                            "include": "#.util-count-braces"
+                        }
+                    ]
+                }
+            ]
+        },
+        ".util-count-brackets": {
+            "patterns": [
+                {
+                    "begin": "\\[",
+                    "end": "\\]",
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        },
+                        {
+                            "include": "#.util-count-brackets"
+                        }
+                    ]
                 }
             ]
         },
