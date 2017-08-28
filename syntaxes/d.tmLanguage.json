@@ -403,6 +403,17 @@
         {
             "name": "support.type.string.d",
             "match": "\\b(dstring|string|wstring|Error|Exception|Object|Throwable)\\b"
+        },
+        {
+            "match": "\\b(\\w+)\\s*(!)?\\s*\\(",
+            "captures": {
+                "1": {
+                    "name": "entity.name.function.d"
+                },
+                "2": {
+                    "name": "keyword.other.template.d"
+                }
+            }
         }
     ],
     "repository": {
