@@ -142,7 +142,7 @@
                     "name": "entity.name.class.d"
                 },
                 "3": {
-                    "name": "entity.other.inherited-class.d"
+                    "name": "entity.other.inherited-class.class.d"
                 }
             }
         },
@@ -156,23 +156,51 @@
                     "name": "entity.name.interface.d"
                 },
                 "3": {
-                    "name": "entity.other.inherited-class.d"
+                    "name": "entity.other.inherited-class.interface.d"
                 }
             }
         },
         {
-            "match": "\\b(enum)\\s+(\\w+)",
+            "match": "\\b(enum)([^=]+?)(\\w+)\\s*(=)",
+            "captures": {
+                "1": {
+                    "name": "storage.type.enum.d"
+                },
+                "2": {
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
+                },
+                "3": {
+                    "name": "entity.name.enum.d"
+                },
+                "4": {
+                    "patterns": [
+                        {
+                            "include": "$self"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "match": "\\b(enum)\\s+(\\w+)?(?:\\s*:\\s*(\\w+))?",
             "captures": {
                 "1": {
                     "name": "storage.type.enum.d"
                 },
                 "2": {
                     "name": "entity.name.enum.d"
+                },
+                "3": {
+                    "name": "entity.other.inherited-class.enum.d"
                 }
             }
         },
         {
-            "match": "\\b(struct)\\s+(\\w+)",
+            "match": "\\b(struct)\\s+(\\w+)?",
             "captures": {
                 "1": {
                     "name": "storage.type.struct.d"
@@ -183,7 +211,7 @@
             }
         },
         {
-            "match": "\\b(union)\\s+(\\w+)",
+            "match": "\\b(union)\\s+(\\w+)?",
             "captures": {
                 "1": {
                     "name": "storage.type.union.d"
@@ -408,8 +436,8 @@
             "match": "!|&&|\\|\\|"
         },
         {
-            "name": "keyword.operator.dereference.d",
-            "match": "&"
+            "name": "keyword.operator.bitwise.d",
+            "match": "&|\\|"
         },
         {
             "name": "keyword.operator.variadic.d",
