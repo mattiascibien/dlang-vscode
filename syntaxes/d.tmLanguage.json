@@ -408,6 +408,10 @@
             "match": "!|&&|\\|\\|"
         },
         {
+            "name": "keyword.operator.dereference.d",
+            "match": "&"
+        },
+        {
             "name": "keyword.operator.variadic.d",
             "match": "\\.\\.\\."
         },
@@ -443,9 +447,12 @@
         },
         {
             "name": "storage.modifier.attribute.d",
-            "match": "@(?:(disable|nogc|property|safe|system|trusted)|\\w+)\\b",
+            "match": "(@)(?:(disable|nogc|property|safe|system|trusted)|\\w+)\\b",
             "captures": {
                 "1": {
+                    "name": "punctuation.definition.keyword.d"
+                },
+                "2": {
                     "name": "support.constant.attribute.d"
                 }
             }
@@ -464,11 +471,15 @@
         },
         {
             "name": "storage.type.integer.d",
-            "match": "\\b(byte|cent|int|long|short|ubyte|ucent|uint|ulong|ushort)\\b"
+            "match": "\\b(byte|cent|int|long|short|size_t|ptrdiff_t|ubyte|ucent|uint|ulong|ushort)\\b"
         },
         {
             "name": "storage.type.float.d",
             "match": "\\b(cdouble|cfloat|creal|double|float|idouble|ifloat|ireal|real)\\b"
+        },
+        {
+            "name": "storage.type.string.d",
+            "match": "\\b(dstring|string|wstring)\\b"
         },
         {
             "name": "storage.type.d",
@@ -479,7 +490,7 @@
             "match": "\\b(super|this|__parameters)\\b"
         },
         {
-            "match": "\\S+\\.(alignof|classinfo|clear|dig|dup|epsilon|idup|im|infinity|init|keys|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|rehash|reverse|sizeof|sort|stringof|ptr|values)\\b",
+            "match": "\\.\\s*(alignof|assumeSafeAppend|capacity|classinfo|clear|dig|dup|epsilon|hashOf|idup|im|infinity|init|keys|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|rehash|reverse|sizeof|sort|stringof|ptr|reserve|values)\\b",
             "captures": {
                 "1": {
                     "name": "support.constant.property.d"
@@ -487,18 +498,20 @@
             }
         },
         {
-            "name": "support.type.string.d",
-            "match": "\\b(dstring|string|wstring)\\b"
-        },
-        {
-            "name": "support.type.object.d",
-            "match": "\\b(Error|Exception|Object|Throwable)\\b"
+            "name": "support.class.d",
+            "match": "\\b(Error|Exception|Interface|Object|OffsetTypeInfo|RTInfo|Throwable|TypeInfo|TypeInfo_Class)\\b"
         },
         {
             "match": "\\b(\\w+)\\s*(!)?\\s*\\(",
             "captures": {
                 "1": {
-                    "name": "entity.name.function.d"
+                    "name": "entity.name.function.d",
+                    "patterns": [
+                        {
+                            "name": "support.function.d",
+                            "match": "\\b(destroy|factory|opAssign|opBinary|opBinaryRight|opCall|opCmp|opDispatch|opDollar|opEquals|opIndexAssign|opIndexOpAssign|opIndexUnary|opOpAssign|opSlice|opUnary|toHash|toString)\\b"
+                        }
+                    ]
                 },
                 "2": {
                     "name": "keyword.other.template.d"
