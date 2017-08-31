@@ -305,7 +305,7 @@
         },
         {
             "name": "string.quoted.single.d",
-            "match": "'(?:[^\\\\]|(?:\\\\.{1,10}))'",
+            "match": "(')(?:[^\\\\]|(?:\\\\.{1,10}))(')",
             "captures": {
                 "0": {
                     "patterns": [
@@ -313,6 +313,12 @@
                             "include": "#string-escaped-char"
                         }
                     ]
+                },
+                "1": {
+                    "name": "punctuation.definition.string.begin.d"
+                },
+                "2": {
+                    "name": "punctuation.definition.string.end.d"
                 }
             }
         },
@@ -448,6 +454,10 @@
             "match": "\\.\\."
         },
         {
+            "name": "punctuation.accessor.d",
+            "match": "\\."
+        },
+        {
             "name": "keyword.operator.d",
             "match": "\\b(delete|new|\\$)\\b"
         },
@@ -518,7 +528,7 @@
             "match": "\\b(super|this|__parameters)\\b"
         },
         {
-            "match": "\\.\\s*(alignof|assumeSafeAppend|capacity|classinfo|clear|dig|dup|epsilon|hashOf|idup|im|infinity|init|keys|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|rehash|reverse|sizeof|sort|stringof|ptr|reserve|values)\\b",
+            "match": "(?<=\\.)\\s*(alignof|assumeSafeAppend|capacity|classinfo|clear|dig|dup|epsilon|hashOf|idup|im|infinity|init|keys|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|re|rehash|reverse|sizeof|sort|stringof|ptr|reserve|values)\\b",
             "captures": {
                 "1": {
                     "name": "support.constant.property.d"
@@ -545,6 +555,10 @@
                     "name": "keyword.other.template.d"
                 }
             }
+        },
+        {
+            "name": "punctuation.terminator.d",
+            "match": ";"
         }
     ],
     "repository": {
