@@ -563,102 +563,90 @@
     ],
     "repository": {
         "import-bindings": {
-            "patterns": [
-                {
-                    "match": "(?:(\\w+)\\s*(=)\\s*)?([\\w.]+)\\s*(:)\\s*([^;]+)",
-                    "captures": {
-                        "1": {
-                            "name": "entity.name.binding.d"
-                        },
-                        "2": {
-                            "patterns": [
-                                {
-                                    "include": "$self"
-                                }
-                            ]
-                        },
-                        "3": {
-                            "patterns": [
-                                {
-                                    "include": "#import-support"
-                                }
-                            ]
-                        },
-                        "4": {
-                            "name": "keyword.operator.selection.d"
-                        },
-                        "5": {
-                            "patterns": [
-                                {
-                                    "include": "#import-bindings-list"
-                                }
-                            ]
+            "match": "(?:(\\w+)\\s*(=)\\s*)?([\\w.]+)\\s*(:)\\s*([^;]+)",
+            "captures": {
+                "1": {
+                    "name": "entity.name.binding.d"
+                },
+                "2": {
+                    "patterns": [
+                        {
+                            "include": "$self"
                         }
-                    }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        {
+                            "include": "#import-support"
+                        }
+                    ]
+                },
+                "4": {
+                    "name": "keyword.operator.selection.d"
+                },
+                "5": {
+                    "patterns": [
+                        {
+                            "include": "#import-bindings-list"
+                        }
+                    ]
                 }
-            ]
+            }
         },
         "import-bindings-list": {
-            "patterns": [
-                {
-                    "match": "(?:(\\w+)\\s*(=)\\s*)?(\\w+)(\\s*,[^;]+)?",
-                    "captures": {
-                        "1": {
-                            "name": "entity.name.binding.d"
-                        },
-                        "2": {
-                            "patterns": [
-                                {
-                                    "include": "$self"
-                                }
-                            ]
-                        },
-                        "3": {
-                            "name": "entity.name.d"
-                        },
-                        "4": {
-                            "patterns": [
-                                {
-                                    "include": "#import-bindings-list"
-                                }
-                            ]
+            "match": "(?:(\\w+)\\s*(=)\\s*)?(\\w+)(\\s*,[^;]+)?",
+            "captures": {
+                "1": {
+                    "name": "entity.name.binding.d"
+                },
+                "2": {
+                    "patterns": [
+                        {
+                            "include": "$self"
                         }
-                    }
+                    ]
+                },
+                "3": {
+                    "name": "entity.name.d"
+                },
+                "4": {
+                    "patterns": [
+                        {
+                            "include": "#import-bindings-list"
+                        }
+                    ]
                 }
-            ]
+            }
         },
         "import-aliases": {
-            "patterns": [
-                {
-                    "match": "(?:\\s*,\\s*)?(?:(\\w+)\\s*(=)\\s*)?([\\w.]+)\\s*([^;]+)?",
-                    "captures": {
-                        "1": {
-                            "name": "entity.name.binding.d"
-                        },
-                        "2": {
-                            "patterns": [
-                                {
-                                    "include": "$self"
-                                }
-                            ]
-                        },
-                        "3": {
-                            "patterns": [
-                                {
-                                    "include": "#import-support"
-                                }
-                            ]
-                        },
-                        "4": {
-                            "patterns": [
-                                {
-                                    "include": "#import-aliases"
-                                }
-                            ]
+            "match": "(?:\\s*,\\s*)?(?:(\\w+)\\s*(=)\\s*)?([\\w.]+)\\s*([^;]+)?",
+            "captures": {
+                "1": {
+                    "name": "entity.name.binding.d"
+                },
+                "2": {
+                    "patterns": [
+                        {
+                            "include": "$self"
                         }
-                    }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        {
+                            "include": "#import-support"
+                        }
+                    ]
+                },
+                "4": {
+                    "patterns": [
+                        {
+                            "include": "#import-aliases"
+                        }
+                    ]
                 }
-            ]
+            }
         },
         "import-support": {
             "patterns": [
@@ -673,82 +661,62 @@
             ]
         },
         "comment-block-nested": {
+            "name": "comment.block.nested.d",
+            "begin": "/\\+",
+            "end": "\\+/",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.definition.comment.d"
+                }
+            },
             "patterns": [
                 {
-                    "name": "comment.block.nested.d",
-                    "begin": "/\\+",
-                    "end": "\\+/",
-                    "beginCaptures": {
-                        "0": {
-                            "name": "punctuation.definition.comment.d"
-                        }
-                    },
-                    "endCaptures": {
-                        "0": {
-                            "name": "punctuation.definition.comment.d"
-                        }
-                    },
-                    "patterns": [
-                        {
-                            "include": "#comment-block-nested"
-                        }
-                    ]
+                    "include": "#comment-block-nested"
                 }
             ]
         },
         "string-escaped-char": {
-            "patterns": [
-                {
-                    "name": "constant.character.escape.d",
-                    "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
-                }
-            ]
+            "name": "constant.character.escape.d",
+            "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
         },
         ".util-count-braces": {
+            "begin": "\\{",
+            "end": "\\}",
             "patterns": [
                 {
-                    "begin": "\\{",
-                    "end": "\\}",
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        },
-                        {
-                            "include": "#.util-count-braces"
-                        }
-                    ]
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-braces"
                 }
             ]
         },
         ".util-count-brackets": {
+            "begin": "\\[",
+            "end": "\\]",
             "patterns": [
                 {
-                    "begin": "\\[",
-                    "end": "\\]",
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        },
-                        {
-                            "include": "#.util-count-brackets"
-                        }
-                    ]
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-brackets"
                 }
             ]
         },
         ".util-count-parens": {
+            "begin": "\\(",
+            "end": "\\)",
             "patterns": [
                 {
-                    "begin": "\\(",
-                    "end": "\\)",
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        },
-                        {
-                            "include": "#.util-count-parens"
-                        }
-                    ]
+                    "include": "$self"
+                },
+                {
+                    "include": "#.util-count-parens"
                 }
             ]
         }
