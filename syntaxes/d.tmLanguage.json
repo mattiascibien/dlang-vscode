@@ -8,7 +8,7 @@
         {
             "name": "meta.namespace.d",
             "begin": "\\b(module)\\s+([\\w.]+)",
-            "captures": {
+            "beginCaptures": {
                 "1": {
                     "name": "storage.type.d"
                 },
@@ -19,56 +19,6 @@
             "patterns": [
                 {
                     "include": "$self"
-                }
-            ]
-        },
-        {
-            "name": "meta.block.d",
-            "begin": "\\{",
-            "end": "\\}",
-            "beginCaptures": {
-                "0": {
-                    "name": "punctuation.section.block.begin.d"
-                }
-            },
-            "endCaptures": {
-                "0": {
-                    "name": "punctuation.section.block.end.d"
-                }
-            },
-            "patterns": [
-                {
-                    "include": "$self"
-                },
-                {
-                    "include": "#.util-count-braces"
-                }
-            ]
-        },
-        {
-            "name": "meta.brackets.d",
-            "begin": "\\[",
-            "end": "\\]",
-            "beginCaptures": {
-                "0": {
-                    "name": "punctuation.section.brackets.begin.d"
-                }
-            },
-            "endCaptures": {
-                "0": {
-                    "name": "punctuation.section.brackets.end.d"
-                }
-            },
-            "patterns": [
-                {
-                    "include": "$self"
-                },
-                {
-                    "include": "#.util-count-brackets"
-                },
-                {
-                    "name": "keyword.operator.length.d",
-                    "match": "\\$"
                 }
             ]
         },
@@ -91,13 +41,18 @@
             }
         },
         {
-            "begin": "\\b(pragma)\\s*\\(\\s*(\\w+)",
+            "contentName": "meta.parens.d",
+            "begin": "\\b(pragma)\\s*(\\()(\\s*\\w+)",
             "end": "\\)",
-            "captures": {
+            "beginCaptures": {
                 "1": {
                     "name": "keyword.other.d"
                 },
                 "2": {
+                    "name": "punctuation.section.parens.begin.d"
+                },
+                "3": {
+                    "name": "meta.parens.d",
                     "patterns": [
                         {
                             "name": "support.constant.pragma.d",
@@ -106,29 +61,47 @@
                     ]
                 }
             },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.parens.end.d"
+                }
+            },
             "patterns": [
                 {
                     "include": "$self"
-                },
-                {
-                    "include": "#.util-count-parens"
                 }
             ]
         },
         {
-            "match": "\\b(version)\\s*\\((?:(DigitalMars|GNU|LDC|SDC|Windows|Win32|Win64|linux|OSX|FreeBSD|OpenBSD|NetBSD|DragonFlyBSD|BSD|Solaris|Posix|AIX|Haiku|SkyOS|SysV3|SysV4|Hurd|Android|Playstation|Playstation4|Cygwin|MinGW|FreeStanding|CRuntime_Bionic|CRuntime_DigitalMars|CRuntime_Glibc|CRuntime_Microsoft|CRuntime_Musl|CRuntime_UClibc|X86|X86_64|ARM|ARM_Thumb|ARM_SoftFloat|ARM_SoftFP|ARM_HardFloat|AArch64|Epiphany|PPC|PPC_SoftFloat|PPC_HardFloat|PPC64|IA64|MIPS32|MIPS64|MIPS_O32|MIPS_N32|MIPS_O64|MIPS_N64|MIPS_EABI|MIPS_SoftFloat|MIPS_HardFloat|NVPTX|NVPTX64|RISCV32|RISCV64|SPARC|SPARC_V8Plus|SPARC_SoftFloat|SPARC_HardFloat|SPARC64|S390|SystemZ|HPPA|HPPA64|SH|Alpha|Alpha_SoftFloat|Alpha_HardFloat|LittleEndian|BigEndian|ELFv1|ELFv2|D_Coverage|D_Ddoc|D_InlineAsm_X86|D_InlineAsm_X86_64|D_LP64|D_X32|D_HardFloat|D_SoftFloat|D_PIC|D_SIMD|D_AVX|D_AVX2|D_Version2|D_NoBoundsChecks|D_ObjectiveC|unittest|assert|none|all)|(darwin|Thumb|S390X)|(\\w+))\\)",
+            "match": "\\b(version)\\s*(\\(\\s*\\w+\\s*\\))",
             "captures": {
                 "1": {
                     "name": "keyword.control.branch.version.d"
                 },
                 "2": {
-                    "name": "support.constant.version.d"
-                },
-                "3": {
-                    "name": "invalid.deprecated.version.d"
-                },
-                "4": {
-                    "name": "constant.other.version.d"
+                    "name": "meta.parens.d",
+                    "patterns": [
+                        {
+                            "name": "support.constant.version.d",
+                            "match": "\\b(?:DigitalMars|GNU|LDC|SDC|Windows|Win32|Win64|linux|OSX|FreeBSD|OpenBSD|NetBSD|DragonFlyBSD|BSD|Solaris|Posix|AIX|Haiku|SkyOS|SysV3|SysV4|Hurd|Android|Playstation|Playstation4|Cygwin|MinGW|FreeStanding|CRuntime_Bionic|CRuntime_DigitalMars|CRuntime_Glibc|CRuntime_Microsoft|CRuntime_Musl|CRuntime_UClibc|X86|X86_64|ARM|ARM_Thumb|ARM_SoftFloat|ARM_SoftFP|ARM_HardFloat|AArch64|Epiphany|PPC|PPC_SoftFloat|PPC_HardFloat|PPC64|IA64|MIPS32|MIPS64|MIPS_O32|MIPS_N32|MIPS_O64|MIPS_N64|MIPS_EABI|MIPS_SoftFloat|MIPS_HardFloat|NVPTX|NVPTX64|RISCV32|RISCV64|SPARC|SPARC_V8Plus|SPARC_SoftFloat|SPARC_HardFloat|SPARC64|S390|SystemZ|HPPA|HPPA64|SH|Alpha|Alpha_SoftFloat|Alpha_HardFloat|LittleEndian|BigEndian|ELFv1|ELFv2|D_Coverage|D_Ddoc|D_InlineAsm_X86|D_InlineAsm_X86_64|D_LP64|D_X32|D_HardFloat|D_SoftFloat|D_PIC|D_SIMD|D_AVX|D_AVX2|D_Version2|D_NoBoundsChecks|D_ObjectiveC|unittest|assert|none|all)\\b"
+                        },
+                        {
+                            "name": "invalid.deprecated.version.d",
+                            "match": "\\b(?:darwin|Thumb|S390X)\\b"
+                        },
+                        {
+                            "name": "constant.other.version.d",
+                            "match": "\\b(\\w+)\\b"
+                        },
+                        {
+                            "name": "punctuation.section.parens.begin.d",
+                            "match": "\\("
+                        },
+                        {
+                            "name": "punctuation.section.parens.end.d",
+                            "match": "\\)"
+                        }
+                    ]
                 }
             }
         },
@@ -222,7 +195,7 @@
             }
         },
         {
-            "match": "\\b(extern)\\s*\\(\\s*(?:(C|D|Objective-C|Pascal|System|Windows)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*\\)",
+            "match": "\\b(extern)\\s*((\\()\\s*(?:(C|D|Objective-C|Pascal|System|Windows)|(C\\+\\+)(?:\\s*,\\s*([\\w.]+))?)\\s*(\\)))",
             "captures": {
                 "1": {
                     "patterns": [
@@ -232,37 +205,73 @@
                     ]
                 },
                 "2": {
-                    "name": "constant.other.linkage.d"
+                    "name": "meta.parens.d"
                 },
                 "3": {
-                    "name": "constant.other.linkage.d"
+                    "name": "punctuation.section.parens.begin.d"
                 },
                 "4": {
+                    "name": "constant.other.linkage.d"
+                },
+                "5": {
+                    "name": "constant.other.linkage.d"
+                },
+                "6": {
                     "name": "entity.name.namespace.d"
+                },
+                "7": {
+                    "name": "punctuation.section.parens.end.d"
                 }
             }
         },
         {
-            "match": "\\b(scope)\\s*\\(\\s*(exit|failure|success)\\s*\\)",
+            "match": "\\b(scope)\\s*((\\()\\s*(exit|failure|success)\\s*(\\)))",
             "captures": {
                 "1": {
                     "name": "keyword.control.d"
                 },
                 "2": {
+                    "name": "meta.parens.d"
+                },
+                "3": {
+                    "name": "punctuation.section.parens.begin.d"
+                },
+                "4": {
                     "name": "constant.language.scope.d"
+                },
+                "5": {
+                    "name": "punctuation.section.parens.begin.d"
                 }
             }
         },
         {
-            "match": "\\b(__traits)\\s*\\(\\s*(isAbstractClass|isArithmetic|isAssociativeArray|isFinalClass|isPOD|isNested|isFloating|isIntegral|isScalar|isStaticArray|isUnsigned|isVirtualFunction|isVirtualMethod|isAbstractFunction|isFinalFunction|isStaticFunction|isOverrideFunction|isTemplate|isRef|isOut|isLazy|hasMember|identifier|getAliasThis|getAttributes|getFunctionAttributes|getFunctionVariadicStyle|getLinkage|getMember|getOverloads|getParameterStorageClasses|getPointerBitmap|getProtection|getVirtualFunctions|getVirtualMethods|getUnitTests|parent|classInstanceSize|getVirtualIndex|allMembers|derivedMembers|isSame|compiles)",
-            "captures": {
+            "contentName": "meta.parens.d",
+            "begin": "\\b(__traits)\\s*((\\()\\s*(isAbstractClass|isArithmetic|isAssociativeArray|isFinalClass|isPOD|isNested|isFloating|isIntegral|isScalar|isStaticArray|isUnsigned|isVirtualFunction|isVirtualMethod|isAbstractFunction|isFinalFunction|isStaticFunction|isOverrideFunction|isTemplate|isRef|isOut|isLazy|hasMember|identifier|getAliasThis|getAttributes|getFunctionAttributes|getFunctionVariadicStyle|getLinkage|getMember|getOverloads|getParameterStorageClasses|getPointerBitmap|getProtection|getVirtualFunctions|getVirtualMethods|getUnitTests|parent|classInstanceSize|getVirtualIndex|allMembers|derivedMembers|isSame|compiles))",
+            "end": "\\)",
+            "beginCaptures": {
                 "1": {
                     "name": "keyword.other.d"
                 },
                 "2": {
+                    "name": "meta.parens.d"
+                },
+                "3": {
+                    "name": "punctuation.section.parens.begin.d"
+                },
+                "4": {
                     "name": "support.constant.trait.d"
                 }
-            }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.parens.end.d"
+                }
+            },
+            "patterns": [
+                {
+                    "include": "$self"
+                }
+            ]
         },
         {
             "name": "comment.line.number-sign.shebang.d",
@@ -467,19 +476,25 @@
         },
         {
             "name": "storage.modifier.attribute.d",
-            "begin": "(@)\\s*\\w*\\s*\\(",
+            "contentName": "meta.parens.d",
+            "begin": "(@)\\s*\\w*\\s*(\\()",
             "end": "\\)",
             "beginCaptures": {
                 "1": {
                     "name": "punctuation.definition.keyword.d"
+                },
+                "2": {
+                    "name": "punctuation.section.parens.begin.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.parens.end.d"
                 }
             },
             "patterns": [
                 {
                     "include": "$self"
-                },
-                {
-                    "include": "#.util-count-parens"
                 }
             ]
         },
@@ -540,7 +555,7 @@
             "match": "\\b(Error|Exception|Interface|Object|OffsetTypeInfo|RTInfo|Throwable|TypeInfo|TypeInfo_Class)\\b"
         },
         {
-            "match": "\\b(\\w+)\\s*(!)?\\s*\\(",
+            "match": "\\b(\\w+)\\s*(!)?\\s*(?=\\()",
             "captures": {
                 "1": {
                     "name": "entity.name.function.d",
@@ -552,13 +567,22 @@
                     ]
                 },
                 "2": {
-                    "name": "keyword.other.template.d"
+                    "name": "keyword.operator.template.d"
                 }
             }
         },
         {
             "name": "punctuation.terminator.d",
             "match": ";"
+        },
+        {
+            "include": "#.util-count-braces"
+        },
+        {
+            "include": "#.util-count-brackets"
+        },
+        {
+            "include": "#.util-count-parens"
         }
     ],
     "repository": {
@@ -685,38 +709,66 @@
             "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
         },
         ".util-count-braces": {
+            "name": "meta.block.d",
             "begin": "\\{",
             "end": "\\}",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.block.begin.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.block.end.d"
+                }
+            },
             "patterns": [
                 {
                     "include": "$self"
-                },
-                {
-                    "include": "#.util-count-braces"
                 }
             ]
         },
         ".util-count-brackets": {
+            "name": "meta.brackets.d",
             "begin": "\\[",
             "end": "\\]",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.brackets.begin.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.brackets.end.d"
+                }
+            },
             "patterns": [
                 {
                     "include": "$self"
                 },
                 {
-                    "include": "#.util-count-brackets"
+                    "name": "keyword.operator.length.d",
+                    "match": "\\$"
                 }
             ]
         },
         ".util-count-parens": {
+            "name": "meta.parens.d",
             "begin": "\\(",
             "end": "\\)",
+            "beginCaptures": {
+                "0": {
+                    "name": "punctuation.section.parens.begin.d"
+                }
+            },
+            "endCaptures": {
+                "0": {
+                    "name": "punctuation.section.parens.end.d"
+                }
+            },
             "patterns": [
                 {
                     "include": "$self"
-                },
-                {
-                    "include": "#.util-count-parens"
                 }
             ]
         }
