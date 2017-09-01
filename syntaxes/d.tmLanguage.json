@@ -415,6 +415,10 @@
             "match": "\\b0[bB][01_]+i?\\b"
         },
         {
+            "name": "storage.type.function.arrow.d",
+            "match": "=>"
+        },
+        {
             "name": "keyword.control.branch.d",
             "match": "\\b(break|case|continue|default|goto|switch)\\b"
         },
@@ -467,8 +471,8 @@
             "match": "\\."
         },
         {
-            "name": "keyword.operator.d",
-            "match": "\\b(delete|new|\\$)\\b"
+            "name": "keyword.operator.word.d",
+            "match": "\\b(delete|new)\\b"
         },
         {
             "name": "keyword.other.d",
