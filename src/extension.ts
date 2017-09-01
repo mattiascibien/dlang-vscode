@@ -28,7 +28,7 @@ class Tool {
     public static dub: Dub;
     public activate: Function;
     private _name: string;
-    private _version: string
+    private _version: string;
     private _configName: string;
     private _buildConfig: string;
     private _isSystemTool = false;
