@@ -7,10 +7,14 @@
             "type": "npm",
             "identifier": "compile",
             "script": "compile",
+            "isBackground": true,
             "group": {
                 "kind": "build",
                 "isDefault": true
-            }
+            },
+            "problemMatcher": [
+                "$tsc-watch"
+            ]
         }
     ]
 }
