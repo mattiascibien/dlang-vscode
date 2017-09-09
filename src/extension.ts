@@ -6,8 +6,7 @@ import * as vsc from 'vscode';
 import * as mpkg from 'meta-pkg';
 import * as dscannerUtil from './dscanner/util';
 import * as dscannerConfig from './dscanner/config';
-import { D_MODE } from './mode';
-import Tasks from './tasks';
+import * as misc from './misc';
 import Dub from './dub';
 import Provider from './provider';
 import Dfix from './dfix';
@@ -21,7 +20,6 @@ let toolsInstaller: vsc.StatusBarItem;
 let tasksGenerator: vsc.StatusBarItem;
 let packageInstallers = new Map<string, mpkg.Installer[]>();
 let server: Server;
-let tasks: Tasks;
 let output = vsc.window.createOutputChannel('D language');
 
 class Tool {
@@ -113,31 +111,6 @@ class Tool {
     }
 }
 
-const initOptions = [
-    {
-        prompt: 'The name of the package',
-        placeHolder: 'Name',
-        value: vsc.workspace.rootPath ? path.basename(vsc.workspace.rootPath) : ''
-    },
-    {
-        prompt: 'Brief description of the package',
-        placeHolder: 'Description'
-    },
-    {
-        prompt: 'The name of the author of the package',
-        placeHolder: 'Author name',
-        value: process.env.USERNAME
-    },
-    {
-        prompt: 'The license of the package',
-        placeHolder: 'License'
-    },
-    {
-        prompt: 'The copyright of the package',
-        placeHolder: 'Copyright'
-    }
-];
-
 export function activate(context: vsc.ExtensionContext) {
     let packageNames = ['dmd', 'ldc', 'gdc', 'dub'];
     let packagePromises = packageNames
@@ -226,11 +199,6 @@ function start(context: vsc.ExtensionContext) {
     let dub = new Dub(output);
     let provider = new Provider();
 
-    if (vsc.workspace.rootPath) {
-        tasks = new Tasks(dub);
-        context.subscriptions.push(tasks);
-    }
-
     output.show(true);
     context.subscriptions.push(output, dub);
 
@@ -254,24 +222,31 @@ function start(context: vsc.ExtensionContext) {
         server = new Server();
         output.appendLine('DCD : starting server...');
 
-        let completionProvider = vsc.languages.registerCompletionItemProvider(D_MODE, provider, '.');
-        let signatureProvider = vsc.languages.registerSignatureHelpProvider(D_MODE, provider, '(', ',');
-        let definitionProvider = vsc.languages.registerDefinitionProvider(D_MODE, provider);
-        let hoverProvider = vsc.languages.registerHoverProvider(D_MODE, provider);
+        let completionProvider = vsc.languages.registerCompletionItemProvider(misc.D_MODE, provider, '.');
+        let signatureProvider = vsc.languages.registerSignatureHelpProvider(misc.D_MODE, provider, '(', ',');
+        let definitionProvider = vsc.languages.registerDefinitionProvider(misc.D_MODE, provider);
+        let hoverProvider = vsc.languages.registerHoverProvider(misc.D_MODE, provider);
 
         provider.on('restart', () => {
             output.appendLine('DCD : restarting server...');
             server.start();
 
-            if (vsc.workspace.rootPath) {
-                server.importSelections(context.subscriptions);
+            if (vsc.workspace.workspaceFolders) {
+                vsc.workspace.workspaceFolders.forEach((f) =>
+                    server.importSelections(f.uri.fsPath, context.subscriptions));
             }
         });
 
         context.subscriptions.push(completionProvider, signatureProvider, definitionProvider, hoverProvider);
 
-        if (vsc.workspace.rootPath) {
-            return server.importSelections(context.subscriptions);
+        let importSelections = (added: vsc.WorkspaceFolder[], removed: vsc.WorkspaceFolder[]) =>
+            Promise.all(added.map((f) => server.importSelections(f.uri.fsPath, context.subscriptions))
+                .concat(removed.map((f) => server.unimportSelections(f.uri.fsPath, context.subscriptions))));
+
+        vsc.workspace.onDidChangeWorkspaceFolders((event) => importSelections(event.added, event.removed));
+
+        if (vsc.workspace.workspaceFolders) {
+            return importSelections(vsc.workspace.workspaceFolders, []);
         }
     };
 
@@ -279,7 +254,7 @@ function start(context: vsc.ExtensionContext) {
         Dfmt.toolDirectory = dfmtTool.toolDirectory;
         Dfmt.toolFile = dfmtTool.toolFile || 'dfmt';
 
-        let formattingProvider = vsc.languages.registerDocumentFormattingEditProvider(D_MODE, provider);
+        let formattingProvider = vsc.languages.registerDocumentFormattingEditProvider(misc.D_MODE, provider);
 
         context.subscriptions.push(formattingProvider);
     };
@@ -288,9 +263,9 @@ function start(context: vsc.ExtensionContext) {
         Dscanner.toolDirtory = dscannerTool.toolDirectory;
         Dscanner.toolFile = dscannerTool.toolFile || 'dscanner';
 
-        let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(D_MODE, provider);
+        let documentSymbolProvider = vsc.languages.registerDocumentSymbolProvider(misc.D_MODE, provider);
         let workspaceSymbolProvider = vsc.languages.registerWorkspaceSymbolProvider(provider);
-        let codeActionsProvider = vsc.languages.registerCodeActionsProvider(D_MODE, provider);
+        let codeActionsProvider = vsc.languages.registerCodeActionsProvider(misc.D_MODE, provider);
         let diagnosticCollection = vsc.languages.createDiagnosticCollection();
 
         Dscanner.collection = diagnosticCollection;
@@ -303,51 +278,15 @@ function start(context: vsc.ExtensionContext) {
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
 
-    let tasksFile: string;
-
-    if (vsc.workspace.rootPath) {
-        tasksFile = path.join(vsc.workspace.rootPath, '.vscode', 'tasks.json')
-
-        fs.stat(tasksFile, (err) => {
-            if (err) {
-                tasksGenerator = vsc.window.createStatusBarItem(vsc.StatusBarAlignment.Right);
-                tasksGenerator.command = 'dlang.default-tasks';
-                tasksGenerator.text = '$(list-unordered) Generate default tasks';
-                tasksGenerator.tooltip = 'Generate default tasks in .vscode for building with dub';
-                tasksGenerator.color = 'yellow';
-                tasksGenerator.show();
-            }
-        });
-    }
-
     return registerCommands(context.subscriptions, dub)
         .then(dcdClientTool.setup.bind(dcdClientTool))
         .then(dcdServerTool.setup.bind(dcdServerTool))
         .then(dfmtTool.setup.bind(dfmtTool))
         .then(dscannerTool.setup.bind(dscannerTool))
-        .then(() => {
-            if (vsc.workspace.rootPath) {
-                let tasksWatcher = vsc.workspace.createFileSystemWatcher(tasksFile);
-
-                tasksWatcher.onDidCreate(tasks.showChoosers.bind(tasks), null, context.subscriptions);
-                tasksWatcher.onDidChange(tasks.updateChoosers.bind(tasks), null, context.subscriptions);
-                tasksWatcher.onDidDelete(tasks.hideChoosers.bind(tasks), null, context.subscriptions);
-                tasks.showChoosers();
-
-                context.subscriptions.push(tasksWatcher);
-            }
-        });
-};
+        .then(() => context.subscriptions.push(vsc.workspace.registerTaskProvider('dub', provider)));
+}
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
-    subscriptions.push(vsc.commands.registerCommand('dlang.default-tasks', () => {
-        tasks.createFile();
-
-        if (tasksGenerator) {
-            tasksGenerator.dispose();
-        }
-    }));
-
     let packageNames = Array.from(packageInstallers.keys());
 
     subscriptions.push(vsc.commands.registerCommand('dlang.install', () => {
@@ -414,8 +353,39 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
     }));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.init', () => {
+        if (!vsc.workspace.workspaceFolders) {
+            return;
+        }
+
+        const initOptions: any[] = [
+            {
+                prompt: 'Name of the package',
+                placeHolder: 'Name'
+            },
+            {
+                prompt: 'Brief description of the package',
+                placeHolder: 'Description'
+            },
+            {
+                prompt: 'Name of the author of the package',
+                placeHolder: 'Author name',
+                value: process.env.USERNAME
+            },
+            {
+                prompt: 'License of the package',
+                placeHolder: 'License'
+            },
+            {
+                prompt: 'Copyright of the package',
+                placeHolder: 'Copyright'
+            }
+        ];
+
+        let thenable = misc.chooseRootPath().then((rp) => initOptions[0].value = path.basename(rootPath = rp))
+            .then(() => vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Recipe format' }));
+
+        let rootPath: string;
         let initEntries: string[] = [];
-        let thenable = vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Recipe format' });
 
         initOptions.forEach((options) => {
             thenable = thenable.then((result) => {
@@ -426,7 +396,7 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
 
         thenable.then((result) => {
             initEntries.push(result);
-            dub.init(initEntries);
+            dub.init(rootPath, initEntries);
         });
     }));
 
@@ -462,38 +432,25 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                     }
                 }))));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', dub.upgrade.bind(dub)));
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.upgrade', () =>
+        misc.chooseRootPath().then((rootPath) => dub.upgrade(rootPath))));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.dub.convert', () =>
-        vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' })
-            .then((format) => {
-                if (format) {
-                    dub.convert(format);
-                }
-            })));
+        misc.chooseRootPath().then((rootPath) =>
+            vsc.window.showQuickPick(['json', 'sdl'], { placeHolder: 'Conversion format' })
+                .then((format) => {
+                    if (format) {
+                        dub.convert(rootPath, format);
+                    }
+                }))));
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.dub.dustmite', dub.dustmite.bind(dub)));
+    subscriptions.push(vsc.commands.registerCommand('dlang.dub.dustmite', () => {
+        if (!vsc.workspace.workspaceFolders) {
+            return;
+        }
 
-    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.compiler', () =>
-        vsc.window.showQuickPick(tasks.compilers).then((compiler) => {
-            if (compiler) {
-                tasks.compiler = compiler;
-            }
-        })));
-
-    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.build', () =>
-        vsc.window.showQuickPick(tasks.builds).then((build) => {
-            if (build) {
-                tasks.build = build;
-            }
-        })));
-
-    subscriptions.push(vsc.commands.registerCommand('dlang.tasks.config', () =>
-        vsc.window.showQuickPick(tasks.configs).then((config) => {
-            if (config) {
-                tasks.config = config;
-            }
-        })));
+        misc.chooseRootPath().then(dub.dustmite.bind(dub));
+    }));
 
     subscriptions.push(vsc.commands.registerCommand('dlang.actions.config',
         (code: string) => dscannerConfig.mute(code)));
@@ -527,13 +484,14 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
                 return vsc.workspace.openTextDocument(uri).then(applyDfix);
             }
 
-            let choices = ['Run on open file(s)', 'Run on workspace'];
+            let choices = ['Run on open file(s)', 'Run everywhere'];
 
             vsc.window.showQuickPick(choices).then((value) => {
                 if (value === choices[0]) {
                     vsc.workspace.textDocuments.forEach(applyDfix);
-                } else {
-                    vsc.workspace.saveAll(false).then(() => new Dfix(vsc.workspace.rootPath, null));
+                } else if (vsc.workspace.workspaceFolders) {
+                    vsc.workspace.saveAll(false).then(() =>
+                        vsc.workspace.workspaceFolders.forEach((f) => new Dfix(f.uri.fsPath, () => null)));
                 }
             });
         }));
@@ -543,10 +501,14 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         DProfileViewer.toolDirectory = dProfileViewerTool.toolDirectory;
         DProfileViewer.toolFile = dProfileViewerTool.toolFile || 'd-profile-viewer';
 
-        subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () =>
-            new Promise((resolve) => new DProfileViewer(vsc.workspace.rootPath, resolve))
-                .then(() => vsc.commands.executeCommand('vscode.previewHtml',
-                    vsc.Uri.file(path.join(vsc.workspace.rootPath, 'trace.html'))))));
+        subscriptions.push(vsc.commands.registerCommand('dlang.d-profile-viewer', () => {
+            if (vsc.workspace.workspaceFolders) {
+                return misc.chooseRootPath()
+                    .then((rootPath) => new Promise((resolve) => new DProfileViewer(rootPath, resolve))
+                        .then(() => vsc.commands.executeCommand('vscode.previewHtml',
+                            vsc.Uri.file(path.join(rootPath, 'trace.html')))));
+            }
+        }));
     };
 
     return dfixTool.setup().then(dProfileViewerTool.setup.bind(dProfileViewerTool));

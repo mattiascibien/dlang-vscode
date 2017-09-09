@@ -1,8 +1,8 @@
 'use strict';
 
 import * as vsc from 'vscode';
+import * as misc from '../misc';
 import Dscanner from './dscanner';
-import { D_MODE } from '../mode';
 
 export enum Operation {
     Lint,
@@ -146,7 +146,7 @@ fixes.set('dscanner.style.imports_sortedness', {
 export { fixes };
 
 export function lintDocument(document: vsc.TextDocument) {
-    if (document.languageId === D_MODE.language) {
+    if (document.languageId === misc.D_MODE.language) {
         new Dscanner(document, null, Operation.Lint);
     }
 };

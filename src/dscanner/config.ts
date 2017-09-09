@@ -5,12 +5,13 @@ import * as path from 'path';
 import * as rl from 'readline';
 import * as fs from 'fs-extra';
 import * as vsc from 'vscode';
+import * as misc from '../misc';
 import * as util from './util';
 
 const header = '[analysis.config.StaticAnalysisConfig]';
 
 export function mute(check: string) {
-    let filename = path.join(vsc.workspace.rootPath, 'dscanner.ini');
+    let filename = path.join(misc.getRootPath(), 'dscanner.ini');
     let hasHeader = false;
 
     return new Promise((resolve) =>

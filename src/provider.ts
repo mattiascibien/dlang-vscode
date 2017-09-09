@@ -4,6 +4,8 @@ import * as ev from 'events';
 import * as vsc from 'vscode';
 import * as dcdUtil from './dcd/util';
 import * as dscannerUtil from './dscanner/util';
+import * as misc from './misc';
+import Dub from './dub';
 import Server from './dcd/server';
 import Client from './dcd/client';
 import Dfmt from './dfmt';
@@ -17,13 +19,14 @@ export default class Provider extends ev.EventEmitter implements
     vsc.DocumentFormattingEditProvider,
     vsc.DocumentSymbolProvider,
     vsc.WorkspaceSymbolProvider,
-    vsc.CodeActionProvider {
+    vsc.CodeActionProvider,
+    vsc.TaskProvider {
     public provideCompletionItems(
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken
     ): Promise<any> {
-        return this.provide(document, position, token, dcdUtil.Operation.Completion);
+        return this.dcdProvide(document, position, token, dcdUtil.Operation.Completion);
     }
 
     public provideSignatureHelp(
@@ -31,7 +34,7 @@ export default class Provider extends ev.EventEmitter implements
         position: vsc.Position,
         token: vsc.CancellationToken
     ): Promise<any> {
-        return this.provide(document, position, token, dcdUtil.Operation.Calltips);
+        return this.dcdProvide(document, position, token, dcdUtil.Operation.Calltips);
     }
 
     public provideDefinition(
@@ -39,7 +42,7 @@ export default class Provider extends ev.EventEmitter implements
         position: vsc.Position,
         token: vsc.CancellationToken
     ): Promise<any> {
-        return this.provide(document, position, token, dcdUtil.Operation.Definition);
+        return this.dcdProvide(document, position, token, dcdUtil.Operation.Definition);
     }
 
     public provideHover(
@@ -47,7 +50,7 @@ export default class Provider extends ev.EventEmitter implements
         position: vsc.Position,
         token: vsc.CancellationToken
     ): Promise<any> {
-        return this.provide(document, position, token, dcdUtil.Operation.Documentation);
+        return this.dcdProvide(document, position, token, dcdUtil.Operation.Documentation);
     }
 
     public provideDocumentFormattingEdits(
@@ -104,7 +107,7 @@ export default class Provider extends ev.EventEmitter implements
                 let fix = dscannerUtil.fixes.get(<string>d.code);
                 return Object.assign({ arguments: [d, ...fix.getArgs(document, range)] }, fix.command);
             });
-        let disablers = vsc.workspace.rootPath
+        let disablers = vsc.workspace.workspaceFolders
             ? filteredDiagnostics
                 .filter((d) => dscannerUtil.fixes.get(<string>d.code).checkName)
                 .map((d) => ({
@@ -117,7 +120,23 @@ export default class Provider extends ev.EventEmitter implements
         return actions.concat(disablers);
     }
 
-    private provide(
+    public provideTasks(token?: vsc.CancellationToken) {
+        let tasks = ['build', 'clean', 'test']
+            .map((name) => new vsc.Task({ type: 'dub', task: name }, name, 'dub',
+                new vsc.ProcessExecution(Dub.executable, [name], { cwd: misc.getRootPath() }), ['$dub-' + name]));
+
+        tasks[0].group = vsc.TaskGroup.Build;
+        tasks[1].group = vsc.TaskGroup.Clean;
+        tasks[2].group = vsc.TaskGroup.Test;
+
+        return tasks;
+    }
+
+    public resolveTask(task: vsc.Task, token?: vsc.CancellationToken) {
+        return undefined;
+    }
+
+    private dcdProvide(
         document: vsc.TextDocument,
         position: vsc.Position,
         token: vsc.CancellationToken,

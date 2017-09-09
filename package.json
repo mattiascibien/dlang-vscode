@@ -12,7 +12,7 @@
         "theme": "dark"
     },
     "engines": {
-        "vscode": "^1.11.0"
+        "vscode": "^1.16.0"
     },
     "bugs": {
         "url": "https://github.com/dlang-vscode/dlang-vscode/issues"
@@ -39,6 +39,7 @@
         "onLanguage:d",
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
+        "onCommand:workbench.action.tasks.runTask",
         "onCommand:dlang.default-tasks",
         "onCommand:dlang.install",
         "onCommand:dlang.d-profile-viewer",
@@ -81,6 +82,50 @@
             {
                 "language": "d",
                 "path": "./snippets/snippets.json"
+            }
+        ],
+        "taskDefinitions": [
+            {
+                "type": "dub",
+                "required": [
+                    "task"
+                ],
+                "properties": {
+                    "task": {
+                        "type": "string",
+                        "enum": [
+                            "build",
+                            "clean",
+                            "test"
+                        ]
+                    },
+                    "compiler": {
+                        "type": "string",
+                        "description": "The compiler used by dub"
+                    },
+                    "config": {
+                        "type": "string",
+                        "enum": [
+                            "debug",
+                            "plain",
+                            "release",
+                            "release-debug",
+                            "release-nobounds",
+                            "unittest",
+                            "profile",
+                            "profile-gc",
+                            "docs",
+                            "ddox",
+                            "cov",
+                            "unittest-cov"
+                        ],
+                        "description": "The dub build configuration"
+                    },
+                    "args": {
+                        "type": "array",
+                        "description": "Arguments passed to dub"
+                    }
+                }
             }
         ],
         "problemMatchers": [
@@ -445,10 +490,10 @@
     },
     "devDependencies": {
         "@types/escape-string-regexp": "^0.0.31",
-        "@types/fs-extra": "^4.0.1",
+        "@types/fs-extra": "^4.0.2",
         "@types/glob": "^5.0.32",
         "@types/mocha": "^2.2.42",
-        "@types/node": "^8.0.26",
+        "@types/node": "^8.0.27",
         "@types/tmp": "^0.0.33",
         "@types/xml2js": "^0.4.0",
         "decache": "^4.1.0",

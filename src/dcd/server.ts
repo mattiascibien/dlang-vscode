@@ -13,7 +13,7 @@ export default class Server {
     public static toolFile = '';
     public static dub: Dub;
     private static _instanceLaunched: boolean;
-    private _dubSelectionsWatcher: vsc.FileSystemWatcher;
+    private _dubSelectionsWatchers = new Map<string, vsc.FileSystemWatcher>();
 
     public static get instanceLaunched() {
         return Server._instanceLaunched;
@@ -24,14 +24,23 @@ export default class Server {
     }
 
     public start() {
-        let additionsImports = vsc.workspace.getConfiguration().get<Array<string>>('d.dcd.imports', [])
-            .map((i) => '-I' + (path.isAbsolute(i) || !vsc.workspace.rootPath
-                ? i
-                : path.join(vsc.workspace.rootPath, i)));
+        let additionsImports: string[] = [];
 
-        if (vsc.workspace.rootPath) {
-            this.getImportDirs(vsc.workspace.rootPath)
-                .forEach((dir) => additionsImports.push('-I' + dir));
+        vsc.workspace.getConfiguration().get<string[]>('d.dcd.imports', [])
+            .forEach((i) => {
+                if (path.isAbsolute(i)) {
+                    additionsImports.push('-I' + i);
+                } else if (vsc.workspace.workspaceFolders) {
+                    additionsImports = additionsImports
+                        .concat(vsc.workspace.workspaceFolders.map((f) => '-I' + path.join(f.uri.fsPath, i)));
+                }
+            });
+
+        if (vsc.workspace.workspaceFolders) {
+            vsc.workspace.workspaceFolders.forEach((f) => {
+                this.getImportDirs(f.uri.fsPath)
+                    .forEach((dir) => additionsImports.push('-I' + dir));
+            });
         }
 
         try {
@@ -60,15 +69,15 @@ export default class Server {
 
     public stop() {
         cp.spawn(path.join(Client.toolDirectory, Client.toolFile), ['--shutdown'].concat(util.getTcpArgs()));
-        this._dubSelectionsWatcher.dispose();
+        this._dubSelectionsWatchers.forEach((watcher) => watcher.dispose());
     }
 
     public importPath(p: string) {
         return cp.spawn(path.join(Client.toolDirectory, Client.toolFile), ['-I' + p]);
     }
 
-    public importSelections(subscriptions: vsc.Disposable[]) {
-        let selectionsUri = vsc.Uri.file(path.join(vsc.workspace.rootPath, 'dub.selections.json'));
+    public importSelections(directory: string, subscriptions: vsc.Disposable[]) {
+        let selectionsUri = vsc.Uri.file(path.join(directory, 'dub.selections.json'));
         let importPackageDirs = (uri: vsc.Uri) => {
             return new Promise((resolve) => {
                 fs.readFile(uri.fsPath, (err, data) => {
@@ -81,11 +90,17 @@ export default class Server {
             });
         };
 
-        this._dubSelectionsWatcher = vsc.workspace.createFileSystemWatcher(selectionsUri.fsPath);
-        this._dubSelectionsWatcher.onDidCreate(importPackageDirs, null, subscriptions);
-        this._dubSelectionsWatcher.onDidChange(importPackageDirs, null, subscriptions);
+        this._dubSelectionsWatchers.set(directory, vsc.workspace.createFileSystemWatcher(selectionsUri.fsPath));
+        this._dubSelectionsWatchers.get(directory).onDidCreate(importPackageDirs, null, subscriptions);
+        this._dubSelectionsWatchers.get(directory).onDidChange(importPackageDirs, null, subscriptions);
 
         return importPackageDirs(selectionsUri);
+    }
+
+    public unimportSelections(directory: string, subscriptions: vsc.Disposable[]) {
+        this._dubSelectionsWatchers.get(directory).dispose();
+        this._dubSelectionsWatchers.delete(directory);
+        return Promise.resolve(null);
     }
 
     private importPackages(selections) {

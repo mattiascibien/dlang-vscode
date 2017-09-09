@@ -7,6 +7,7 @@ import * as cp from 'child_process';
 import * as rl from 'readline';
 import * as vsc from 'vscode';
 import * as tmp from 'tmp';
+import * as misc from './misc';
 import escapeStringRegexp = require('escape-string-regexp');
 
 export default class Dub extends vsc.Disposable {
@@ -22,8 +23,8 @@ export default class Dub extends vsc.Disposable {
         this._tmp.removeCallback();
     }
 
-    public init(entries: string[]) {
-        return this.launchCommand('init', [], vsc.workspace.rootPath, { stdin: entries.join(os.EOL) });
+    public init(directory, entries: string[]) {
+        return this.launchCommand('init', [], directory, { cwd: directory, stdin: entries.join(os.EOL) });
     }
 
     public fetch(packageName: string, version?: string) {
@@ -32,10 +33,6 @@ export default class Dub extends vsc.Disposable {
 
     public remove(packageName: string, version?: string) {
         return this.launchCommand('remove', [packageName].concat(version ? ['--version', version] : []));
-    }
-
-    public upgrade() {
-        return this.launchCommand('upgrade', []);
     }
 
     public list(): Promise<Package[]> {
@@ -94,33 +91,42 @@ export default class Dub extends vsc.Disposable {
             .then(() => p);
     }
 
-    public convert(format: string) {
-        return this.launchCommand('convert', ['--format=' + format], 'to ' + format);
+    public upgrade(directory: string) {
+        return this.launchCommand('upgrade', [], directory, { cwd: directory });
     }
 
-    public dustmite() {
-        let dustmitePath = p.join(this._tmp.name, p.basename(vsc.workspace.rootPath));
+    public convert(directory: string, format: string) {
+        return this.launchCommand('convert', ['--format=' + format], directory + ' to ' + format, { cwd: directory });
+    }
+
+    public dustmite(directory: string) {
+        let dustmitePath = p.join(this._tmp.name, p.basename(directory));
         let args: string[];
 
         return Promise.all([dustmitePath, dustmitePath + '.reduced']
             .map((path) => new Promise(fs.remove.bind(fs, path))))
-            .then(() => new Promise((resolve) => {
-                fs.readFile(p.join(vsc.workspace.rootPath, '.vscode', 'tasks.json'), (err, data) => {
-                    if (err) {
-                        resolve();
-                        return;
+            .then(() => {
+                let buildTask = vsc.workspace.getConfiguration('tasks',
+                    vsc.window.activeTextEditor ? vsc.window.activeTextEditor.document.uri : null)
+                    .get('tasks', [])
+                    .filter((t) => t.type === 'dub')
+                    .find((t) => t.operation === 'build');
+                let args = [];
+
+                if (buildTask) {
+                    ['compiler', 'config'].forEach((arg) => {
+                        if (buildTask[arg]) {
+                            args.push(`--${arg}=` + buildTask[arg]);
+                        }
+                    });
+
+                    if (buildTask.args) {
+                        args.push(...args);
                     }
+                }
 
-                    let tasks = JSON.parse(data.toString()).tasks;
-                    let task = tasks.find((task: any) => task.taskName === 'build');
-
-                    if (task) {
-                        args = task.args;
-                    }
-
-                    resolve(this.launchCommand('build', args || [], vsc.workspace.rootPath));
-                });
-            })).then((buildResult: any) => {
+                return this.launchCommand('build', args, directory, { cwd: directory });
+            }).then((buildResult: any) => {
                 if (buildResult.code) {
                     return vsc.window.showQuickPick(buildResult.lines, { placeHolder: 'Select a line' });
                 }
@@ -133,7 +139,7 @@ export default class Dub extends vsc.Disposable {
                         dustmitePath,
                         '--combined',
                         '--compiler-regex=' + escapeStringRegexp(line)
-                    ]), vsc.workspace.rootPath, { verbose: true });
+                    ]), directory, { verbose: true });
                 }
             }).then((dustmiteResult: any) => {
                 if (dustmiteResult && !dustmiteResult.code) {
@@ -172,7 +178,7 @@ export default class Dub extends vsc.Disposable {
             verbose?: boolean
         }) {
         options = options || {};
-        options.cwd = options.cwd || vsc.workspace.rootPath;
+        options.cwd = options.cwd || misc.getRootPath();
 
         if (args.length) {
             this._output.appendLine('Dub ' + command + ' : ' + (message || args[0]));
