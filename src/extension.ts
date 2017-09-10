@@ -67,14 +67,14 @@ class Tool {
     }
 
     public setup() {
-        let toolEnabled = vsc.workspace.getConfiguration().get<boolean>(`d.tools.enabled.${this._configName}`);
+        let toolEnabled = vsc.workspace.getConfiguration('d.tools.enabled').get<boolean>(this._configName);
 
         if (!toolEnabled) {
             return Promise.resolve(undefined);
         }
 
-        let toolPath = vsc.workspace.getConfiguration().get<string>('d.tools.' + this._configName
-            + (this._buildConfig ? '.' + this._buildConfig : ''));
+        let toolPath = vsc.workspace.getConfiguration('d.tools')
+            .get<string>(this._configName + (this._buildConfig ? '.' + this._buildConfig : ''));
 
         if (path.isAbsolute(toolPath)) {
             try {

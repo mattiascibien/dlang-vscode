@@ -170,82 +170,98 @@
                 "d.dmdConf.linux": {
                     "type": "string",
                     "default": "/etc/dmd.conf",
-                    "description": "Path to the DMD configuration file on Linux."
+                    "description": "Path to the DMD configuration file on Linux.",
+                    "scope": "window"
                 },
                 "d.dmdConf.osx": {
                     "type": "string",
                     "default": "/usr/local/etc/dmd.conf",
-                    "description": "Path to the DMD configuration file on OS X."
+                    "description": "Path to the DMD configuration file on OS X.",
+                    "scope": "window"
                 },
                 "d.dmdConf.windows": {
                     "type": "string",
                     "default": "C:\\D\\dmd2\\windows\\bin\\sc.ini",
-                    "description": "Path to the DMD configuration file on Windows."
+                    "description": "Path to the DMD configuration file on Windows.",
+                    "scope": "window"
                 },
                 "d.tools.enabled.dcd": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Whether DCD is used or not."
+                    "description": "Whether DCD is used or not.",
+                    "scope": "window"
                 },
                 "d.tools.enabled.dfmt": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Whether DFMT is used or not."
+                    "description": "Whether DFMT is used or not.",
+                    "scope": "window"
                 },
                 "d.tools.enabled.dscanner": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Whether Dscanner is used or not."
+                    "description": "Whether Dscanner is used or not.",
+                    "scope": "window"
                 },
                 "d.tools.enabled.dfix": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Whether Dfix is used or not."
+                    "description": "Whether Dfix is used or not.",
+                    "scope": "window"
                 },
                 "d.tools.enabled.dProfileViewer": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Whether F Profile Viewer is used or not."
+                    "description": "Whether F Profile Viewer is used or not.",
+                    "scope": "window"
                 },
                 "d.tools.dub": {
                     "type": "string",
                     "default": "dub",
-                    "description": "Path to the dub executable."
+                    "description": "Path to the dub executable.",
+                    "scope": "window"
                 },
                 "d.tools.dcd.client": {
                     "type": "string",
                     "default": "dcd-client",
-                    "description": "Path to the system DCD client executable (optional)."
+                    "description": "Path to the system DCD client executable (optional).",
+                    "scope": "window"
                 },
                 "d.tools.dcd.server": {
                     "type": "string",
                     "default": "dcd-server",
-                    "description": "Path to the system DCD server executable (optional)."
+                    "description": "Path to the system DCD server executable (optional).",
+                    "scope": "window"
                 },
                 "d.tools.dfmt": {
                     "type": "string",
                     "default": "dfmt",
-                    "description": "Path to the system DFMT executable (optional)."
+                    "description": "Path to the system DFMT executable (optional).",
+                    "scope": "window"
                 },
                 "d.tools.dscanner": {
                     "type": "string",
                     "default": "dscanner",
-                    "description": "Path to the system Dscanner executable (optional)."
+                    "description": "Path to the system Dscanner executable (optional).",
+                    "scope": "window"
                 },
                 "d.tools.dfix": {
                     "type": "string",
                     "default": "dfix",
-                    "description": "Path to the system Dfix executable (optional)."
+                    "description": "Path to the system Dfix executable (optional).",
+                    "scope": "window"
                 },
                 "d.tools.dProfileViewer": {
                     "type": "string",
                     "default": "d-profile-viewer",
-                    "description": "Path to the system D Profile Viewer executable (optional)."
+                    "description": "Path to the system D Profile Viewer executable (optional).",
+                    "scope": "window"
                 },
                 "d.dub.compiler": {
                     "type": "string",
                     "default": "dmd",
                     "description": "The compiler used by dub when compiling other tools.",
+                    "scope": "window",
                     "enum": [
                         "dmd",
                         "ldc2",
@@ -256,6 +272,7 @@
                     "type": "string",
                     "default": null,
                     "description": "The compiler used by dub when compiling DCD.",
+                    "scope": "window",
                     "enum": [
                         "dmd",
                         "ldc2",
@@ -265,22 +282,26 @@
                 "d.dcd.tcp": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows."
+                    "description": "Listen on a TCP socket instead of a UNIX domain socket. This switch has no effect on Windows.",
+                    "scope": "resource"
                 },
                 "d.dcd.port": {
                     "type": "number",
                     "default": 9166,
-                    "description": "Listens on this port instead of the default port 9166 when TCP sockets are used."
+                    "description": "Listens on this port instead of the default port 9166 when TCP sockets are used.",
+                    "scope": "resource"
                 },
                 "d.dcd.imports": {
                     "type": "array",
                     "default": [],
-                    "description": "An array of paths that DCD should import on launch."
+                    "description": "An array of paths that DCD should import on launch.",
+                    "scope": "window"
                 },
                 "d.dfmt.compiler": {
                     "type": "string",
                     "default": null,
                     "description": "The compiler used by dub when compiling DFMT.",
+                    "scope": "window",
                     "enum": [
                         "dmd",
                         "ldc2",
@@ -290,12 +311,14 @@
                 "d.dfmt.alignSwitchStatements": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Align labels, cases, and defaults with their enclosing switch."
+                    "description": "Align labels, cases, and defaults with their enclosing switch.",
+                    "scope": "resource"
                 },
                 "d.dfmt.braceStyle": {
                     "type": "string",
                     "default": "allman",
                     "description": "Denotes the style for using curly braces in code blocks.",
+                    "scope": "resource",
                     "enum": [
                         "allman",
                         "otbs",
@@ -306,6 +329,7 @@
                     "type": "string",
                     "default": "lf",
                     "description": "Line ending file format.",
+                    "scope": "resource",
                     "enum": [
                         "lf",
                         "cr",
@@ -315,42 +339,50 @@
                 "d.dfmt.softMaxLineLength": {
                     "type": "number",
                     "default": 80,
-                    "description": "The formatting process will usually keep lines below this length."
+                    "description": "The formatting process will usually keep lines below this length.",
+                    "scope": "resource"
                 },
                 "d.dfmt.maxLineLength": {
                     "type": "number",
                     "default": 120,
-                    "description": "Forces hard line wrapping after the amount of characters specified."
+                    "description": "Forces hard line wrapping after the amount of characters specified.",
+                    "scope": "resource"
                 },
                 "d.dfmt.outdentAttributes": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Decrease the indentation level of attributes."
+                    "description": "Decrease the indentation level of attributes.",
+                    "scope": "resource"
                 },
                 "d.dfmt.spaceAfterCast": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Insert space after the closing parenthesis of a cast expression."
+                    "description": "Insert space after the closing parenthesis of a cast expression.",
+                    "scope": "resource"
                 },
                 "d.dfmt.selectiveImportSpace": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Insert space after the module name and before the ':' for selective imports."
+                    "description": "Insert space after the module name and before the ':' for selective imports.",
+                    "scope": "resource"
                 },
                 "d.dfmt.splitOperatorAtLineEnd": {
                     "type": "boolean",
                     "default": false,
-                    "description": "Place operators on the end of the previous line when splitting lines."
+                    "description": "Place operators on the end of the previous line when splitting lines.",
+                    "scope": "resource"
                 },
                 "d.dfmt.compactLabeledStatements": {
                     "type": "boolean",
                     "default": true,
-                    "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement."
+                    "description": "Place labels on the same line as the labeled switch, for, foreach, or while statement.",
+                    "scope": "resource"
                 },
                 "d.dscanner.compiler": {
                     "type": "string",
                     "default": null,
                     "description": "The compiler used by dub when compiling Dscanner.",
+                    "scope": "window",
                     "enum": [
                         "dmd",
                         "ldc2",
@@ -361,6 +393,7 @@
                     "type": "string",
                     "default": null,
                     "description": "The compiler used by dub when compiling Dfix.",
+                    "scope": "window",
                     "enum": [
                         "dmd",
                         "ldc2",
@@ -371,6 +404,7 @@
                     "type": "string",
                     "default": null,
                     "description": "The compiler used by dub when compiling D Profile Viewer.",
+                    "scope": "window",
                     "enum": [
                         "dmd",
                         "ldc2",

@@ -26,7 +26,7 @@ export default class Server {
     public start() {
         let additionsImports: string[] = [];
 
-        vsc.workspace.getConfiguration().get<string[]>('d.dcd.imports', [])
+        vsc.workspace.getConfiguration('d.dcd').get<string[]>('imports', [])
             .forEach((i) => {
                 if (path.isAbsolute(i)) {
                     additionsImports.push('-I' + i);
@@ -44,13 +44,13 @@ export default class Server {
         }
 
         try {
-            let section = 'd.dmdConf.' + {
+            let section = {
                 linux: 'linux',
                 darwin: 'osx',
                 win32: 'windows'
             }[process.platform];
 
-            let configFile = vsc.workspace.getConfiguration().get<string>(section);
+            let configFile = vsc.workspace.getConfiguration('d.dmdConf').get<string>(section);
             fs.accessSync(configFile);
 
             let conf = fs.readFileSync(configFile).toString();

@@ -36,7 +36,7 @@ export default class Dfmt {
             'compactLabeledStatements'
         ].forEach((attr) =>
             args.push('--' + attr.replace(/[A-Z]/g, (found) => '_' + found.toLowerCase()),
-                String(vsc.workspace.getConfiguration().get('d.dfmt.' + attr))));
+                vsc.workspace.getConfiguration('d.dfmt').get<string>(attr)));
 
         this._dfmt = cp.spawn(path.join(Dfmt.toolDirectory, Dfmt.toolFile), args);
     }

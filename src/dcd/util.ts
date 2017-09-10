@@ -32,7 +32,8 @@ export enum Operation {
 };
 
 export function getTcpArgs() {
-    return vsc.workspace.getConfiguration().get('d.dcd.tcp')
-        ? ['--tcp', '--port', String(vsc.workspace.getConfiguration().get('d.dcd.port'))]
+    let config = vsc.workspace.getConfiguration('d.dcd');
+    return config.get('tcp')
+        ? ['--tcp', '--port', String(config.get('port'))]
         : [];
 };
