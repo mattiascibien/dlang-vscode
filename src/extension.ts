@@ -281,18 +281,16 @@ function start(context: vsc.ExtensionContext) {
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
 
-    return vsc.window.withProgress({ location: vsc.ProgressLocation.Window }, (progress) => {
-        progress.report({ message: 'Updating D tools' });
-        return registerCommands(context.subscriptions, dub)
+    return vsc.window.withProgress({ location: vsc.ProgressLocation.Window },
+        (progress) => registerCommands(context.subscriptions, dub, progress)
             .then(dcdClientTool.setup.bind(dcdClientTool, progress))
             .then(dcdServerTool.setup.bind(dcdServerTool, progress))
             .then(dfmtTool.setup.bind(dfmtTool, progress))
             .then(dscannerTool.setup.bind(dscannerTool, progress))
-            .then(() => context.subscriptions.push(vsc.workspace.registerTaskProvider('dub', provider)));
-    });
+            .then(() => context.subscriptions.push(vsc.workspace.registerTaskProvider('dub', provider))));
 }
 
-function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
+function registerCommands(subscriptions: vsc.Disposable[], dub: Dub, progress: vsc.Progress<{ message: string }>) {
     let packageNames = Array.from(packageInstallers.keys());
 
     subscriptions.push(vsc.commands.registerCommand('dlang.install', () => {
@@ -517,5 +515,5 @@ function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
         }));
     };
 
-    return dfixTool.setup().then(dProfileViewerTool.setup.bind(dProfileViewerTool));
+    return dfixTool.setup(progress).then(dProfileViewerTool.setup.bind(dProfileViewerTool, progress));
 }
