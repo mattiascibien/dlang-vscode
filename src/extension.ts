@@ -66,8 +66,12 @@ class Tool {
             });
     }
 
-    public setup() {
+    public setup(progress?: vsc.Progress<{ message?: string }>) {
         let toolEnabled = vsc.workspace.getConfiguration('d.tools.enabled').get<boolean>(this._configName);
+
+        if (progress) {
+            progress.report({ message: 'Setting up ' + this._name });
+        }
 
         if (!toolEnabled) {
             return Promise.resolve(undefined);
@@ -199,7 +203,6 @@ function start(context: vsc.ExtensionContext) {
     let dub = new Dub(output);
     let provider = new Provider();
 
-    output.show(true);
     context.subscriptions.push(output, dub);
 
     let dcdClientTool = new Tool('dcd', { buildConfig: 'client' });
@@ -278,12 +281,15 @@ function start(context: vsc.ExtensionContext) {
         context.subscriptions.push(documentSymbolProvider, workspaceSymbolProvider, codeActionsProvider, diagnosticCollection);
     };
 
-    return registerCommands(context.subscriptions, dub)
-        .then(dcdClientTool.setup.bind(dcdClientTool))
-        .then(dcdServerTool.setup.bind(dcdServerTool))
-        .then(dfmtTool.setup.bind(dfmtTool))
-        .then(dscannerTool.setup.bind(dscannerTool))
-        .then(() => context.subscriptions.push(vsc.workspace.registerTaskProvider('dub', provider)));
+    return vsc.window.withProgress({ location: vsc.ProgressLocation.Window }, (progress) => {
+        progress.report({ message: 'Updating D tools' });
+        return registerCommands(context.subscriptions, dub)
+            .then(dcdClientTool.setup.bind(dcdClientTool, progress))
+            .then(dcdServerTool.setup.bind(dcdServerTool, progress))
+            .then(dfmtTool.setup.bind(dfmtTool, progress))
+            .then(dscannerTool.setup.bind(dscannerTool, progress))
+            .then(() => context.subscriptions.push(vsc.workspace.registerTaskProvider('dub', provider)));
+    });
 }
 
 function registerCommands(subscriptions: vsc.Disposable[], dub: Dub) {
