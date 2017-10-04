@@ -39,7 +39,6 @@
         "onLanguage:d",
         "workspaceContains:dub.json",
         "workspaceContains:dub.sdl",
-        "onCommand:workbench.action.tasks.runTask",
         "onCommand:dlang.default-tasks",
         "onCommand:dlang.install",
         "onCommand:dlang.d-profile-viewer",
