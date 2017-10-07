@@ -123,7 +123,8 @@ export default class Provider extends ev.EventEmitter implements
     public provideTasks(token?: vsc.CancellationToken) {
         let tasks = ['build', 'clean', 'test']
             .map((name) => new vsc.Task({ type: 'dub', task: name }, name, 'dub',
-                new vsc.ProcessExecution(Dub.executable, [name], { cwd: misc.getRootPath() }), ['$dub-' + name]));
+                new vsc.ProcessExecution(Dub.executable, [name], { cwd: misc.getRootPath() }),
+                ['$dub-build', '$dub-test']));
 
         tasks[0].group = vsc.TaskGroup.Build;
         tasks[1].group = vsc.TaskGroup.Clean;
