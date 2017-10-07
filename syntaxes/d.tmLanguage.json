@@ -134,32 +134,7 @@
             }
         },
         {
-            "match": "\\b(enum)([^=]+?)(\\w+)\\s*(=)",
-            "captures": {
-                "1": {
-                    "name": "storage.type.enum.d"
-                },
-                "2": {
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        }
-                    ]
-                },
-                "3": {
-                    "name": "entity.name.enum.d"
-                },
-                "4": {
-                    "patterns": [
-                        {
-                            "include": "$self"
-                        }
-                    ]
-                }
-            }
-        },
-        {
-            "match": "\\b(enum)\\s+(\\w+)?(?:\\s*:\\s*(\\w+))?",
+            "match": "\\b(enum)\\s*(?:\\s(\\w+)(?:\\s*:\\s*(\\w+))?\\s*)?(?=\\{|$)",
             "captures": {
                 "1": {
                     "name": "storage.type.enum.d"
@@ -459,6 +434,10 @@
             "match": "&|\\|"
         },
         {
+            "name": "keyword.operator.ternary.d",
+            "match": "\\?|:"
+        },
+        {
             "name": "keyword.operator.variadic.d",
             "match": "\\.\\.\\."
         },
@@ -540,7 +519,7 @@
         },
         {
             "name": "storage.type.d",
-            "match": "\\b(bool|delegate|function|template|void|__vector)\\b"
+            "match": "\\b(bool|class|delegate|enum|function|interface|struct|template|union|void|__vector)\\b"
         },
         {
             "name": "variable.language.d",
@@ -559,19 +538,31 @@
             "match": "\\b(Error|Exception|Interface|Object|OffsetTypeInfo|RTInfo|Throwable|TypeInfo|TypeInfo_Class)\\b"
         },
         {
-            "match": "\\b(\\w+)\\s*(!)?\\s*(?=\\()",
+            "match": "\\b([a-z_]\\w*)\\s*(!)",
             "captures": {
                 "1": {
                     "name": "entity.name.function.d",
                     "patterns": [
                         {
-                            "name": "support.function.d",
-                            "match": "\\b(destroy|factory|opAssign|opBinary|opBinaryRight|opCall|opCmp|opDispatch|opDollar|opEquals|opIndexAssign|opIndexOpAssign|opIndexUnary|opOpAssign|opSlice|opUnary|toHash|toString)\\b"
+                            "include": "#functions-support"
                         }
                     ]
                 },
                 "2": {
                     "name": "keyword.operator.template.d"
+                }
+            }
+        },
+        {
+            "match": "(?<!!)\\b([a-z_]\\w*)\\s*(?=\\()",
+            "captures": {
+                "1": {
+                    "name": "entity.name.function.d",
+                    "patterns": [
+                        {
+                            "include": "#functions-support"
+                        }
+                    ]
                 }
             }
         },
@@ -711,6 +702,10 @@
         "string-escaped-char": {
             "name": "constant.character.escape.d",
             "match": "\\\\(['\"?\\\\0abnfrtv]|x[\\da-fA-F]{2}|[0-3]?[0-7]{1,2}|u[\\da-fA-F]{4}|U[\\da-fA-F]{8}|&[a-zA-Z]{1,8};)"
+        },
+        "functions-support": {
+            "name": "support.function.d",
+            "match": "\\b(destroy|factory|opAssign|opBinary|opBinaryRight|opCall|opCmp|opDispatch|opDollar|opEquals|opIndexAssign|opIndexOpAssign|opIndexUnary|opOpAssign|opSlice|opUnary|toHash|toString)\\b"
         },
         ".util-count-braces": {
             "name": "meta.block.d",
