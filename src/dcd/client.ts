@@ -83,14 +83,10 @@ export default class Client extends ev.EventEmitter {
                         return;
                     }
 
-                    let documentThenable: Thenable<vsc.TextDocument>;
                     let filename = parts[0];
-
-                    if (filename === 'stdin') {
-                        documentThenable = new Promise((res) => res(this._document));
-                    } else {
-                        documentThenable = vsc.workspace.openTextDocument(filename);
-                    }
+                    let documentThenable: Thenable<vsc.TextDocument> = filename === 'stdin'
+                        ? new Promise((res) => res(this._document))
+                        : vsc.workspace.openTextDocument(filename);
 
                     documentThenable.then((document) =>
                         resolve(new vsc.Location(document.uri, document.positionAt(Number(parts[1])))));
@@ -112,30 +108,29 @@ export default class Client extends ev.EventEmitter {
             }
         });
 
-        if (this._operation === util.Operation.Completion || this._operation === util.Operation.Calltips) {
-            reader.on('close', () => {
-                switch (completionType) {
-                    case null:
-                        reject();
-                        break;
+        reader.on('close', () => {
+            switch (completionType) {
+                case 'identifiers':
+                    resolve(completions);
+                    break;
 
-                    case 'identifiers':
-                        resolve(completions);
-                        break;
+                case 'calltips':
+                    let infoLine = this._document.lineAt(this._position.line).text;
+                    let infoArgs = infoLine.substring(infoLine.lastIndexOf('(', this._position.character), this._position.character);
+                    let infoNumArg = infoArgs.match(/,/g);
 
-                    case 'calltips':
-                        let infoLine = this._document.lineAt(this._position.line).text;
-                        let infoArgs = infoLine.substring(infoLine.lastIndexOf('(', this._position.character), this._position.character);
-                        let infoNumArg = infoArgs.match(/,/g);
+                    signatureHelp.activeParameter = infoNumArg ? infoNumArg.length : 0;
+                    signatureHelp.activeSignature = 0;
+                    resolve(signatureHelp);
 
-                        signatureHelp.activeParameter = infoNumArg ? infoNumArg.length : 0;
-                        signatureHelp.activeSignature = 0;
-                        resolve(signatureHelp);
+                    break;
 
-                        break;
-                }
-            });
-        }
+                case 'documentation':
+                case null:
+                    reject();
+                    break;
+            }
+        });
 
         this._client.stdin.end(this._document.getText(), 'ascii');
     }
@@ -168,7 +163,8 @@ function parseDoc(docLine: string) {
         .replace(/\$\(\w+\s*([^)]+?)\)/g, '`$1`')
         .replace(/(?!=\\)\\n/g, '\n')
         .replace('\\\\', '\\')
-        .split(/-+\n/g);
+        .split(/\n\s*-+\s*(?=\n|$)/g)
+        .filter((part) => part.length);
 
     for (let i = 1; i < result.length; i += 2) {
         result[i] = {
