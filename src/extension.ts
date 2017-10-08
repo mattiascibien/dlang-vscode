@@ -52,14 +52,15 @@ class Tool {
         return Tool.dub.search(this._name)
             .then((packages) => packages.find((pkg) => pkg.name === this._name))
             .then((pkg) => {
-                this._version = pkg.version;
-                return Tool.dub.fetch(this._name, pkg ? pkg.version : undefined);
+                this._version = pkg ? pkg.version : undefined;
+                return Tool.dub.fetch(this._name, this._version);
             });
     }
 
     public build() {
         return Tool.dub.list()
-            .then((packages) => packages.find((p) => p.name === this._name && p.version === this._version))
+            .then((packages) => packages.find((p) => p.name === this._name && p.version === this._version)
+                || packages.sort().find((p) => p.name === this._name))
             .then((pkg) => {
                 this._toolDirectory = pkg.path;
                 return Tool.dub.build(pkg, 'release', this._buildConfig);
