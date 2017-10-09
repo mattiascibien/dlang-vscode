@@ -134,16 +134,13 @@
             }
         },
         {
-            "match": "\\b(enum)\\s*(?:\\s(\\w+)(?:\\s*:\\s*(\\w+))?\\s*)?(?=\\{|$)",
+            "match": "\\b(enum)\\s+(\\w+)(?:\\s*:)?",
             "captures": {
                 "1": {
                     "name": "storage.type.enum.d"
                 },
                 "2": {
                     "name": "entity.name.enum.d"
-                },
-                "3": {
-                    "name": "entity.other.inherited-class.enum.d"
                 }
             }
         },
