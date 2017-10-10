@@ -134,17 +134,6 @@
             }
         },
         {
-            "match": "\\b(enum)\\s+(\\w+)(?:\\s*:)?",
-            "captures": {
-                "1": {
-                    "name": "storage.type.enum.d"
-                },
-                "2": {
-                    "name": "entity.name.enum.d"
-                }
-            }
-        },
-        {
             "match": "\\b(struct)\\s+(\\w+)?",
             "captures": {
                 "1": {
