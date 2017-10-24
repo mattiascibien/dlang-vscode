@@ -524,7 +524,7 @@
             "match": "\\b(Error|Exception|Interface|Object|OffsetTypeInfo|RTInfo|Throwable|TypeInfo|TypeInfo_Class)\\b"
         },
         {
-            "match": "\\b([a-z_]\\w*)\\s*(!)(?!=)",
+            "match": "\\b([a-z_]\\w*)\\s*(!)(?!=|is)",
             "captures": {
                 "1": {
                     "name": "entity.name.function.d",
