@@ -106,16 +106,13 @@
             }
         },
         {
-            "match": "\\b(class)\\s+(\\w+)(?:\\s*:\\s*(\\w+))?",
+            "match": "\\b(class)\\s+(\\w+)",
             "captures": {
                 "1": {
                     "name": "storage.type.class.d"
                 },
                 "2": {
                     "name": "entity.name.class.d"
-                },
-                "3": {
-                    "name": "entity.other.inherited-class.class.d"
                 }
             }
         },
