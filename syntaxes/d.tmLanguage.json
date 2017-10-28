@@ -688,7 +688,7 @@
         },
         "functions-support": {
             "name": "support.function.d",
-            "match": "\\b(destroy|factory|opAssign|opBinary|opBinaryRight|opCall|opCmp|opDispatch|opDollar|opEquals|opIndexAssign|opIndexOpAssign|opIndexUnary|opOpAssign|opSlice|opUnary|toHash|toString)\\b"
+            "match": "\\b(destroy|factory|opAssign|opBinary|opBinaryRight|opCall|opCmp|opDispatch|opDollar|opEquals|opIndex|opIndexAssign|opIndexOpAssign|opIndexUnary|opOpAssign|opSlice|opUnary|toHash|toString)\\b"
         },
         ".util-count-braces": {
             "name": "meta.block.d",
