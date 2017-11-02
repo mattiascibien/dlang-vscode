@@ -204,7 +204,7 @@
         },
         {
             "contentName": "meta.parens.d",
-            "begin": "\\b(__traits)\\s*((\\()\\s*(isAbstractClass|isArithmetic|isAssociativeArray|isFinalClass|isPOD|isNested|isFloating|isIntegral|isScalar|isStaticArray|isUnsigned|isVirtualFunction|isVirtualMethod|isAbstractFunction|isFinalFunction|isStaticFunction|isOverrideFunction|isTemplate|isRef|isOut|isLazy|hasMember|identifier|getAliasThis|getAttributes|getFunctionAttributes|getFunctionVariadicStyle|getLinkage|getMember|getOverloads|getParameterStorageClasses|getPointerBitmap|getProtection|getVirtualFunctions|getVirtualMethods|getUnitTests|parent|classInstanceSize|getVirtualIndex|allMembers|derivedMembers|isSame|compiles))",
+            "begin": "\\b(__traits)\\s*((\\()\\s*(?:(isAbstractClass|isArithmetic|isAssociativeArray|isFinalClass|isPOD|isNested|isFloating|isIntegral|isScalar|isStaticArray|isUnsigned|isVirtualFunction|isVirtualMethod|isAbstractFunction|isFinalFunction|isStaticFunction|isOverrideFunction|isTemplate|isRef|isOut|isLazy|hasMember|identifier|getAliasThis|getAttributes|getFunctionAttributes|getFunctionVariadicStyle|getLinkage|getMember|getOverloads|getParameterStorageClasses|getPointerBitmap|getProtection|getVirtualFunctions|getVirtualMethods|getUnitTests|parent|classInstanceSize|getVirtualIndex|allMembers|derivedMembers|isSame|isDeprecated|compiles)|(\\w+)))\\b",
             "end": "\\)",
             "beginCaptures": {
                 "1": {
@@ -218,6 +218,9 @@
                 },
                 "4": {
                     "name": "support.constant.trait.d"
+                },
+                "5": {
+                    "name": "constant.language.trait.d"
                 }
             },
             "endCaptures": {
