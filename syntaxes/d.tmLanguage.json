@@ -481,7 +481,7 @@
         },
         {
             "name": "storage.modifier.visibility.d",
-            "match": "\\b(export|package|private|protcted|public)\\b"
+            "match": "\\b(export|package|private|protected|public)\\b"
         },
         {
             "name": "storage.modifier.d",
