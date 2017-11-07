@@ -7,7 +7,7 @@ export const D_MODE = { language: 'd', scheme: 'file' };
 export function getRootPath() {
     return vsc.workspace.workspaceFolders
         ? vsc.window.activeTextEditor
-            ? vsc.workspace.getWorkspaceFolder(vsc.window.activeTextEditor.document.uri).uri.fsPath
+            ? (vsc.workspace.getWorkspaceFolder(vsc.window.activeTextEditor.document.uri) || vsc.workspace.workspaceFolders[0]).uri.fsPath
             : vsc.workspace.workspaceFolders[0].uri.fsPath
         : null;
 };
