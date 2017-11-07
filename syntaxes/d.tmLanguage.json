@@ -509,7 +509,7 @@
         },
         {
             "name": "variable.language.d",
-            "match": "\\b(super|this|__parameters)\\b"
+            "match": "\\b(super|this|version|__parameters)\\b"
         },
         {
             "match": "(?<=\\.)\\s*(alignof|assumeSafeAppend|capacity|classinfo|clear|dig|dup|epsilon|hashOf|idup|im|infinity|init|keys|mangleof|mant_dig|max|max(?:_10)?_exp|min(?:_10)?_exp|min_normal|nan|ptr|re|rehash|reserve|sizeof|stringof|values)\\b",
