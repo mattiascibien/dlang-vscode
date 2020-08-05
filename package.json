@@ -547,6 +547,6 @@
         "xml2js": "^0.4.19"
     },
     "extensionDependencies": [
-        "LaurentTreguier.sdlang"
+        "laurenttreguier.vscode-dls"
     ]
 }
